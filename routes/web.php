@@ -25,5 +25,6 @@ Route::group([
     // your CRUD resources and other admin routes here
     CRUD::resource('metric', 'MetricCrudController');
     CRUD::resource('category', 'CategoryCrudController');
+    CRUD::resource('inventory', 'InventoryCrudController');
 
 });
