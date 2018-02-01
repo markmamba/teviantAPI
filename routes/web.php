@@ -26,5 +26,6 @@ Route::group([
     CRUD::resource('metric', 'MetricCrudController');
     CRUD::resource('category', 'CategoryCrudController');
     CRUD::resource('inventory', 'InventoryCrudController');
+    CRUD::resource('location', 'LocationCrudController');
 
 });
