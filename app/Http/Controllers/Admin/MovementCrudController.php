@@ -9,11 +9,12 @@ use App\Http\Requests\InventoryStockMovementRequest as StoreRequest;
 use App\Http\Requests\InventoryStockMovementRequest as UpdateRequest;
 use Illuminate\Support\Facades\Route;
 
-class InventoryStockMovementCrudController extends CrudController
+class MovementCrudController extends CrudController
 {
     public function setup()
     {
-        $route = route(Route::currentRouteName(), request()->stock);
+        // WIP
+        // $route = route(Route::currentRouteName(), request()->stock);
 
         /*
         |--------------------------------------------------------------------------
@@ -21,7 +22,7 @@ class InventoryStockMovementCrudController extends CrudController
         |--------------------------------------------------------------------------
         */
         $this->crud->setModel('App\Models\InventoryStockMovement');
-        $this->crud->setRoute($route);
+        $this->crud->setRoute(config('backpack.base.route_prefix') . '/movement');
         $this->crud->setEntityNameStrings('movement', 'movements');
 
         /*
@@ -119,10 +120,9 @@ class InventoryStockMovementCrudController extends CrudController
     //     $this->data['crud'] = $this->crud;
     //     $this->data['title'] = ucfirst($this->crud->entity_name_plural);
 
-    //     // dd($this->crud->getListView());
+    //     // dd($this->data);
 
-    //     // load the view from /resources/views/vendor/backpack/crud/ if it exists, otherwise load the one in the package
-    //     return view($this->crud->getListView(), $this->data);
+    //     return view('admin.stocks.list', $this->data);
     // }
 
     public function update(UpdateRequest $request)

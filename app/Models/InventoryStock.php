@@ -61,7 +61,7 @@ class InventoryStock extends Model
     public function movementsButton($crud = false)
     {
         // dd($crud);
-        $route = route('crud.movements.index', $this->id);
+        $route = route('crud.movement.index');
 
         return '<a class="btn btn-xs btn-default" href="' . $route . '" data-toggle="tooltip" title="Manage stock movements"><i class="fa fa-exchange"></i> Movements</a>';
     }

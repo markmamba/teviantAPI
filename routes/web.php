@@ -27,14 +27,8 @@ Route::group([
     CRUD::resource('category', 'CategoryCrudController');
     CRUD::resource('inventory', 'InventoryCrudController');
     CRUD::resource('location', 'LocationCrudController');
-    CRUD::resource('stock', 'InventoryStockCrudController')->with(function() {
-
-        // Stock movements
-        Route::group(['prefix' => 'stock/{stock}'], function() {
-            CRUD::resource('movements', 'InventoryStockMovementCrudController');
-            // Route::get('new', 'InventoryStockMovementCrudController@new')->name('new');
-        });
-    });
+    CRUD::resource('stock', 'InventoryStockCrudController');
+    CRUD::resource('movement', 'MovementCrudController');
     CRUD::resource('supplier', 'SupplierCrudController');
 
 });
