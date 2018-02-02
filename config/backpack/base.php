@@ -12,20 +12,20 @@ return [
     */
 
     // Project name. Shown in the breadcrumbs and a few other places.
-    'project_name' => 'Backpack',
+    'project_name' => 'Teviant Inventory',
 
     // Menu logos
-    'logo_lg'   => '<b>Back</b>pack',
-    'logo_mini' => '<b>B</b>p',
+    'logo_lg'   => '<b>Teviant</b> Inventory',
+    'logo_mini' => '<b>t</b>i',
 
     // Developer or company name. Shown in footer.
-    'developer_name' => 'Cristian Tabacitu',
+    'developer_name' => 'Boomtech.co',
 
     // Developer website. Link in footer.
-    'developer_link' => 'http://tabacitu.ro',
+    'developer_link' => 'http://boomtech.co',
 
     // Show powered by Laravel Backpack in the footer?
-    'show_powered_by' => true,
+    'show_powered_by' => false,
 
     // The AdminLTE skin. Affects menu color and primary/secondary colors used throughout the application.
     'skin' => 'skin-purple',
