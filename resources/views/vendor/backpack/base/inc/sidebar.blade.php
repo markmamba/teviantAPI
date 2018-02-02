@@ -13,6 +13,14 @@
           <!-- ==== Recommended place for admin menu items ==== -->
           <!-- ================================================ -->
           <li><a href="{{ backpack_url('dashboard') }}"><i class="fa fa-dashboard"></i> <span>{{ trans('backpack::base.dashboard') }}</span></a></li>
+        
+          {{-- Metrics --}}
+          <li><a href="{{ backpack_url('metric') }}"><i class="fa fa-balance-scale"></i> <span>Metrics</span></a></li>
+          {{-- Category --}}
+          <li><a href="{{ backpack_url('category') }}"><i class="fa fa-tags"></i> <span>Categories</span></a></li>
+          {{-- Inventories --}}
+          <li><a href="{{ backpack_url('inventory') }}"><i class="fa fa-archive"></i> <span>Inventories</span></a></li>
+
           <li><a href="{{  backpack_url('elfinder') }}"><i class="fa fa-files-o"></i> <span>Files</span></a></li>
 
           {{-- Users, Roles Permissions --}}
