@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Models\Inventory;
 use App\Models\InventoryStock;
 use App\Models\Location;
+use Illuminate\Http\Request;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 
 // VALIDATION: change the requests to match your own file names if you need form validation
@@ -181,6 +182,9 @@ class InventoryStockCrudController extends CrudController
         // $this->crud->removeButtonFromStack($name, $stack);
         // $this->crud->removeAllButtons();
         // $this->crud->removeAllButtonsFromStack('line');
+        
+        $this->crud->addButtonFromModelFunction('line', 'subtract_stock', 'subtractStock', 'beginning');
+        $this->crud->addButtonFromModelFunction('line', 'add_stock', 'addStock', 'beginning');
 
         // ------ CRUD ACCESS
         // $this->crud->allowAccess(['list', 'create', 'update', 'reorder', 'delete']);
@@ -247,6 +251,15 @@ class InventoryStockCrudController extends CrudController
         // your additional operations after save here
         // use $this->data['entry'] or $this->crud->entry
         return $redirect_location;
+    }
+
+    /**
+     * [add description]
+     * @param Request $request
+     */
+    public function add(Request $request)
+    {
+        return view('admin.stocks.add');
     }
 
     private function storeCrudCustom(StoreRequest $request)

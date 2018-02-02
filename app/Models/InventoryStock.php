@@ -39,6 +39,19 @@ class InventoryStock extends Model
     | FUNCTIONS
     |--------------------------------------------------------------------------
     */
+    public function addStock($crud = false)
+    {
+        $route = route('crud.stock.add', $this->id);
+
+        return '<a class="btn btn-xs btn-default" href="' . $route . '" data-toggle="tooltip" title="Add stock"><i class="fa fa-plus"></i> Add</a>';
+    }
+
+    public function subtractStock($crud = false)
+    {
+        $route = route('crud.stock.add', $this->id);
+
+        return '<a class="btn btn-xs btn-default" href="' . $route . '" data-toggle="tooltip" title="Subtract stock"><i class="fa fa-minus"></i> Subtract</a>';
+    }
 
     /*
     |--------------------------------------------------------------------------
