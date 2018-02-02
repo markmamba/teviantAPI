@@ -5,10 +5,10 @@ namespace App\Http\Controllers\Admin;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 
 // VALIDATION: change the requests to match your own file names if you need form validation
-use App\Http\Requests\InventoryRequest as StoreRequest;
-use App\Http\Requests\InventoryRequest as UpdateRequest;
+use App\Http\Requests\InventoryStockMovementRequest as StoreRequest;
+use App\Http\Requests\InventoryStockMovementRequest as UpdateRequest;
 
-class InventoryCrudController extends CrudController
+class InventoryStockMovementCrudController extends CrudController
 {
     public function setup()
     {
@@ -18,9 +18,9 @@ class InventoryCrudController extends CrudController
         | BASIC CRUD INFORMATION
         |--------------------------------------------------------------------------
         */
-        $this->crud->setModel('App\Models\Inventory');
-        $this->crud->setRoute(config('backpack.base.route_prefix') . '/inventory');
-        $this->crud->setEntityNameStrings('inventory', 'inventories');
+        $this->crud->setModel('App\Models\InventoryStockMovement');
+        $this->crud->setRoute(config('backpack.base.route_prefix') . '/inventorystockmovement');
+        $this->crud->setEntityNameStrings('inventorystockmovement', 'inventory_stock_movements');
 
         /*
         |--------------------------------------------------------------------------
@@ -28,65 +28,13 @@ class InventoryCrudController extends CrudController
         |--------------------------------------------------------------------------
         */
 
-        // $this->crud->setFromDb();
+        $this->crud->setFromDb();
 
         // ------ CRUD FIELDS
         // $this->crud->addField($options, 'update/create/both');
         // $this->crud->addFields($array_of_arrays, 'update/create/both');
         // $this->crud->removeField('name', 'update/create/both');
         // $this->crud->removeFields($array_of_names, 'update/create/both');
-        
-        $this->crud->addField([  // Select2
-           'label'     => 'Metric',
-           'type'      => 'select2',
-           'name'      => 'metric_id', // the db column for the foreign key
-           'entity'    => 'metric', // the method that defines the relationship in your Model
-           'attribute' => 'name', // foreign key attribute that is shown to user
-           // 'wrapperAttributes' => [
-           //     'class' => 'form-group col-md-6'
-           //   ], // extra HTML attributes for the field wrapper - mostly for resizing fields
-            // 'tab' => 'Basic Info',
-        ]);
-
-        $this->crud->addField([  // Select2
-           'label'     => 'Category',
-           'type'      => 'select2',
-           'name'      => 'category_id', // the db column for the foreign key
-           'entity'    => 'category', // the method that defines the relationship in your Model
-           'attribute' => 'name', // foreign key attribute that is shown to user
-           // 'wrapperAttributes' => [
-           //     'class' => 'form-group col-md-6'
-           //   ], // extra HTML attributes for the field wrapper - mostly for resizing fields
-            // 'tab' => 'Basic Info',
-        ]);
-
-        $this->crud->addField([ // Text
-            'name'  => 'name',
-            'label' => 'Name',
-            'type'  => 'text',
-            // 'tab'   => 'Texts',
-
-            // optional
-            //'prefix' => '',
-            //'suffix' => '',
-            //'default'    => 'some value', // default value
-            //'hint'       => 'Some hint text', // helpful text, show up after input
-            //'attributes' => [
-               //'placeholder' => 'Some text when empty',
-               //'class' => 'form-control some-class'
-             //], // extra HTML attributes and values your input might need
-             //'wrapperAttributes' => [
-               //'class' => 'form-group col-md-12'
-             //], // extra HTML attributes for the field wrapper - mostly for resizing fields
-             //'readonly'=>'readonly',
-        ]);
-
-        $this->crud->addField([   // Textarea
-            'name'  => 'description',
-            'label' => 'Description',
-            'type'  => 'textarea',
-            // 'tab'   => 'Texts',
-        ]);
 
         // ------ CRUD COLUMNS
         // $this->crud->addColumn(); // add a single column, at the end of the stack
@@ -95,36 +43,6 @@ class InventoryCrudController extends CrudController
         // $this->crud->removeColumns(['column_name_1', 'column_name_2']); // remove an array of columns from the stack
         // $this->crud->setColumnDetails('column_name', ['attribute' => 'value']); // adjusts the properties of the passed in column (by name)
         // $this->crud->setColumnsDetails(['column_1', 'column_2'], ['attribute' => 'value']);
-        
-        $this->crud->addColumn([
-           // 1-n relationship
-           'label'     => 'SKU', // Table column heading
-           'type'      => 'select',
-           'name'      => 'inventory_id', // the column that contains the ID of that connected entity;
-           'entity'    => 'sku', // the method that defines the relationship in your Model
-           'attribute' => 'code', // foreign key attribute that is shown to user
-        ]);
-
-        // $this->crud->addColumn(); // add a single column, at the end of the stack
-        $this->crud->addColumns(['name', 'description']); // add multiple columns, at the end of the stack
-
-        $this->crud->addColumn([
-           // 1-n relationship
-           'label'     => 'Category', // Table column heading
-           'type'      => 'select',
-           'name'      => 'category_id', // the column that contains the ID of that connected entity;
-           'entity'    => 'category', // the method that defines the relationship in your Model
-           'attribute' => 'name', // foreign key attribute that is shown to user
-        ]);
-
-        $this->crud->addColumn([
-           // 1-n relationship
-           'label'     => 'Metric', // Table column heading
-           'type'      => 'select',
-           'name'      => 'metric_id', // the column that contains the ID of that connected entity;
-           'entity'    => 'metric', // the method that defines the relationship in your Model
-           'attribute' => 'name', // foreign key attribute that is shown to user
-        ]);
 
         // ------ CRUD BUTTONS
         // possible positions: 'beginning' and 'end'; defaults to 'beginning' for the 'line' stack, 'end' for the others;

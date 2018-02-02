@@ -22,6 +22,8 @@
           <li><a href="{{ backpack_url('inventory') }}"><i class="fa fa-archive"></i> <span>Inventories</span></a></li>
           {{-- Locations --}}
           <li><a href="{{ backpack_url('location') }}"><i class="fa fa-map-pin"></i> <span>Locations</span></a></li>
+          {{-- Stock --}}
+          <li><a href="{{ backpack_url('stock') }}"><i class="fa fa-bars"></i> <span>Stocks</span></a></li>
           {{-- Suppliers --}}
           <li><a href="{{ backpack_url('supplier') }}"><i class="fa fa-truck"></i> <span>Suppliers</span></a></li>
 

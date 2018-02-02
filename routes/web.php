@@ -27,6 +27,10 @@ Route::group([
     CRUD::resource('category', 'CategoryCrudController');
     CRUD::resource('inventory', 'InventoryCrudController');
     CRUD::resource('location', 'LocationCrudController');
+    CRUD::resource('stock', 'InventoryStockCrudController')->with(function() {
+        Route::get('stock/{stock}/add', 'InventoryStockCrudController@add')->name('crud.stock.add');
+        Route::get('stock/{stock}/subtract', 'InventoryStockCrudController@subtract')->name('crud.stock.subtract');
+    });
     CRUD::resource('supplier', 'SupplierCrudController');
 
 });
