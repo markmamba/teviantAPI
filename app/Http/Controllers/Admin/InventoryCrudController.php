@@ -96,6 +96,15 @@ class InventoryCrudController extends CrudController
         // $this->crud->setColumnDetails('column_name', ['attribute' => 'value']); // adjusts the properties of the passed in column (by name)
         // $this->crud->setColumnsDetails(['column_1', 'column_2'], ['attribute' => 'value']);
         
+        $this->crud->addColumn([
+           // 1-n relationship
+           'label'     => 'SKU', // Table column heading
+           'type'      => 'select',
+           'name'      => 'inventory_id', // the column that contains the ID of that connected entity;
+           'entity'    => 'sku', // the method that defines the relationship in your Model
+           'attribute' => 'code', // foreign key attribute that is shown to user
+        ]);
+
         // $this->crud->addColumn(); // add a single column, at the end of the stack
         $this->crud->addColumns(['name', 'description']); // add multiple columns, at the end of the stack
 
