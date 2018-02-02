@@ -39,18 +39,31 @@ class InventoryStock extends Model
     | FUNCTIONS
     |--------------------------------------------------------------------------
     */
-    public function addStock($crud = false)
+    // public function addStock($crud = false)
+    // {
+    //     $route = route('crud.stock.add', $this->id);
+
+    //     return '<a class="btn btn-xs btn-default" href="' . $route . '" data-toggle="tooltip" title="Add stock"><i class="fa fa-plus"></i> Add</a>';
+    // }
+
+    // public function subtractStock($crud = false)
+    // {
+    //     $route = route('crud.stock.add', $this->id);
+
+    //     return '<a class="btn btn-xs btn-default" href="' . $route . '" data-toggle="tooltip" title="Subtract stock"><i class="fa fa-minus"></i> Subtract</a>';
+    // }
+
+    /**
+     * Get the HTML button for the link to the stock's movements.
+     * @param  boolean $crud
+     * @return string
+     */
+    public function movementsButton($crud = false)
     {
-        $route = route('crud.stock.add', $this->id);
+        // dd($crud);
+        $route = route('crud.movements.index', $this->id);
 
-        return '<a class="btn btn-xs btn-default" href="' . $route . '" data-toggle="tooltip" title="Add stock"><i class="fa fa-plus"></i> Add</a>';
-    }
-
-    public function subtractStock($crud = false)
-    {
-        $route = route('crud.stock.add', $this->id);
-
-        return '<a class="btn btn-xs btn-default" href="' . $route . '" data-toggle="tooltip" title="Subtract stock"><i class="fa fa-minus"></i> Subtract</a>';
+        return '<a class="btn btn-xs btn-default" href="' . $route . '" data-toggle="tooltip" title="Manage stock movements"><i class="fa fa-exchange"></i> Movements</a>';
     }
 
     /*
