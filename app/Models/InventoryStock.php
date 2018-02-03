@@ -102,6 +102,20 @@ class InventoryStock extends Model
     | ACCESORS
     |--------------------------------------------------------------------------
     */
+   
+    /**
+     * Get the distant related SKU code.
+     * @return string The SKU code of the stock.
+     */
+    public function getSkuCodeAttribute($value)
+    {
+        return $this->item->sku_code;
+    }
+
+    public function getNameAttribute($value)
+    {
+        return $this->item->name;
+    }
 
     /*
     |--------------------------------------------------------------------------

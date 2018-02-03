@@ -31,7 +31,7 @@ class MovementCrudController extends CrudController
         |--------------------------------------------------------------------------
         */
 
-        $this->crud->setFromDb();
+        // $this->crud->setFromDb();
 
         // ------ CRUD FIELDS
         // $this->crud->addField($options, 'update/create/both');
@@ -46,6 +46,36 @@ class MovementCrudController extends CrudController
         // $this->crud->removeColumns(['column_name_1', 'column_name_2']); // remove an array of columns from the stack
         // $this->crud->setColumnDetails('column_name', ['attribute' => 'value']); // adjusts the properties of the passed in column (by name)
         // $this->crud->setColumnsDetails(['column_1', 'column_2'], ['attribute' => 'value']);
+
+        $this->crud->addColumn([
+           // 1-n relationship
+           'label'     => 'SKU', // Table column heading
+           'type'      => 'select',
+           'name'      => 'stock_id', // the column that contains the ID of that connected entity;
+           'entity'    => 'stock', // the method that defines the relationship in your Model
+           'attribute' => 'sku_code', // foreign key attribute that is shown to user
+        ]);
+
+        $this->crud->addColumn([
+           // 1-n relationship
+           'label'     => 'Name', // Table column heading
+           'type'      => 'select',
+           'name'      => 'stock_id', // the column that contains the ID of that connected entity;
+           'entity'    => 'stock', // the method that defines the relationship in your Model
+           'attribute' => 'name', // foreign key attribute that is shown to user
+        ]);
+
+        $this->crud->addColumns(['before', 'after', 'cost', 'reason', 'created_at']);
+
+        $this->crud->addColumn([
+           // 1-n relationship
+           'label'     => 'User', // Table column heading
+           'type'      => 'select',
+           'name'      => 'user_id', // the column that contains the ID of that connected entity;
+           'entity'    => 'user', // the method that defines the relationship in your Model
+           'attribute' => 'name', // foreign key attribute that is shown to user
+           'tab'       => 'Primary',
+        ]);
 
         // ------ CRUD BUTTONS
         // possible positions: 'beginning' and 'end'; defaults to 'beginning' for the 'line' stack, 'end' for the others;
@@ -100,6 +130,19 @@ class MovementCrudController extends CrudController
         // $this->crud->orderBy();
         // $this->crud->groupBy();
         // $this->crud->limit();
+        
+        $this->crud->addFilter([ // select2_ajax filter
+            'name' => 'stock_id',
+            'type' => 'select2_ajax',
+            'label'=> 'Stock',
+            'placeholder' => 'Pick a stock'
+            ],
+            url('admin/ajax/stock-options'), // the ajax route
+            function($value) { // if the filter is active
+                $this->crud->with('stock.item');
+                $this->crud->addClause('where', 'stock.item.name', $value);
+            }
+        );
     }
 
     public function store(StoreRequest $request)

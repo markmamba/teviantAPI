@@ -45,7 +45,12 @@ class InventoryStockMovement extends Model
     */
     public function stock()
     {
-        return $this->belongsTo('InventoryStock', 'stock_id', 'id');
+        return $this->belongsTo('App\Models\InventoryStock', 'stock_id', 'id');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo('App\User', 'user_id', 'id');
     }
 
     /*
