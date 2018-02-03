@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Models\InventoryStockMovement;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 
 // VALIDATION: change the requests to match your own file names if you need form validation
@@ -137,10 +138,10 @@ class MovementCrudController extends CrudController
             'label'=> 'Stock',
             'placeholder' => 'Pick a stock'
             ],
-            url('admin/ajax/stock-options'), // the ajax route
+            url('admin/ajax/movement-options'), // the ajax route
             function($value) { // if the filter is active
                 $this->crud->with('stock.item');
-                $this->crud->addClause('where', 'stock.item.name', $value);
+                $this->crud->addClause('where', 'id', $value);
             }
         );
     }
@@ -176,4 +177,17 @@ class MovementCrudController extends CrudController
         // use $this->data['entry'] or $this->crud->entry
         return $redirect_location;
     }
+
+    public function stockOptions() {
+        $term = $this->request->input('term');
+        
+        // WIP: select where the stock movement's item.name/item.sku_de = $term
+        $options = InventoryStockMovement::with(['stock.item' => function ($query) use ($term) {
+            // $query->where('name', 'like', '%'.$term.'%');
+        }])->get();
+
+        // return $options;
+        return $options->pluck('stock.item.name', 'id');
+    }
+
 }

@@ -29,7 +29,7 @@ Route::group([
     CRUD::resource('location', 'LocationCrudController');
     CRUD::resource('stock', 'InventoryStockCrudController');
     
-    Route::get('ajax/stock-options', 'InventoryStockCrudController@stockOptions');
+    Route::get('ajax/movement-options', 'MovementCrudController@stockOptions');
     CRUD::resource('movement', 'MovementCrudController');
 
     CRUD::resource('supplier', 'SupplierCrudController');

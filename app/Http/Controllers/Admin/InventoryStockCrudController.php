@@ -263,19 +263,7 @@ class InventoryStockCrudController extends CrudController
     {
         return view('admin.stocks.add');
     }
-
-    public function stockOptions() {
-        $term = $this->request->input('term');
-        // $options = InventoryStock::where('name', 'like', '%'.$term.'%')->get();
-        $options = Inventory::where('name', 'like', '%'.$term.'%')->get();
-        
-        // $options = InventoryStock::with(['item' => function ($query) use ($term) {
-        //     $query->where('name', 'like', '%'.$term.'%');
-        // }])->get();
-
-        return $options->pluck('name', 'id');
-    }
-
+    
     private function storeCrudCustom(StoreRequest $request)
     {
         // dd($request->all());
