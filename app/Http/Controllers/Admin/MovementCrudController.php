@@ -57,7 +57,7 @@ class MovementCrudController extends CrudController
            'attribute' => 'sku_code', // foreign key attribute that is shown to user
            'key'       => 'stock_sku_code'
         ]);
-        
+
         $this->crud->addColumn([
            // 1-n relationship
            'label'     => 'Name', // Table column heading
@@ -137,10 +137,10 @@ class MovementCrudController extends CrudController
         $this->crud->addFilter([ // select2_ajax filter
             'name' => 'stock_id',
             'type' => 'select2_ajax',
-            'label'=> 'Stock',
-            'placeholder' => 'Pick a stock'
+            'label'=> 'Name',
+            'placeholder' => 'Pick a stock name'
             ],
-            url('admin/ajax/movement-options'), // the ajax route
+            url('admin/ajax/inventory-name-options'), // the ajax route
             function($value) { // if the filter is active
                 $this->crud->with('stock.item');
                 $this->crud->addClause('where', 'id', $value);
@@ -180,13 +180,15 @@ class MovementCrudController extends CrudController
         return $redirect_location;
     }
 
-    public function stockOptions() {
+    public function inventoryNameOptions() {
         $term = $this->request->input('term');
         
         // WIP: select where the stock movement's item.name/item.sku_de = $term
-        $options = InventoryStockMovement::with(['stock.item' => function ($query) use ($term) {
-            // $query->where('name', 'like', '%'.$term.'%');
-        }])->get();
+        $options = InventoryStockMovement::with('stock.item')
+            ->whereHas('stock.item', function ($query) use ($term) {
+                $query->where('name', 'like', '%'.$term.'%');
+            })
+            ->get();
 
         // return $options;
         return $options->pluck('stock.item.name', 'id');
