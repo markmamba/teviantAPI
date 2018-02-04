@@ -50,23 +50,41 @@ class MovementCrudController extends CrudController
 
         $this->crud->addColumn([
            // 1-n relationship
-           'label'     => 'SKU', // Table column heading
-           'type'      => 'select',
-           'name'      => 'stock_id', // the column that contains the ID of that connected entity;
-           'entity'    => 'stock', // the method that defines the relationship in your Model
-           'attribute' => 'sku_code', // foreign key attribute that is shown to user
-           'key'       => 'stock_sku_code'
+            'label'     => 'SKU', // Table column heading
+            'type'      => 'select',
+            'name'      => 'stock_id', // the column that contains the ID of that connected entity;
+            'entity'    => 'stock', // the method that defines the relationship in your Model
+            'attribute' => 'sku_code', // foreign key attribute that is shown to user
+            'key'       => 'stock_sku_code',
+            'model' => "App\Models\InventoryStock",
+                'searchLogic' => function ($query, $column, $searchTerm) {
+                        $query->orWhereHas('stock.item.sku', function ($query) use ($column, $searchTerm) {
+                            $query->where('code', 'like', '%'.$searchTerm.'%');
+                        });
+                    }
         ]);
 
+        // 1-n relationship column with custom search logic
         $this->crud->addColumn([
-           // 1-n relationship
-           'label'     => 'Name', // Table column heading
-           'type'      => 'select',
-           'name'      => 'stock_id', // the column that contains the ID of that connected entity;
-           'entity'    => 'stock', // the method that defines the relationship in your Model
-           'attribute' => 'name', // foreign key attribute that is shown to user
-           'key'       => 'stock_name'
+            'label'     => 'Name', // Table column heading
+            'type'      => 'select',
+            'name'      => 'stock_id', // the column that contains the ID of that connected entity;
+            'entity'    => 'stock', // the method that defines the relationship in your Model
+            'attribute' => 'name', // foreign key attribute that is shown to user
+            'key'       => 'stock_name',
+            'model' => "App\Models\InventoryStockMovement",
+                'searchLogic' => function ($query, $column, $searchTerm) {
+                    $query->orWhereHas('stock.item', function ($query) use ($column, $searchTerm) {
+                        $query->where('name', 'like', '%'.$searchTerm.'%');
+                    });
+                }
         ]);
+
+        // $options = InventoryStockMovement::with('stock.item')
+        //     ->whereHas('stock.item', function ($query) use ($term) {
+        //         $query->where('name', 'like', '%'.$term.'%');
+        //     })
+        //     ->get();
 
         $this->crud->addColumns(['before', 'after', 'cost', 'reason', 'created_at']);
 
@@ -142,8 +160,8 @@ class MovementCrudController extends CrudController
             ],
             url('admin/ajax/inventory-name-options'), // the ajax route
             function($value) { // if the filter is active
-                $this->crud->with('stock.item');
-                $this->crud->addClause('where', 'id', $value);
+                // $this->crud->with('stock.item');
+                // $this->crud->addClause('where', 'id', $value);
             }
         );
     }
@@ -156,20 +174,6 @@ class MovementCrudController extends CrudController
         // use $this->data['entry'] or $this->crud->entry
         return $redirect_location;
     }
-
-    // public function index()
-    // {
-    //     // dd(request()->stock);
-
-    //     $this->crud->hasAccessOrFail('list');
-
-    //     $this->data['crud'] = $this->crud;
-    //     $this->data['title'] = ucfirst($this->crud->entity_name_plural);
-
-    //     // dd($this->data);
-
-    //     return view('admin.stocks.list', $this->data);
-    // }
 
     public function update(UpdateRequest $request)
     {
