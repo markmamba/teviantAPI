@@ -55,8 +55,9 @@ class MovementCrudController extends CrudController
            'name'      => 'stock_id', // the column that contains the ID of that connected entity;
            'entity'    => 'stock', // the method that defines the relationship in your Model
            'attribute' => 'sku_code', // foreign key attribute that is shown to user
+           'key'       => 'stock_sku_code'
         ]);
-
+        
         $this->crud->addColumn([
            // 1-n relationship
            'label'     => 'Name', // Table column heading
@@ -64,6 +65,7 @@ class MovementCrudController extends CrudController
            'name'      => 'stock_id', // the column that contains the ID of that connected entity;
            'entity'    => 'stock', // the method that defines the relationship in your Model
            'attribute' => 'name', // foreign key attribute that is shown to user
+           'key'       => 'stock_name'
         ]);
 
         $this->crud->addColumns(['before', 'after', 'cost', 'reason', 'created_at']);
