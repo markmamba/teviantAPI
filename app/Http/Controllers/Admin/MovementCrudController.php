@@ -184,6 +184,10 @@ class MovementCrudController extends CrudController
         return $redirect_location;
     }
 
+    /**
+     * AJAX filter: Inventory names options for the filtering stock names.
+     * @return array
+     */
     public function inventoryNameOptions() {
         $term = $this->request->input('term');
         
