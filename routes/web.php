@@ -27,7 +27,13 @@ Route::group([
     CRUD::resource('category', 'CategoryCrudController');
     CRUD::resource('inventory', 'InventoryCrudController');
     CRUD::resource('location', 'LocationCrudController');
+    
     CRUD::resource('stock', 'InventoryStockCrudController');
+    // !!! DIFFERENT ADMIN PANEL FOR STOCK MOVEMENTS
+    Route::group(['prefix' => 'stock/{stock_id}'], function()
+    {
+        CRUD::resource('movement', 'StockMovementCrudController');
+    });
     
     Route::get('ajax/inventory-name-options', 'MovementCrudController@inventoryNameOptions');
     CRUD::resource('movement', 'MovementCrudController');

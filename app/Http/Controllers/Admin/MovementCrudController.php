@@ -14,9 +14,6 @@ class MovementCrudController extends CrudController
 {
     public function setup()
     {
-        // WIP
-        // $route = route(Route::currentRouteName(), request()->stock);
-
         /*
         |--------------------------------------------------------------------------
         | BASIC CRUD INFORMATION

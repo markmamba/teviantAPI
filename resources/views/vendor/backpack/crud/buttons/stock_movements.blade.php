@@ -1,0 +1,1 @@
+<a href="{{ str_replace('search', '', $crud->request->url()) . $entry->getKey() }}/movement" class="btn btn-xs btn-default" title="View stock's movements">Movements</a>

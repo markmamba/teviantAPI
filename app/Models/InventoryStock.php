@@ -53,19 +53,6 @@ class InventoryStock extends Model
     //     return '<a class="btn btn-xs btn-default" href="' . $route . '" data-toggle="tooltip" title="Subtract stock"><i class="fa fa-minus"></i> Subtract</a>';
     // }
 
-    /**
-     * Get the HTML button for the link to the stock's movements.
-     * @param  boolean $crud
-     * @return string
-     */
-    public function movementsButton($crud = false)
-    {
-        // dd($crud);
-        $route = route('crud.movement.index');
-
-        return '<a class="btn btn-xs btn-default" href="' . $route . '" data-toggle="tooltip" title="Manage stock movements"><i class="fa fa-exchange"></i> Movements</a>';
-    }
-
     /*
     |--------------------------------------------------------------------------
     | RELATIONS
