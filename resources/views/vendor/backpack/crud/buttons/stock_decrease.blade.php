@@ -1,0 +1,1 @@
+<a href="#" class="btn btn-xs btn-default" title="Remove some stock"><i class="fa fa-minus"></i></a>

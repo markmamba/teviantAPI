@@ -186,6 +186,8 @@ class InventoryStockCrudController extends CrudController
         // $this->crud->addButtonFromModelFunction('line', 'subtract_stock', 'subtractStock', 'beginning');
         // $this->crud->addButtonFromModelFunction('line', 'add_stock', 'addStock', 'beginning');
         $this->crud->addButtonFromView('line', 'stock_movements', 'stock_movements', 'beginning');
+        $this->crud->addButtonFromView('line', 'stock_decrease', 'stock_decrease', 'beginning');
+        $this->crud->addButtonFromView('line', 'stock_increase', 'stock_increase', 'beginning');
 
         // ------ CRUD ACCESS
         // $this->crud->allowAccess(['list', 'create', 'update', 'reorder', 'delete']);

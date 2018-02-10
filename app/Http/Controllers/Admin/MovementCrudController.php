@@ -104,6 +104,8 @@ class MovementCrudController extends CrudController
         // $this->crud->removeButtonFromStack($name, $stack);
         // $this->crud->removeAllButtons();
         // $this->crud->removeAllButtonsFromStack('line');
+        
+        $this->crud->removeAllButtonsFromStack('line');
 
         // ------ CRUD ACCESS
         // $this->crud->allowAccess(['list', 'create', 'update', 'reorder', 'delete']);
@@ -158,7 +160,17 @@ class MovementCrudController extends CrudController
             url('admin/ajax/inventory-name-options'), // the ajax route
             function($value) { // if the filter is active
                 // $this->crud->with('stock.item');
-                // $this->crud->addClause('where', 'id', $value);
+                // $this->crud->addClause('where', 'name', $value);
+                $this->crud->addClause('whereHas', 'stock.item', function ($query) use ($value) {
+                    $query->where('name', 'like', '%'.$value.'%');
+                });
+
+                // function ($query, $column, $searchTerm) {
+                //         $query->orWhereHas('stock.item.sku', function ($query) use ($column, $searchTerm) {
+                //             $query->where('code', 'like', '%'.$searchTerm.'%');
+                //         });
+                //     }
+                
             }
         );
     }
