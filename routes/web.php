@@ -46,6 +46,11 @@ Route::group([
     Route::get('ajax/inventory-name-options', 'MovementCrudController@inventoryNameOptions');
     CRUD::resource('movement', 'MovementCrudController');
 
+    Route::group(['prefix' => 'movement/{movement_id}', 'as' => 'movement.'], function()
+    {
+        Route::post('rollback', 'MovementCrudController@rollback')->name('rollback');
+    });
+
     CRUD::resource('supplier', 'SupplierCrudController');
 
 });

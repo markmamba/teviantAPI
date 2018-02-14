@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use Illuminate\Http\Request;
 use App\Models\InventoryStockMovement;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 
@@ -105,7 +106,10 @@ class MovementCrudController extends CrudController
         // $this->crud->removeAllButtons();
         // $this->crud->removeAllButtonsFromStack('line');
         
-        $this->crud->removeAllButtonsFromStack('line');
+        // $this->crud->removeAllButtonsFromStack('line');
+        $this->crud->addButtonFromView('line', 'movement_rollback', 'movement_rollback', 'beginning');
+        $this->crud->removeButton('update');
+        $this->crud->removeButton('delete');
 
         // ------ CRUD ACCESS
         // $this->crud->allowAccess(['list', 'create', 'update', 'reorder', 'delete']);
@@ -209,6 +213,29 @@ class MovementCrudController extends CrudController
 
         // return $options;
         return $options->pluck('stock.item.name', 'id');
+    }
+
+    /**
+     * Trigger a rollback on a specific movement.
+     */
+    public function rollback(Request $request, $movement_id)
+    {
+        // dd($request, $movement_id);
+
+        $movement = InventoryStockMovement::find($movement_id);
+
+        try {
+            $movement->rollback();
+            
+            \Alert::success('Rollbacked movement.')->flash();
+
+            return redirect()->route('crud.movement.index');
+
+        } catch (\Exception $e) {
+            \Alert::error($e->getMessage())->flash();
+
+            return back();
+        }
     }
 
 }

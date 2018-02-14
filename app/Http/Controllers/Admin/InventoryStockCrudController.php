@@ -413,7 +413,7 @@ class InventoryStockCrudController extends CrudController
     public function getRemoveStock(Request $request, $stock_id)
     {
         // WIP setup permissions
-        // $this->crud->hasAccessOrFail('add');
+        // $this->crud->hasAccessOrFail('remove');
 
         $this->setupBasicCrudInformation();
 
