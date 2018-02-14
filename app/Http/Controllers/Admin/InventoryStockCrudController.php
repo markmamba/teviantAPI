@@ -6,6 +6,7 @@ use App\Models\Inventory;
 use App\Models\InventoryStock;
 use App\Models\Location;
 use App\Http\Requests\ReplenishStockRequest;
+use App\Http\Requests\DepleteStockRequest;
 use Illuminate\Http\Request;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 
@@ -370,7 +371,7 @@ class InventoryStockCrudController extends CrudController
             'name'  => 'reason',
             'label' => 'Reason',
             'type'  => 'text',
-            'tab'   => 'Optionals',
+            'tab'   => 'Optional',
         ]);
 
         // dd(
@@ -398,14 +399,74 @@ class InventoryStockCrudController extends CrudController
 
     public function getRemoveStock(Request $request, $stock_id)
     {
-        // 
+        // WIP setup permissions
+        // $this->crud->hasAccessOrFail('add');
+
+        $this->setupBasicCrudInformation();
+
+        $stock = InventoryStock::find($stock_id);
+
+        // get the info for that entry
+        $this->data['entry'] = $this->crud->getEntry($stock_id);
+        $this->data['crud'] = $this->crud;
+        $this->data['saveAction'] = $this->getSaveAction();
+        $this->data['fields'] = $this->crud->getUpdateFields($stock_id);
+        $this->data['title'] = 'Remove Stock';
+        $this->crud->route = route('post_remove_stock', $stock_id);
+
+        $this->data['id'] = $stock_id;
+
+        // Custom buttons
+        
+        $this->crud->addField([  // Select2
+           'label'     => 'Location',
+           'type'      => 'select2',
+           'name'      => 'location_id', // the db column for the foreign key
+           'entity'    => 'location', // the method that defines the relationship in your Model
+           'attribute' => 'name', // foreign key attribute that is shown to user
+           'default'   => $stock->location_id,
+            'tab'      => 'Primary',
+        ]);
+
+        /**
+         * Notice, new_quantity will be quantity.
+         * We use another name instead so the form is not
+         * auto-filled with the current value on the database.
+         */
+        $this->crud->addField([   // Number
+            'name'    => 'remove_quantity',
+            'label'   => 'Quantity',
+            'type'    => 'number',
+            'tab'     => 'Primary',
+            'default' => 0,
+        ]);
+
+        $this->crud->addField([   // Text
+            'name'  => 'reason',
+            'label' => 'Reason',
+            'type'  => 'text',
+            'tab'   => 'Optional',
+        ]);
+
+        return view('admin.stocks.remove', $this->data);
+
     }
 
-    public function postRemoveStock(Request $request, $stock_id)
+    public function postRemoveStock(DepleteStockRequest $request, $stock_id)
     {
-        // \Alert::info('Depleted stock on location.');
+        $stock = InventoryStock::find($stock_id);
         
-        return 'Deplete stock';
+        try {
+            $stock->remove($request->remove_quantity, $request->reason);
+
+            \Alert::info('Depleted stock on location.')->flash();
+
+            return redirect()->route('crud.stock.index');
+
+        } catch (\Stevebauman\Inventory\Exceptions\NotEnoughStockException $e) {
+            \Alert::warning($e->getMessage())->flash();
+            return back()->withInput();
+        }
     }
 
     private function setupBasicCrudInformation()
