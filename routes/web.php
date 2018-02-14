@@ -32,15 +32,15 @@ Route::group([
     // !!! DIFFERENT ADMIN PANEL FOR STOCK MOVEMENTS
     Route::group(['prefix' => 'stock/{stock_id}'], function()
     {
-        CRUD::resource('movement', 'StockMovementCrudController');
-        
         // Add stock routes
         Route::get('add', 'StockMovementCrudController@getAddStock')->name('get_add_stock');
-        Route::get('post-add', 'StockMovementCrudController@postAddStock')->name('post_add_stock');
+        Route::post('post-add', 'StockMovementCrudController@postAddStock')->name('post_add_stock');
 
         // Remove stock routes
         Route::get('remove', 'StockMovementCrudController@getRemoveStock')->name('get_remove_stock');
-        Route::get('post-remove', 'StockMovementCrudController@postRemoveStock')->name('post_remove_stock');
+        Route::post('post-remove', 'StockMovementCrudController@postRemoveStock')->name('post_remove_stock');
+
+        CRUD::resource('movement', 'StockMovementCrudController');
     });
     
     Route::get('ajax/inventory-name-options', 'MovementCrudController@inventoryNameOptions');
