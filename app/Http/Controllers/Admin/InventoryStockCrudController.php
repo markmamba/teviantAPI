@@ -82,7 +82,7 @@ class InventoryStockCrudController extends CrudController
             // 'wrapperAttributes' => [
             //    'class' => 'form-group col-md-6'
             //  ], // extra HTML attributes for the field wrapper - mostly for resizing fields
-            'tab'   => 'Primary',
+            'tab'   => 'Optional',
         ]);
 
         $this->crud->addField([   // Number
@@ -96,7 +96,7 @@ class InventoryStockCrudController extends CrudController
             // 'wrapperAttributes' => [
             //    'class' => 'form-group col-md-6'
             //  ], // extra HTML attributes for the field wrapper - mostly for resizing fields
-            'tab'   => 'Primary',
+            'tab'   => 'Optional',
         ]);
 
         // ------ CRUD COLUMNS
@@ -133,7 +133,7 @@ class InventoryStockCrudController extends CrudController
             'name'  => 'aisle',
             'label' => 'Aisle',
             'type'  => 'text',
-            'tab'   => 'Secondary',
+            'tab'   => 'Optional',
 
             // optional
             //'prefix' => '',
@@ -154,14 +154,14 @@ class InventoryStockCrudController extends CrudController
             'name'  => 'row',
             'label' => 'Row',
             'type'  => 'text',
-            'tab'   => 'Secondary',
+            'tab'   => 'Optional',
         ]);
 
         $this->crud->addField([ // Text
             'name'  => 'bin',
             'label' => 'Bin',
             'type'  => 'text',
-            'tab'   => 'Secondary',
+            'tab'   => 'Optional',
         ]);
 
 
