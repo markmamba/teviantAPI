@@ -47,7 +47,7 @@
 
 		    <div class="box-footer">
 
-                @include('crud::inc.form_save_buttons')
+                @include('admin.stocks.form_save_buttons')
 
 		    </div><!-- /.box-footer-->
 
