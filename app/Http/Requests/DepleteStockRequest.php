@@ -35,7 +35,11 @@ class DepleteStockRequest extends FormRequest
     public function messages()
     {
         return [
-            'remove_quantity.min' => 'The quantity must be at least :min',
+            'remove_quantity' => [
+                'required' => 'The quantity field is required.',
+                'numeric'  => 'The quantity field must be numeric.',
+                'min'      => 'The quantity must be at least :min.',
+            ],
         ];
     }
 

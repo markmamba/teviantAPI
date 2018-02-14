@@ -341,12 +341,12 @@ class InventoryStockCrudController extends CrudController
         ]);
 
         /**
-         * Notice, new_quantity will be quantity.
+         * Notice, add_quantity will be quantity.
          * We use another name instead so the form is not
          * auto-filled with the current value on the database.
          */
         $this->crud->addField([   // Number
-            'name'    => 'new_quantity',
+            'name'    => 'add_quantity',
             'label'   => 'Quantity',
             'type'    => 'number',
             'tab'     => 'Primary',
@@ -357,14 +357,14 @@ class InventoryStockCrudController extends CrudController
             'name'  => 'cost',
             'label' => 'Cost',
             'type'  => 'number',
-            'tab'   => 'Optionals',
+            'tab'   => 'Optional',
         ]);
 
         $this->crud->addField([   // Number
             'name'  => 'cost',
             'label' => 'Cost',
             'type'  => 'number',
-            'tab'   => 'Optionals',
+            'tab'   => 'Optional',
         ]);
 
         $this->crud->addField([   // Number
@@ -390,7 +390,7 @@ class InventoryStockCrudController extends CrudController
     {
         $location = Location::find($request->location_id);
         $stock = InventoryStock::find($stock_id);
-        $stock->add($request->new_quantity, $request->reason, $request->cost);
+        $stock->add($request->add_quantity, $request->reason, $request->cost);
 
         \Alert::info('Replenished stock on location.')->flash();
 
@@ -429,7 +429,7 @@ class InventoryStockCrudController extends CrudController
         ]);
 
         /**
-         * Notice, new_quantity will be quantity.
+         * Notice, remove_quantity will be quantity.
          * We use another name instead so the form is not
          * auto-filled with the current value on the database.
          */

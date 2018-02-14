@@ -26,7 +26,7 @@ class ReplenishStockRequest extends FormRequest
     {
         return [
             'location_id'  => 'required',
-            'new_quantity' => 'required|numeric|min:1',
+            'add_quantity' => 'required|numeric|min:1',
             'cost'         => 'nullable|numeric|min:0',
             'string'       => 'nullable|numeric',
         ];
@@ -35,7 +35,9 @@ class ReplenishStockRequest extends FormRequest
     public function messages()
     {
         return [
-            'new_quantity' => 'The :attribute must be at least :value',
+            'add_quantity.required' => 'The quantity field is required.',
+            'add_quantity.numeric'  => 'The quantity field must be numeric.',
+            'add_quantity.min'      => 'The quantity must be at least :min.',
         ];
     }
 }
