@@ -328,7 +328,20 @@ class InventoryStockCrudController extends CrudController
 
         $this->data['id'] = $stock_id;
 
-        // Custom buttons
+        // Custom fields
+        
+        $this->crud->addField([  // Select2
+            'label'     => 'Item',
+            'type'      => 'select2',
+            'name'      => 'inventory_id', // the db column for the foreign key
+            'entity'    => 'item', // the method that defines the relationship in your Model
+            'attribute' => 'name', // foreign key attribute that is shown to user
+            'default'   => $stock->inventory_id,
+            'tab'       => 'Primary',
+            'attributes' => [
+                'disabled' => 'disabled'
+            ],
+        ]);
         
         $this->crud->addField([  // Select2
            'label'     => 'Location',
@@ -416,16 +429,29 @@ class InventoryStockCrudController extends CrudController
 
         $this->data['id'] = $stock_id;
 
-        // Custom buttons
+        // Custom fields
         
         $this->crud->addField([  // Select2
-           'label'     => 'Location',
-           'type'      => 'select2',
-           'name'      => 'location_id', // the db column for the foreign key
-           'entity'    => 'location', // the method that defines the relationship in your Model
-           'attribute' => 'name', // foreign key attribute that is shown to user
-           'default'   => $stock->location_id,
-            'tab'      => 'Primary',
+            'label'     => 'Item',
+            'type'      => 'select2',
+            'name'      => 'inventory_id', // the db column for the foreign key
+            'entity'    => 'item', // the method that defines the relationship in your Model
+            'attribute' => 'name', // foreign key attribute that is shown to user
+            'default'   => $stock->inventory_id,
+            'tab'       => 'Primary',
+            'attributes' => [
+                'disabled' => 'disabled'
+            ],
+        ]);
+
+        $this->crud->addField([  // Select2
+            'label'     => 'Location',
+            'type'      => 'select2',
+            'name'      => 'location_id', // the db column for the foreign key
+            'entity'    => 'location', // the method that defines the relationship in your Model
+            'attribute' => 'name', // foreign key attribute that is shown to user
+            'default'   => $stock->location_id,
+            'tab'       => 'Primary',
         ]);
 
         /**
