@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Models\Inventory;
 use App\Models\InventoryStock;
 use App\Models\Location;
+use App\Http\Requests\ReplenishStockRequest;
+use App\Http\Requests\DepleteStockRequest;
 use Illuminate\Http\Request;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 
@@ -22,17 +24,7 @@ class InventoryStockCrudController extends CrudController
         | BASIC CRUD INFORMATION
         |--------------------------------------------------------------------------
         */
-        $this->crud->setModel('App\Models\InventoryStock');
-        $this->crud->setRoute(config('backpack.base.route_prefix') . '/stock');
-        $this->crud->setEntityNameStrings('stock', 'stocks');
-
-        /*
-        |--------------------------------------------------------------------------
-        | BASIC CRUD INFORMATION
-        |--------------------------------------------------------------------------
-        */
-
-        // $this->crud->setFromDb();
+        $this->setupBasicCrudInformation();
 
         // ------ CRUD FIELDS
         // $this->crud->addField($options, 'update/create/both');
@@ -90,7 +82,7 @@ class InventoryStockCrudController extends CrudController
             // 'wrapperAttributes' => [
             //    'class' => 'form-group col-md-6'
             //  ], // extra HTML attributes for the field wrapper - mostly for resizing fields
-            'tab'   => 'Primary',
+            'tab'   => 'Optional',
         ]);
 
         $this->crud->addField([   // Number
@@ -104,7 +96,7 @@ class InventoryStockCrudController extends CrudController
             // 'wrapperAttributes' => [
             //    'class' => 'form-group col-md-6'
             //  ], // extra HTML attributes for the field wrapper - mostly for resizing fields
-            'tab'   => 'Primary',
+            'tab'   => 'Optional',
         ]);
 
         // ------ CRUD COLUMNS
@@ -141,7 +133,7 @@ class InventoryStockCrudController extends CrudController
             'name'  => 'aisle',
             'label' => 'Aisle',
             'type'  => 'text',
-            'tab'   => 'Secondary',
+            'tab'   => 'Optional',
 
             // optional
             //'prefix' => '',
@@ -162,14 +154,14 @@ class InventoryStockCrudController extends CrudController
             'name'  => 'row',
             'label' => 'Row',
             'type'  => 'text',
-            'tab'   => 'Secondary',
+            'tab'   => 'Optional',
         ]);
 
         $this->crud->addField([ // Text
             'name'  => 'bin',
             'label' => 'Bin',
             'type'  => 'text',
-            'tab'   => 'Secondary',
+            'tab'   => 'Optional',
         ]);
 
 
@@ -183,8 +175,11 @@ class InventoryStockCrudController extends CrudController
         // $this->crud->removeAllButtons();
         // $this->crud->removeAllButtonsFromStack('line');
         
-        $this->crud->addButtonFromModelFunction('line', 'subtract_stock', 'subtractStock', 'beginning');
-        $this->crud->addButtonFromModelFunction('line', 'add_stock', 'addStock', 'beginning');
+        // $this->crud->addButtonFromModelFunction('line', 'subtract_stock', 'subtractStock', 'beginning');
+        // $this->crud->addButtonFromModelFunction('line', 'add_stock', 'addStock', 'beginning');
+        $this->crud->addButtonFromView('line', 'stock_movements', 'stock_movements', 'beginning');
+        $this->crud->addButtonFromView('line', 'stock_decrease', 'stock_decrease', 'beginning');
+        $this->crud->addButtonFromView('line', 'stock_increase', 'stock_increase', 'beginning');
 
         // ------ CRUD ACCESS
         // $this->crud->allowAccess(['list', 'create', 'update', 'reorder', 'delete']);
@@ -229,6 +224,7 @@ class InventoryStockCrudController extends CrudController
         // $this->crud->orderBy();
         // $this->crud->groupBy();
         // $this->crud->limit();
+
     }
 
     public function store(StoreRequest $request)
@@ -261,7 +257,7 @@ class InventoryStockCrudController extends CrudController
     {
         return view('admin.stocks.add');
     }
-
+    
     private function storeCrudCustom(StoreRequest $request)
     {
         // dd($request->all());
@@ -309,5 +305,202 @@ class InventoryStockCrudController extends CrudController
         $this->setSaveAction();
 
         return $this->performSaveAction($item->getKey());
+    }
+
+    // WIP
+    public function getAddStock(Request $request, $stock_id)
+    {
+        // WIP setup permissions
+        // $this->crud->hasAccessOrFail('add');
+
+        $this->setupBasicCrudInformation();
+
+        $stock = InventoryStock::find($stock_id);
+
+        // get the info for that entry
+        $this->data['entry'] = $this->crud->getEntry($stock_id);
+        $this->data['crud'] = $this->crud;
+        $this->data['saveAction'] = $this->getSaveAction();
+        $this->data['fields'] = $this->crud->getUpdateFields($stock_id);
+        // $this->data['title'] = trans('backpack::crud.edit').' '.$this->crud->entity_name;
+        $this->data['title'] = 'Add Stock';
+        $this->crud->route = route('post_add_stock', $stock_id);
+
+        $this->data['id'] = $stock_id;
+
+        // Custom fields
+        
+        $this->crud->addField([  // Select2
+            'label'     => 'Item',
+            'type'      => 'select2',
+            'name'      => 'inventory_id', // the db column for the foreign key
+            'entity'    => 'item', // the method that defines the relationship in your Model
+            'attribute' => 'name', // foreign key attribute that is shown to user
+            'default'   => $stock->inventory_id,
+            'tab'       => 'Primary',
+            'attributes' => [
+                'disabled' => 'disabled'
+            ],
+        ]);
+        
+        $this->crud->addField([  // Select2
+           'label'     => 'Location',
+           'type'      => 'select2',
+           'name'      => 'location_id', // the db column for the foreign key
+           'entity'    => 'location', // the method that defines the relationship in your Model
+           'attribute' => 'name', // foreign key attribute that is shown to user
+           'default'   => $stock->location_id,
+            'tab'      => 'Primary',
+        ]);
+
+        /**
+         * Notice, add_quantity will be quantity.
+         * We use another name instead so the form is not
+         * auto-filled with the current value on the database.
+         */
+        $this->crud->addField([   // Number
+            'name'    => 'add_quantity',
+            'label'   => 'Quantity',
+            'type'    => 'number',
+            'tab'     => 'Primary',
+            'default' => 0,
+        ]);
+
+        $this->crud->addField([   // Number
+            'name'  => 'cost',
+            'label' => 'Cost',
+            'type'  => 'number',
+            'tab'   => 'Optional',
+        ]);
+
+        $this->crud->addField([   // Number
+            'name'  => 'cost',
+            'label' => 'Cost',
+            'type'  => 'number',
+            'tab'   => 'Optional',
+        ]);
+
+        $this->crud->addField([   // Number
+            'name'  => 'reason',
+            'label' => 'Reason',
+            'type'  => 'text',
+            'tab'   => 'Optional',
+        ]);
+
+        // dd(
+        //     $this->data['crud'] = $this->crud,
+        //     $this->data['entry'],
+        //     $this->data['saveAction'] = $this->getSaveAction(),
+        //     $this->data['fields'] = $this->crud->getUpdateFields($stock_id),
+        //     $this->data['title'] = 'Add Stock',
+        //     $this->crud->route
+        // );
+
+        return view('admin.stocks.add', $this->data);
+    }
+
+    public function postAddStock(ReplenishStockRequest $request, $stock_id)
+    {
+        $location = Location::find($request->location_id);
+        $stock = InventoryStock::find($stock_id);
+        $stock->add($request->add_quantity, $request->reason, $request->cost);
+
+        \Alert::info('Replenished stock on location.')->flash();
+
+        return redirect()->route('crud.stock.index');
+    }
+
+    public function getRemoveStock(Request $request, $stock_id)
+    {
+        // WIP setup permissions
+        // $this->crud->hasAccessOrFail('remove');
+
+        $this->setupBasicCrudInformation();
+
+        $stock = InventoryStock::find($stock_id);
+
+        // get the info for that entry
+        $this->data['entry'] = $this->crud->getEntry($stock_id);
+        $this->data['crud'] = $this->crud;
+        $this->data['saveAction'] = $this->getSaveAction();
+        $this->data['fields'] = $this->crud->getUpdateFields($stock_id);
+        $this->data['title'] = 'Remove Stock';
+        $this->crud->route = route('post_remove_stock', $stock_id);
+
+        $this->data['id'] = $stock_id;
+
+        // Custom fields
+        
+        $this->crud->addField([  // Select2
+            'label'     => 'Item',
+            'type'      => 'select2',
+            'name'      => 'inventory_id', // the db column for the foreign key
+            'entity'    => 'item', // the method that defines the relationship in your Model
+            'attribute' => 'name', // foreign key attribute that is shown to user
+            'default'   => $stock->inventory_id,
+            'tab'       => 'Primary',
+            'attributes' => [
+                'disabled' => 'disabled'
+            ],
+        ]);
+
+        $this->crud->addField([  // Select2
+            'label'     => 'Location',
+            'type'      => 'select2',
+            'name'      => 'location_id', // the db column for the foreign key
+            'entity'    => 'location', // the method that defines the relationship in your Model
+            'attribute' => 'name', // foreign key attribute that is shown to user
+            'default'   => $stock->location_id,
+            'tab'       => 'Primary',
+        ]);
+
+        /**
+         * Notice, remove_quantity will be quantity.
+         * We use another name instead so the form is not
+         * auto-filled with the current value on the database.
+         */
+        $this->crud->addField([   // Number
+            'name'    => 'remove_quantity',
+            'label'   => 'Quantity',
+            'type'    => 'number',
+            'tab'     => 'Primary',
+            'default' => 0,
+        ]);
+
+        $this->crud->addField([   // Text
+            'name'  => 'reason',
+            'label' => 'Reason',
+            'type'  => 'text',
+            'tab'   => 'Optional',
+        ]);
+
+        return view('admin.stocks.remove', $this->data);
+
+    }
+
+    public function postRemoveStock(DepleteStockRequest $request, $stock_id)
+    {
+        $stock = InventoryStock::find($stock_id);
+        
+        try {
+            $stock->remove($request->remove_quantity, $request->reason);
+
+            \Alert::info('Depleted stock on location.')->flash();
+
+            return redirect()->route('crud.stock.index');
+
+        } catch (\Stevebauman\Inventory\Exceptions\NotEnoughStockException $e) {
+            \Alert::warning($e->getMessage())->flash();
+            return back()->withInput();
+        }
+    }
+
+    private function setupBasicCrudInformation()
+    {
+        $this->crud->setModel('App\Models\InventoryStock');
+        $this->crud->setRoute(config('backpack.base.route_prefix') . '/stock');
+        $this->crud->setEntityNameStrings('stock', 'stocks');
+
+        // $this->crud->setFromDb();
     }
 }

@@ -27,10 +27,30 @@ Route::group([
     CRUD::resource('category', 'CategoryCrudController');
     CRUD::resource('inventory', 'InventoryCrudController');
     CRUD::resource('location', 'LocationCrudController');
-    CRUD::resource('stock', 'InventoryStockCrudController')->with(function() {
-        Route::get('stock/{stock}/add', 'InventoryStockCrudController@add')->name('crud.stock.add');
-        Route::get('stock/{stock}/subtract', 'InventoryStockCrudController@subtract')->name('crud.stock.subtract');
+    
+    CRUD::resource('stock', 'InventoryStockCrudController');
+    // !!! DIFFERENT ADMIN PANEL FOR STOCK MOVEMENTS
+    Route::group(['prefix' => 'stock/{stock_id}'], function()
+    {
+        // Add stock routes
+        Route::get('add', 'StockMovementCrudController@getAddStock')->name('get_add_stock');
+        Route::post('post-add', 'StockMovementCrudController@postAddStock')->name('post_add_stock');
+
+        // Remove stock routes
+        Route::get('remove', 'StockMovementCrudController@getRemoveStock')->name('get_remove_stock');
+        Route::post('post-remove', 'StockMovementCrudController@postRemoveStock')->name('post_remove_stock');
+
+        CRUD::resource('movement', 'StockMovementCrudController');
     });
+    
+    Route::get('ajax/inventory-name-options', 'MovementCrudController@inventoryNameOptions');
+    CRUD::resource('movement', 'MovementCrudController');
+
+    Route::group(['prefix' => 'movement/{movement_id}', 'as' => 'movement.'], function()
+    {
+        Route::post('rollback', 'MovementCrudController@rollback')->name('rollback');
+    });
+
     CRUD::resource('supplier', 'SupplierCrudController');
 
 });
