@@ -51,7 +51,21 @@ class OrderCrudController extends CrudController
         // $this->crud->setColumnDetails('column_name', ['attribute' => 'value']); // adjusts the properties of the passed in column (by name)
         // $this->crud->setColumnsDetails(['column_1', 'column_2'], ['attribute' => 'value']);
         
-        $this->crud->addColumn('created_at');
+        // $this->crud->addColumn([
+        //    // 1-n relationship
+        //    'label'     => 'Order', // Table column heading
+        //    'type'      => 'select',
+        //    'name'      => 'order_id', // the column that contains the ID of that connected entity;
+        //    'entity'    => 'order', // the method that defines the relationship in your Model
+        //    'attribute' => 'products_count', // foreign key attribute that is shown to user
+        //    'tab'       => 'Primary',
+        // ]);
+
+        $this->crud->removeColumn('common_id');
+        // $this->crud->addColumn('user_name');
+        // $this->crud->addColumn('shipping_address');
+        // $this->crud->addColumn('billing_address');
+        $this->crud->addColumn('products_count');
         $this->crud->addColumn('created_at'); // add a single column, at the end of the stack
 
         // ------ CRUD BUTTONS
@@ -203,6 +217,7 @@ class OrderCrudController extends CrudController
             foreach ($order->products as $product) {
                 $new_product             = new OrderProduct();
                 // $new_product->product_id = Inventory::findBySku($product->sku);
+                $new_product->order_id   = $new_order->id;
                 $new_product->product_id = Inventory::first()->id;
                 $new_product->common_id  = $product->product_id;
                 $new_product->name       = $product->name;
