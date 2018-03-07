@@ -66,4 +66,8 @@ Route::group([
 
     CRUD::resource('supplier', 'SupplierCrudController');
 
+    // Orders
+    Route::get('order/sync', 'OrderCrudController@sync')->name('orders.sync');
+    CRUD::resource('order', 'OrderCrudController');
+
 });
