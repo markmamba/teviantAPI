@@ -2,14 +2,12 @@
 
 namespace App\Models;
 
-use Backpack\CRUD\CrudTrait;
 use Illuminate\Database\Eloquent\Model;
-use Stevebauman\Inventory\Traits\InventoryStockMovementTrait;
+use Backpack\CRUD\CrudTrait;
 
-class InventoryStockMovement extends Model
+class StockMovement extends Model
 {
     use CrudTrait;
-    use InventoryStockMovementTrait;
 
      /*
     |--------------------------------------------------------------------------
@@ -17,18 +15,11 @@ class InventoryStockMovement extends Model
     |--------------------------------------------------------------------------
     */
 
-    //protected $table = 'inventory_stock_movements';
+    //protected $table = 'stock_movements';
     //protected $primaryKey = 'id';
     // public $timestamps = false;
     // protected $guarded = ['id'];
-    protected $fillable = [
-        'stock_id',
-        'user_id',
-        'before',
-        'after',
-        'cost',
-        'reason',
-    ];
+    // protected $fillable = [];
     // protected $hidden = [];
     // protected $dates = [];
 
@@ -43,15 +34,6 @@ class InventoryStockMovement extends Model
     | RELATIONS
     |--------------------------------------------------------------------------
     */
-    public function stock()
-    {
-        return $this->belongsTo('App\Models\InventoryStock', 'stock_id', 'id');
-    }
-
-    public function user()
-    {
-        return $this->belongsTo('App\User', 'user_id', 'id');
-    }
 
     /*
     |--------------------------------------------------------------------------

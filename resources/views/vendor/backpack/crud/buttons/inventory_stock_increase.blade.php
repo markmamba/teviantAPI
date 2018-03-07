@@ -1,0 +1,1 @@
+<a href="{{ route('inventory.stocks.add', $entry->getKey()) }}" class="btn btn-xs btn-default" title="Add some stock" data-toggle="tooltip"><i class="fa fa-plus"></i></a>

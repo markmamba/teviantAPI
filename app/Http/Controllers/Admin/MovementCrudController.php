@@ -2,25 +2,27 @@
 
 namespace App\Http\Controllers\Admin;
 
+use Illuminate\Http\Request;
+use App\Models\InventoryStockMovement;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 
 // VALIDATION: change the requests to match your own file names if you need form validation
 use App\Http\Requests\InventoryStockMovementRequest as StoreRequest;
 use App\Http\Requests\InventoryStockMovementRequest as UpdateRequest;
+use Illuminate\Support\Facades\Route;
 
-class InventoryStockMovementCrudController extends CrudController
+class MovementCrudController extends CrudController
 {
     public function setup()
     {
-
         /*
         |--------------------------------------------------------------------------
         | BASIC CRUD INFORMATION
         |--------------------------------------------------------------------------
         */
         $this->crud->setModel('App\Models\InventoryStockMovement');
-        $this->crud->setRoute(config('backpack.base.route_prefix') . '/inventorystockmovement');
-        $this->crud->setEntityNameStrings('inventorystockmovement', 'inventory_stock_movements');
+        $this->crud->setRoute(config('backpack.base.route_prefix') . '/movement');
+        $this->crud->setEntityNameStrings('movement', 'movements');
 
         /*
         |--------------------------------------------------------------------------
@@ -28,7 +30,7 @@ class InventoryStockMovementCrudController extends CrudController
         |--------------------------------------------------------------------------
         */
 
-        $this->crud->setFromDb();
+        // $this->crud->setFromDb();
 
         // ------ CRUD FIELDS
         // $this->crud->addField($options, 'update/create/both');
@@ -44,6 +46,56 @@ class InventoryStockMovementCrudController extends CrudController
         // $this->crud->setColumnDetails('column_name', ['attribute' => 'value']); // adjusts the properties of the passed in column (by name)
         // $this->crud->setColumnsDetails(['column_1', 'column_2'], ['attribute' => 'value']);
 
+        $this->crud->addColumn([
+           // 1-n relationship
+            'label'     => 'SKU', // Table column heading
+            'type'      => 'select',
+            'name'      => 'stock_id', // the column that contains the ID of that connected entity;
+            'entity'    => 'stock', // the method that defines the relationship in your Model
+            'attribute' => 'sku_code', // foreign key attribute that is shown to user
+            'key'       => 'stock_sku_code',
+            'model' => "App\Models\InventoryStock",
+                'searchLogic' => function ($query, $column, $searchTerm) {
+                        $query->orWhereHas('stock.item.sku', function ($query) use ($column, $searchTerm) {
+                            $query->where('code', 'like', '%'.$searchTerm.'%');
+                        });
+                    }
+        ]);
+
+        // 1-n relationship column with custom search logic
+        $this->crud->addColumn([
+            'label'     => 'Name', // Table column heading
+            'type'      => 'select',
+            'name'      => 'stock_id', // the column that contains the ID of that connected entity;
+            'entity'    => 'stock', // the method that defines the relationship in your Model
+            'attribute' => 'name', // foreign key attribute that is shown to user
+            'key'       => 'stock_name',
+            'model' => "App\Models\InventoryStockMovement",
+                'searchLogic' => function ($query, $column, $searchTerm) {
+                    $query->orWhereHas('stock.item', function ($query) use ($column, $searchTerm) {
+                        $query->where('name', 'like', '%'.$searchTerm.'%');
+                    });
+                }
+        ]);
+
+        // $options = InventoryStockMovement::with('stock.item')
+        //     ->whereHas('stock.item', function ($query) use ($term) {
+        //         $query->where('name', 'like', '%'.$term.'%');
+        //     })
+        //     ->get();
+
+        $this->crud->addColumns(['before', 'after', 'cost', 'reason', 'created_at']);
+
+        $this->crud->addColumn([
+           // 1-n relationship
+           'label'     => 'User', // Table column heading
+           'type'      => 'select',
+           'name'      => 'user_id', // the column that contains the ID of that connected entity;
+           'entity'    => 'user', // the method that defines the relationship in your Model
+           'attribute' => 'name', // foreign key attribute that is shown to user
+           'tab'       => 'Primary',
+        ]);
+
         // ------ CRUD BUTTONS
         // possible positions: 'beginning' and 'end'; defaults to 'beginning' for the 'line' stack, 'end' for the others;
         // $this->crud->addButton($stack, $name, $type, $content, $position); // add a button; possible types are: view, model_function
@@ -53,6 +105,11 @@ class InventoryStockMovementCrudController extends CrudController
         // $this->crud->removeButtonFromStack($name, $stack);
         // $this->crud->removeAllButtons();
         // $this->crud->removeAllButtonsFromStack('line');
+        
+        // $this->crud->removeAllButtonsFromStack('line');
+        $this->crud->addButtonFromView('line', 'movement_rollback', 'movement_rollback', 'beginning');
+        $this->crud->removeButton('update');
+        $this->crud->removeButton('delete');
 
         // ------ CRUD ACCESS
         // $this->crud->allowAccess(['list', 'create', 'update', 'reorder', 'delete']);
@@ -97,6 +154,29 @@ class InventoryStockMovementCrudController extends CrudController
         // $this->crud->orderBy();
         // $this->crud->groupBy();
         // $this->crud->limit();
+        
+        $this->crud->addFilter([ // select2_ajax filter
+            'name' => 'stock_id',
+            'type' => 'select2_ajax',
+            'label'=> 'Name',
+            'placeholder' => 'Pick a stock name'
+            ],
+            url('admin/ajax/inventory-name-options'), // the ajax route
+            function($value) { // if the filter is active
+                // $this->crud->with('stock.item');
+                // $this->crud->addClause('where', 'name', $value);
+                $this->crud->addClause('whereHas', 'stock.item', function ($query) use ($value) {
+                    $query->where('name', 'like', '%'.$value.'%');
+                });
+
+                // function ($query, $column, $searchTerm) {
+                //         $query->orWhereHas('stock.item.sku', function ($query) use ($column, $searchTerm) {
+                //             $query->where('code', 'like', '%'.$searchTerm.'%');
+                //         });
+                //     }
+                
+            }
+        );
     }
 
     public function store(StoreRequest $request)
@@ -116,4 +196,46 @@ class InventoryStockMovementCrudController extends CrudController
         // use $this->data['entry'] or $this->crud->entry
         return $redirect_location;
     }
+
+    /**
+     * AJAX filter: Inventory names options for the filtering stock names.
+     * @return array
+     */
+    public function inventoryNameOptions() {
+        $term = $this->request->input('term');
+        
+        // WIP: select where the stock movement's item.name/item.sku_de = $term
+        $options = InventoryStockMovement::with('stock.item')
+            ->whereHas('stock.item', function ($query) use ($term) {
+                $query->where('name', 'like', '%'.$term.'%');
+            })
+            ->get();
+
+        // return $options;
+        return $options->pluck('stock.item.name', 'id');
+    }
+
+    /**
+     * Trigger a rollback on a specific movement.
+     */
+    public function rollback(Request $request, $movement_id)
+    {
+        // dd($request, $movement_id);
+
+        $movement = InventoryStockMovement::find($movement_id);
+
+        try {
+            $movement->rollback();
+            
+            \Alert::success('Rollbacked movement.')->flash();
+
+            return redirect()->route('crud.movement.index');
+
+        } catch (\Exception $e) {
+            \Alert::error($e->getMessage())->flash();
+
+            return back();
+        }
+    }
+
 }
