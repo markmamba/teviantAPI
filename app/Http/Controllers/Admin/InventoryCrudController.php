@@ -85,6 +85,13 @@ class InventoryCrudController extends CrudController
              //'readonly'=>'readonly',
         ]);
 
+        // Custom SKU field
+        $this->crud->addField([
+            'name'  => 'sku_code',
+            'label' => 'SKU',
+            'type'  => 'text',
+        ]);
+
         $this->crud->addField([   // Textarea
             'name'  => 'description',
             'label' => 'Description',
@@ -194,6 +201,11 @@ class InventoryCrudController extends CrudController
         $redirect_location = parent::storeCrud($request);
         // your additional operations after save here
         // use $this->data['entry'] or $this->crud->entry
+        
+        // Store custom SKU if filled
+        if ($request->filled('sku_code'))
+          $this->crud->entry->createSku($request->sku_code, true);
+
         return $redirect_location;
     }
 
@@ -203,6 +215,11 @@ class InventoryCrudController extends CrudController
         $redirect_location = parent::updateCrud($request);
         // your additional operations after save here
         // use $this->data['entry'] or $this->crud->entry
+        
+        // Update custom SKU if filled
+        if ($request->filled('sku_code'))
+          $this->crud->entry->updateSku($request->sku_code);
+
         return $redirect_location;
     }
 
