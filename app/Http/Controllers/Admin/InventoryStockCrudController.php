@@ -18,7 +18,6 @@ class InventoryStockCrudController extends CrudController
 {
     public function setup()
     {
-
         /*
         |--------------------------------------------------------------------------
         | BASIC CRUD INFORMATION
@@ -307,7 +306,10 @@ class InventoryStockCrudController extends CrudController
         return $this->performSaveAction($item->getKey());
     }
 
-    // WIP
+    /**
+     * Show the form for adding stock to the specified stock.
+     * @return view
+     */
     public function getAddStock(Request $request, $stock_id)
     {
         // WIP setup permissions
@@ -399,6 +401,10 @@ class InventoryStockCrudController extends CrudController
         return view('admin.stocks.add', $this->data);
     }
 
+    /**
+     * Execute the replenishment of stocks from the form submitted.
+     * @return view
+     */
     public function postAddStock(ReplenishStockRequest $request, $stock_id)
     {
         $location = Location::find($request->location_id);
@@ -410,6 +416,10 @@ class InventoryStockCrudController extends CrudController
         return redirect()->route('crud.stock.index');
     }
 
+    /**
+     * Show the form for removing stocks to the specified stock.
+     * @return view
+     */
     public function getRemoveStock(Request $request, $stock_id)
     {
         // WIP setup permissions
@@ -478,6 +488,10 @@ class InventoryStockCrudController extends CrudController
 
     }
 
+    /**
+     * Execute the depletion of stocks submitted byt the form.
+     * @return view
+     */
     public function postRemoveStock(DepleteStockRequest $request, $stock_id)
     {
         $stock = InventoryStock::find($stock_id);

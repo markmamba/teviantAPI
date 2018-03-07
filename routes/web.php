@@ -25,7 +25,20 @@ Route::group([
     // your CRUD resources and other admin routes here
     CRUD::resource('metric', 'MetricCrudController');
     CRUD::resource('category', 'CategoryCrudController');
+    
     CRUD::resource('inventory', 'InventoryCrudController');
+    Route::group(['prefix' => 'inventory/{inventory_id}', 'as' => 'inventory.'], function() {
+        Route::group(['prefix' => 'stocks', 'as' => 'stocks.'], function() {
+            // Add inventory stock routes
+            Route::get('add', 'InventoryCrudController@getAddStock')->name('add');
+            Route::post('add', 'InventoryCrudController@postAddStock')->name('post_add');
+
+            // Remove inventory stock routes
+            Route::get('remove', 'InventoryCrudController@getRemoveStock')->name('remove');
+            Route::post('remove', 'InventoryCrudController@postRemoveStock')->name('post_remove');
+        });
+    });
+
     CRUD::resource('location', 'LocationCrudController');
     
     CRUD::resource('stock', 'InventoryStockCrudController');
