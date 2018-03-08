@@ -256,6 +256,7 @@ class InventoryCrudController extends CrudController
           'category_id',
           'name',
           'description',
+          'sku_code',
         ], 'both');
 
         // static field
@@ -355,6 +356,7 @@ class InventoryCrudController extends CrudController
           'category_id',
           'name',
           'description',
+          'sku_code',
         ], 'both');
 
         // static field
