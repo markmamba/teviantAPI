@@ -317,8 +317,15 @@ class InventoryCrudController extends CrudController
     {
         $location = Location::find($request->location_id);
         $item = Inventory::find($inventory_id);
-        $stock = $item->getStockFromLocation($location);
-        $stock->add($request->add_quantity, $request->reason, $request->cost);
+        
+        try {
+            // Here we assume there is already a stock record on the given location.
+            $stock = $item->getStockFromLocation($location);
+            $stock->add($request->add_quantity, $request->reason, $request->cost);
+        } catch (\Stevebauman\Inventory\Exceptions\StockNotFoundException $e) {
+            // There is no stock on the given location, let's create a new one.
+            $item->createStockOnLocation($request->add_quantity, $location);
+        }
 
         \Alert::success('Replenished ' .$item->name. ' stock on ' . $location->name . '.')->flash();
 
@@ -409,20 +416,26 @@ class InventoryCrudController extends CrudController
      */
     public function postRemoveStock(DepleteInventoryRequest $request, $inventory_id)
     {
+        $location = Location::find($request->location_id);
+        $item = Inventory::find($inventory_id);
+        
         try {
-            $location = Location::find($request->location_id);
-            $item = Inventory::find($inventory_id);
             $stock = $item->getStockFromLocation($location);
+        } catch (\Stevebauman\Inventory\Exceptions\StockNotFoundException $e) {
+            // There is no stock on the given location, let's warn the user to create it first.
+            \Alert::warning($e->getMessage())->flash();
+            return back()->withInput();
+        }
+
+        try {
             $stock->remove($request->remove_quantity, $request->reason);
-
-            \Alert::success('Depleted ' .$item->name. ' stock on ' . $location->name . '.')->flash();
-
-            return redirect()->route('crud.inventory.index');
-
         } catch (\Stevebauman\Inventory\Exceptions\NotEnoughStockException $e) {
             \Alert::warning($e->getMessage())->flash();
             return back()->withInput();
         }
+
+        \Alert::success('Depleted ' .$item->name. ' stock on ' . $location->name . '.')->flash();
+        return redirect()->route('crud.inventory.index');
     }
 
     private function setupBasicCrudInformation()
