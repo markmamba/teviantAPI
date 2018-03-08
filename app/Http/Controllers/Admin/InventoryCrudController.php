@@ -4,23 +4,27 @@ namespace App\Http\Controllers\Admin;
 
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 
+use App\Models\Inventory;
+use App\Models\InventoryStock;
+use App\Models\Location;
+
 // VALIDATION: change the requests to match your own file names if you need form validation
 use App\Http\Requests\InventoryRequest as StoreRequest;
 use App\Http\Requests\InventoryRequest as UpdateRequest;
+use App\Http\Requests\ReplenishInventoryRequest;
+use App\Http\Requests\DepleteInventoryRequest;
+use Illuminate\Http\Request;
 
 class InventoryCrudController extends CrudController
 {
     public function setup()
     {
-
         /*
         |--------------------------------------------------------------------------
         | BASIC CRUD INFORMATION
         |--------------------------------------------------------------------------
         */
-        $this->crud->setModel('App\Models\Inventory');
-        $this->crud->setRoute(config('backpack.base.route_prefix') . '/inventory');
-        $this->crud->setEntityNameStrings('inventory', 'inventories');
+        $this->setupBasicCrudInformation();
 
         /*
         |--------------------------------------------------------------------------
@@ -81,6 +85,13 @@ class InventoryCrudController extends CrudController
              //'readonly'=>'readonly',
         ]);
 
+        // Custom SKU field
+        $this->crud->addField([
+            'name'  => 'sku_code',
+            'label' => 'SKU',
+            'type'  => 'text',
+        ]);
+
         $this->crud->addField([   // Textarea
             'name'  => 'description',
             'label' => 'Description',
@@ -135,6 +146,9 @@ class InventoryCrudController extends CrudController
         // $this->crud->removeButtonFromStack($name, $stack);
         // $this->crud->removeAllButtons();
         // $this->crud->removeAllButtonsFromStack('line');
+        
+        $this->crud->addButtonFromView('line', 'inventory_stock_decrease', 'inventory_stock_decrease', 'beginning');
+        $this->crud->addButtonFromView('line', 'inventory_stock_increase', 'inventory_stock_increase', 'beginning');
 
         // ------ CRUD ACCESS
         // $this->crud->allowAccess(['list', 'create', 'update', 'reorder', 'delete']);
@@ -187,6 +201,11 @@ class InventoryCrudController extends CrudController
         $redirect_location = parent::storeCrud($request);
         // your additional operations after save here
         // use $this->data['entry'] or $this->crud->entry
+        
+        // Store custom SKU if filled
+        if ($request->filled('sku_code'))
+          $this->crud->entry->createSku($request->sku_code, true);
+
         return $redirect_location;
     }
 
@@ -196,6 +215,218 @@ class InventoryCrudController extends CrudController
         $redirect_location = parent::updateCrud($request);
         // your additional operations after save here
         // use $this->data['entry'] or $this->crud->entry
+        
+        // Update custom SKU if filled
+        if ($request->filled('sku_code'))
+          $this->crud->entry->updateSku($request->sku_code);
+
         return $redirect_location;
+    }
+
+    /**
+     * Show the form for adding stock to the specified stock.
+     * @return view
+     */
+    public function getAddStock(Request $request, $inventory_id)
+    {
+        // WIP setup permissions
+        // $this->crud->hasAccessOrFail('add');
+
+        $this->setupBasicCrudInformation();
+
+        $inventory = Inventory::find($inventory_id);
+
+        // get the info for that entry
+        $this->data['entry'] = $this->crud->getEntry($inventory_id);
+        $this->data['crud'] = $this->crud;
+        $this->data['saveAction'] = $this->getSaveAction();
+        $this->data['fields'] = $this->crud->getUpdateFields($inventory_id);
+        // $this->data['title'] = trans('backpack::crud.edit').' '.$this->crud->entity_name;
+        $this->data['title'] = 'Add Stock';
+        $this->crud->route = route('inventory.stocks.add', $inventory_id);
+        $this->crud->entity_name = 'Stock';
+
+        $this->data['id'] = $inventory_id;
+
+        // Custom fields
+        
+        // Remove fields used by the Inventory CRUD.
+        $this->crud->removeFields([
+          'metric_id',
+          'category_id',
+          'name',
+          'description',
+        ], 'both');
+
+        // static field
+        $this->crud->addField([
+            'name'       => 'item',
+            'label'      => 'Item',
+            'type'       => 'text',
+            'default'    => $inventory->name,
+            'attributes' => ['disabled' => 'disabled'],
+            'tab'        => 'Primary',
+        ]);
+
+        $location_options = Location::orderBy('name', 'asc')->pluck('name', 'id');
+        $this->crud->addField([ // select_from_array
+            'name'        => 'location_id',
+            'label'       => "Location",
+            'type'        => 'select_from_array',
+            'options'     => $location_options,
+            'allows_null' => false,
+            'tab'         => 'Primary',
+        ]);
+
+        /**
+         * Notice, add_quantity will be quantity.
+         * We use another name instead so the form is not
+         * auto-filled with the current value on the database.
+         */
+        $this->crud->addField([   // Number
+            'name'    => 'add_quantity',
+            'label'   => 'Quantity',
+            'type'    => 'number',
+            'tab'     => 'Primary',
+            'default' => 0,
+        ]);
+
+        $this->crud->addField([   // Number
+            'name'  => 'cost',
+            'label' => 'Cost',
+            'type'  => 'number',
+            'tab'   => 'Optional',
+        ]);
+
+        $this->crud->addField([   // Number
+            'name'  => 'reason',
+            'label' => 'Reason',
+            'type'  => 'text',
+            'tab'   => 'Optional',
+        ]);
+
+        return view('admin.inventories.add_stock', $this->data);
+    }
+
+    /**
+     * Execute the replenishment of stocks from the form submitted.
+     * @return view
+     */
+    public function postAddStock(ReplenishInventoryRequest $request, $inventory_id)
+    {
+        $location = Location::find($request->location_id);
+        $item = Inventory::find($inventory_id);
+        $stock = $item->getStockFromLocation($location);
+        $stock->add($request->add_quantity, $request->reason, $request->cost);
+
+        \Alert::success('Replenished ' .$item->name. ' stock on ' . $location->name . '.')->flash();
+
+        return redirect()->route('crud.inventory.index');
+    }
+
+    /**
+     * Show the form for removing stocks to the specified stock.
+     * @return view
+     */
+    public function getRemoveStock(Request $request, $inventory_id)
+    {
+        // WIP setup permissions
+        // $this->crud->hasAccessOrFail('remove');
+
+        $this->setupBasicCrudInformation();
+
+        $inventory = Inventory::find($inventory_id);
+
+        // get the info for that entry
+        $this->data['entry'] = $this->crud->getEntry($inventory_id);
+        $this->data['crud'] = $this->crud;
+        $this->data['saveAction'] = $this->getSaveAction();
+        $this->data['fields'] = $this->crud->getUpdateFields($inventory_id);
+        $this->data['title'] = 'Remove Stock';
+        $this->crud->route = route('inventory.stocks.remove', $inventory_id);
+
+        $this->data['id'] = $inventory_id;
+
+        // Custom fields
+        
+        // Remove fields used by the Inventory CRUD.
+        $this->crud->removeFields([
+          'metric_id',
+          'category_id',
+          'name',
+          'description',
+        ], 'both');
+
+        // static field
+        $this->crud->addField([
+            'name'       => 'item',
+            'label'      => 'Item',
+            'type'       => 'text',
+            'default'    => $inventory->name,
+            'attributes' => ['disabled' => 'disabled'],
+            'tab'        => 'Primary',
+        ]);
+
+        $location_options = Location::orderBy('name', 'asc')->pluck('name', 'id');
+        $this->crud->addField([ // select_from_array
+            'name'        => 'location_id',
+            'label'       => "Location",
+            'type'        => 'select_from_array',
+            'options'     => $location_options,
+            'allows_null' => false,
+            'tab'         => 'Primary',
+        ]);
+
+        /**
+         * Notice, remove_quantity will be quantity.
+         * We use another name instead so the form is not
+         * auto-filled with the current value on the database.
+         */
+        $this->crud->addField([   // Number
+            'name'    => 'remove_quantity',
+            'label'   => 'Quantity',
+            'type'    => 'number',
+            'tab'     => 'Primary',
+            'default' => 0,
+        ]);
+
+        $this->crud->addField([   // Text
+            'name'  => 'reason',
+            'label' => 'Reason',
+            'type'  => 'text',
+            'tab'   => 'Optional',
+        ]);
+
+        return view('admin.inventories.remove_stock', $this->data);
+
+    }
+
+    /**
+     * Execute the depletion of stocks submitted byt the form.
+     * @return view
+     */
+    public function postRemoveStock(DepleteInventoryRequest $request, $inventory_id)
+    {
+        try {
+            $location = Location::find($request->location_id);
+            $item = Inventory::find($inventory_id);
+            $stock = $item->getStockFromLocation($location);
+            $stock->remove($request->remove_quantity, $request->reason);
+
+            \Alert::success('Depleted ' .$item->name. ' stock on ' . $location->name . '.')->flash();
+
+            return redirect()->route('crud.inventory.index');
+
+        } catch (\Stevebauman\Inventory\Exceptions\NotEnoughStockException $e) {
+            \Alert::warning($e->getMessage())->flash();
+            return back()->withInput();
+        }
+    }
+
+    private function setupBasicCrudInformation()
+    {
+        $this->crud->setModel('App\Models\Inventory');
+        $this->crud->setRoute(config('backpack.base.route_prefix') . '/inventory');
+        $this->crud->setEntityNameStrings('inventory', 'inventories');
     }
 }

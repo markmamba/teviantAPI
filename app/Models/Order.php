@@ -2,14 +2,12 @@
 
 namespace App\Models;
 
-use Backpack\CRUD\CrudTrait;
 use Illuminate\Database\Eloquent\Model;
-use Stevebauman\Inventory\Traits\InventoryStockMovementTrait;
+use Backpack\CRUD\CrudTrait;
 
-class InventoryStockMovement extends Model
+class Order extends Model
 {
     use CrudTrait;
-    use InventoryStockMovementTrait;
 
      /*
     |--------------------------------------------------------------------------
@@ -17,18 +15,11 @@ class InventoryStockMovement extends Model
     |--------------------------------------------------------------------------
     */
 
-    //protected $table = 'inventory_stock_movements';
+    //protected $table = 'orders';
     //protected $primaryKey = 'id';
     // public $timestamps = false;
     // protected $guarded = ['id'];
-    protected $fillable = [
-        'stock_id',
-        'user_id',
-        'before',
-        'after',
-        'cost',
-        'reason',
-    ];
+    // protected $fillable = [];
     // protected $hidden = [];
     // protected $dates = [];
 
@@ -43,14 +34,20 @@ class InventoryStockMovement extends Model
     | RELATIONS
     |--------------------------------------------------------------------------
     */
-    public function stock()
+   
+    public function products()
     {
-        return $this->belongsTo('App\Models\InventoryStock', 'stock_id', 'id');
+        return $this->hasMany('App\Models\OrderProduct');
     }
 
-    public function user()
+    public function shippingAddress()
     {
-        return $this->belongsTo('App\User', 'user_id', 'id');
+        return $this->hasOne('App\Models\OrderShippingAddress');
+    }
+
+    public function billingAddress()
+    {
+        return $this->hasOne('App\Models\OrderBillingAddress');
     }
 
     /*
@@ -70,4 +67,24 @@ class InventoryStockMovement extends Model
     | MUTATORS
     |--------------------------------------------------------------------------
     */
+   
+    public function getProductsCountAttribute()
+    {
+        return $this->products->count();
+    }
+
+    public function getUserNameAttribute()
+    {
+        return $this->shippingAddress()->name;
+    }
+
+    public function getShippingAddressAttribute()
+    {
+        return $this->shippingAddress()->name;
+    }
+
+    public function getBillingAddressAttribute()
+    {
+        return $this->shippingAddress()->name;
+    }
 }

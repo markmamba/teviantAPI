@@ -8,7 +8,7 @@
 	  </h1>
 	  <ol class="breadcrumb">
 	    <li><a href="{{ url(config('backpack.base.route_prefix'), 'dashboard') }}">{{ trans('backpack::crud.admin') }}</a></li>
-	    <li><a href="{{ route('crud.stock.index') }}" class="text-capitalize">{{ $crud->entity_name_plural }}</a></li>
+	    <li><a href="{{ route('crud.inventory.index') }}" class="text-capitalize">{{ $crud->entity_name_plural }}</a></li>
 	    <li class="active">{{ trans('backpack::crud.add') }}</li>
 	  </ol>
 	</section>
@@ -19,7 +19,7 @@
 	<div class="col-md-8 col-md-offset-2">
 		<!-- Default box -->
 		@if ($crud->hasAccess('list'))
-			<a href="{{ route('crud.stock.index') }}"><i class="fa fa-angle-double-left"></i> {{ trans('backpack::crud.back_to_all') }} <span>{{ $crud->entity_name_plural }}</span></a><br><br>
+			<a href="{{ route('crud.inventory.index') }}"><i class="fa fa-angle-double-left"></i> {{ trans('backpack::crud.back_to_all') }} <span>{{ $crud->entity_name_plural }}</span></a><br><br>
 		@endif
 
 		@include('crud::inc.grouped_errors')
@@ -47,7 +47,7 @@
 
 		    <div class="box-footer">
 
-                @include('admin.stocks.form_save_buttons')
+                @include('admin.inventories.form_save_buttons')
 
 		    </div><!-- /.box-footer-->
 
