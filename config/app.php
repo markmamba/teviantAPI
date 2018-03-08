@@ -167,6 +167,7 @@ return [
         /*
          * Package Service Providers...
          */
+        'Stevebauman\Inventory\InventoryServiceProvider',
 
         /*
          * Application Service Providers...

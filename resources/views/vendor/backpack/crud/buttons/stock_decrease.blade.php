@@ -1,0 +1,1 @@
+<a href="{{ route('get_remove_stock', $entry->getKey()) }}" class="btn btn-xs btn-default" title="Remove some stock" data-toggle="tooltip"><i class="fa fa-minus"></i></a>
