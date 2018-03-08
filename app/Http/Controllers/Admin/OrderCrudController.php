@@ -62,11 +62,22 @@ class OrderCrudController extends CrudController
         // ]);
 
         $this->crud->removeColumn('common_id');
-        // $this->crud->addColumn('user_name');
-        // $this->crud->addColumn('shipping_address');
-        // $this->crud->addColumn('billing_address');
-        $this->crud->addColumn('products_count');
-        $this->crud->addColumn('created_at'); // add a single column, at the end of the stack
+        $this->crud->addColumn([
+            'label' => 'User',
+            'name'  => 'full_user_name'
+        ]);
+        $this->crud->addColumn([
+            'label' => 'Shipping Address',
+            'name'  => 'full_shipping_address'
+        ]);
+        $this->crud->addColumn([
+            'label' => 'Billing Address',
+            'name'  => 'full_billing_address'
+        ]);
+        $this->crud->addColumn([
+            'label' => 'Created At',
+            'name'  => 'created_at'
+        ]);
 
         // ------ CRUD BUTTONS
         // possible positions: 'beginning' and 'end'; defaults to 'beginning' for the 'line' stack, 'end' for the others;
@@ -92,7 +103,8 @@ class OrderCrudController extends CrudController
         // NOTE: you also need to do allow access to the right users: $this->crud->allowAccess('reorder');
 
         // ------ CRUD DETAILS ROW
-        // $this->crud->enableDetailsRow();
+        $this->crud->enableDetailsRow();
+        $this->crud->allowAccess('details_row');
         // NOTE: you also need to do allow access to the right users: $this->crud->allowAccess('details_row');
         // NOTE: you also need to do overwrite the showDetailsRow($id) method in your EntityCrudController to show whatever you'd like in the details row OR overwrite the views/backpack/crud/details_row.blade.php
 
@@ -187,9 +199,14 @@ class OrderCrudController extends CrudController
             $new_order->common_id = $order->id;
             $new_order->save();
 
+            // Save the new order's user
+            // $order_user = new OrderUser;
+            // $order_user->first_name
+
             // Save the new order's shipping address
             $shipping_address               = new OrderShippingAddress;
             $shipping_address->common_id    = $order->shipping_address->id;
+            $shipping_address->order_id     = $new_order->id;
             $shipping_address->name         = $order->shipping_address->name;
             $shipping_address->address1     = $order->shipping_address->address1;
             $shipping_address->address2     = $order->shipping_address->address2;
@@ -203,6 +220,7 @@ class OrderCrudController extends CrudController
             // Save the new order's billing address
             $billing_address               = new OrderBillingAddress;
             $billing_address->common_id    = $order->billing_address->id;
+            $billing_address->order_id     = $new_order->id;
             $billing_address->name         = $order->billing_address->name;
             $billing_address->address1     = $order->billing_address->address1;
             $billing_address->address2     = $order->billing_address->address2;
@@ -228,6 +246,8 @@ class OrderCrudController extends CrudController
         }
 
         // dd($orders);
+        
+        \Alert::success('Synced orders.')->flash();
         
         return redirect()->route('crud.order.index');
     }
