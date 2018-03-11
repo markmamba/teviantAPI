@@ -35,7 +35,7 @@ class OrderCrudController extends CrudController
         |--------------------------------------------------------------------------
         */
 
-        $this->crud->setFromDb();
+        // $this->crud->setFromDb();
 
         // ------ CRUD FIELDS
         // $this->crud->addField($options, 'update/create/both');
@@ -61,7 +61,6 @@ class OrderCrudController extends CrudController
         //    'tab'       => 'Primary',
         // ]);
 
-        $this->crud->removeColumn('common_id');
         $this->crud->addColumn([
             'label' => 'Id',
             'name'  => 'common_id'
@@ -82,8 +81,12 @@ class OrderCrudController extends CrudController
             'label' => 'Total',
             'name'  => 'total'
         ]);
-        $this->crud->addColumn([
-            'label' => 'Status',
+        $this->crud->addField([
+           'label'     => 'Status',
+           'type'      => 'select2',
+           'name'      => 'status_id',
+           'entity'    => 'status',
+           'attribute' => 'name',
         ]);
         $this->crud->addColumn([
             'label' => 'Created At',

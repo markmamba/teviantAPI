@@ -50,6 +50,11 @@ class Order extends Model
         return $this->hasOne('App\Models\OrderBillingAddress');
     }
 
+    public function status()
+    {
+        return $this->hasOne('App\Models\OrderStatus', 'id', 'status_id');
+    }
+
     /*
     |--------------------------------------------------------------------------
     | SCOPES
