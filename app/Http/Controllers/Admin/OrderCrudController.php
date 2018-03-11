@@ -63,6 +63,10 @@ class OrderCrudController extends CrudController
 
         $this->crud->removeColumn('common_id');
         $this->crud->addColumn([
+            'label' => 'Id',
+            'name'  => 'common_id'
+        ]);
+        $this->crud->addColumn([
             'label' => 'User',
             'name'  => 'full_user_name'
         ]);
