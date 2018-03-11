@@ -251,6 +251,7 @@ class OrderCrudController extends CrudController
                 $order_product->name       = $product->name;
                 $order_product->sku        = $product->sku;
                 $order_product->quantity   = $product->quantity;
+                $order_product->price      = $product->price_with_tax;
                 $order_product->save();
             }
         }
