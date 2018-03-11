@@ -233,15 +233,25 @@ class OrderCrudController extends CrudController
 
             // Save each order's products.
             foreach ($order->products as $product) {
-                $new_product             = new OrderProduct();
-                // $new_product->product_id = Inventory::findBySku($product->sku);
-                $new_product->order_id   = $new_order->id;
-                $new_product->product_id = Inventory::first()->id;
-                $new_product->common_id  = $product->product_id;
-                $new_product->name       = $product->name;
-                $new_product->sku        = $product->sku;
-                $new_product->quantity   = $product->quantity;
-                $new_product->save();
+                $order_product             = new OrderProduct();
+                
+                /**
+                 * ISSUE: The following code is basically Inventory::findBySku($sku)
+                 * but the library is having some issue, so we'll do it manually here.
+                 * @var string
+                 */
+                $order_product->product_id = Inventory::whereHas('sku', function ($query) use ($product) {
+                    $query->select('id', 'code');
+                    $query->where('code', $product->sku);
+                })->first()->id;
+
+                $order_product->product_id = Inventory::first()->id;
+                $order_product->order_id   = $new_order->id;
+                $order_product->common_id  = $product->product_id;
+                $order_product->name       = $product->name;
+                $order_product->sku        = $product->sku;
+                $order_product->quantity   = $product->quantity;
+                $order_product->save();
             }
         }
 
