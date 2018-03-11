@@ -75,6 +75,10 @@ class OrderCrudController extends CrudController
             'name'  => 'full_billing_address'
         ]);
         $this->crud->addColumn([
+            'label' => 'Total',
+            'name'  => 'total'
+        ]);
+        $this->crud->addColumn([
             'label' => 'Created At',
             'name'  => 'created_at'
         ]);

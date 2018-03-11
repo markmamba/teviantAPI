@@ -87,4 +87,9 @@ class Order extends Model
     {
         return $this->billingAddress->address1 . ', ' . $this->billingAddress->address1 . ', ' . $this->billingAddress->city . ', ' . $this->billingAddress->county . ', ' . $this->billingAddress->postal_code;
     }
+
+    public function getTotalAttribute()
+    {
+        return $this->products->sum('price');
+    }
 }
