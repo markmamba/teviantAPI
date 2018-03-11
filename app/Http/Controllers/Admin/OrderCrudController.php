@@ -83,6 +83,9 @@ class OrderCrudController extends CrudController
             'name'  => 'total'
         ]);
         $this->crud->addColumn([
+            'label' => 'Status',
+        ]);
+        $this->crud->addColumn([
             'label' => 'Created At',
             'name'  => 'created_at'
         ]);
