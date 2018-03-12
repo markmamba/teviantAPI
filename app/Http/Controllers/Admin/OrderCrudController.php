@@ -60,7 +60,7 @@ class OrderCrudController extends CrudController
         //    'attribute' => 'products_count', // foreign key attribute that is shown to user
         //    'tab'       => 'Primary',
         // ]);
-
+        
         $this->crud->addColumn([
             'label' => 'Id',
             'name'  => 'common_id'
@@ -81,9 +81,9 @@ class OrderCrudController extends CrudController
             'label' => 'Total',
             'name'  => 'total'
         ]);
-        $this->crud->addField([
+        $this->crud->addColumn([
            'label'     => 'Status',
-           'type'      => 'select2',
+           'type'      => 'select',
            'name'      => 'status_id',
            'entity'    => 'status',
            'attribute' => 'name',
