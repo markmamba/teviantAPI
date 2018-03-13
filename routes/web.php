@@ -69,5 +69,6 @@ Route::group([
     // Orders
     Route::get('order/sync', 'OrderCrudController@sync')->name('orders.sync');
     CRUD::resource('order', 'OrderCrudController');
+    Route::get('order/{order_id}', 'OrderCrudController@show')->name('order.show');
 
 });

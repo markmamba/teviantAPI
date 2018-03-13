@@ -7,6 +7,7 @@ use Backpack\CRUD\app\Http\Controllers\CrudController;
 use App\Models\Inventory;
 use App\Models\Order;
 use App\Models\OrderShippingAddress;
+use App\Models\OrderStatus;
 use App\Models\OrderBillingAddress;
 use App\Models\OrderProduct;
 
@@ -108,6 +109,8 @@ class OrderCrudController extends CrudController
 
         $this->crud->addButtonFromView('top', 'sync_orders', 'sync_orders', 'top');
 
+        $this->crud->addButtonFromView('line', 'order_view', 'order_view', 'beginning');
+
         // ------ CRUD ACCESS
         // $this->crud->allowAccess(['list', 'create', 'update', 'reorder', 'delete']);
         // $this->crud->denyAccess(['list', 'create', 'update', 'reorder', 'delete']);
@@ -193,6 +196,18 @@ class OrderCrudController extends CrudController
         // your additional operations after save here
         // use $this->data['entry'] or $this->crud->entry
         return $redirect_location;
+    }
+
+    public function show($id)
+    {
+        // $this->crud->hasAccessOrFail('show');
+
+        $crud = $this->crud;
+
+        $order = Order::findOrFail($id);
+        $order_status_options = OrderStatus::orderBy('id', 'asc')->pluck('name', 'id');
+
+        return view('admin.orders.show', compact('order', 'crud', 'order_status_options'));
     }
 
     public function sync()
