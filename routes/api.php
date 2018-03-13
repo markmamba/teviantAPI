@@ -17,7 +17,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::group(['namespace' => 'Api', 'middleware' => ['client']], function() {
+Route::group(['namespace' => 'Api', 'middleware' => ['client'], 'as' => 'api.'], function() {
 
 	// test route
 	Route::get('test', function (Request $request) {
