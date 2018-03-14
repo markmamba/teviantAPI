@@ -15,6 +15,13 @@
 
 @section('content')
 	{{--  --}}
+
+	<div class="row">
+		<div class="col-md-12">
+			@include('errors.list')
+		</div>
+	</div>
+
 	<div class="row">
 		<div class="col-md-4">
 			<div class="box box-default">
@@ -30,12 +37,12 @@
 					{{ $order->full_user_name }}
 					<h5>Status</h5>
 
-					{!! Form::open(['url' => 'foo/bar']) !!}
+					{!! Form::open(['route' => ['crud.order.update', $order->id], 'method' => 'PATCH']) !!}
 						<p>
-							{!! Form::select('status', $order_status_options, $order->status->id, ['class' => 'form-control']) !!}
+							{!! Form::select('status_id', $order_status_options, $order->status->id, ['class' => 'form-control']) !!}
 						</p>
 						<p>
-							{!! Form::submit('Update Status', ['class' => 'form-control btn btn-default', 'disabled']) !!}
+							{!! Form::submit('Update Status', ['class' => 'form-control btn btn-default']) !!}
 						</p>
 					{!! Form::close() !!}
 				</div>

@@ -12,8 +12,9 @@ use App\Models\OrderBillingAddress;
 use App\Models\OrderProduct;
 
 // VALIDATION: change the requests to match your own file names if you need form validation
-use App\Http\Requests\OrderRequest as StoreRequest;
-use App\Http\Requests\OrderRequest as UpdateRequest;
+// use App\Http\Requests\OrderRequest as StoreRequest;
+// use App\Http\Requests\OrderRequest as UpdateRequest;
+use App\Http\Requests\UpdateOrderRequest;
 use GuzzleHttp\Client;
 
 class OrderCrudController extends CrudController
@@ -189,13 +190,15 @@ class OrderCrudController extends CrudController
         return $redirect_location;
     }
 
-    public function update(UpdateRequest $request)
-    {
-        // your additional operations before save here
-        $redirect_location = parent::updateCrud($request);
-        // your additional operations after save here
-        // use $this->data['entry'] or $this->crud->entry
-        return $redirect_location;
+    public function update(UpdateOrderRequest $request, $id)
+    {   
+        $order = Order::findOrFail($id);
+
+        $order->update($request->all());
+
+        \Alert::success('Status updated.')->flash();
+
+        return redirect()->route('order.show', $id);
     }
 
     public function show($id)
