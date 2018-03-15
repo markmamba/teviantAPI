@@ -35,16 +35,21 @@
 					{{ $order->created_at }}
 					<h5>Customer</h5>
 					{{ $order->full_user_name }}
+					
+					{{-- Show order status accordingly --}}
 					<h5>Status</h5>
-
-					{!! Form::open(['route' => ['crud.order.update', $order->id], 'method' => 'PATCH']) !!}
-						<p>
-							{!! Form::select('status_id', $order_status_options, $order->status->id, ['class' => 'form-control']) !!}
-						</p>
-						<p>
-							{!! Form::submit('Update Status', ['class' => 'form-control btn btn-default']) !!}
-						</p>
-					{!! Form::close() !!}
+					@if($order->status->name == 'Pending')
+						<span class="label label-warning">Pending</span>
+					@endif
+					@if($order->status->name == 'Processed')
+						<span class="label label-primary">Shipped</span>
+					@endif
+					@if($order->status->name == 'Delivered')
+						<span class="label label-info">Delivered</span>
+					@endif
+					@if($order->status->name == 'Done')
+						<span class="label label-success">Complete</span>
+					@endif
 				</div>
 			</div>
 		</div>
