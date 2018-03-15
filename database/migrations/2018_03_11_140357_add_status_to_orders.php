@@ -13,11 +13,8 @@ class AddStatusToOrders extends Migration
      */
     public function up()
     {
-        // Get the default status (pending)
-        $pending_status = DB::table('order_statuses')->where('name', 'pending')->first();
-
-        Schema::table('orders', function (Blueprint $table) use ($pending_status) {
-            $table->integer('status_id')->unsigned()->after('common_id')->default($pending_status->id);
+        Schema::table('orders', function (Blueprint $table) {
+            $table->integer('status_id')->unsigned()->after('common_id')->default(1);
             $table->foreign('status_id')
                 ->references('id')
                 ->on('order_statuses')
@@ -35,6 +32,7 @@ class AddStatusToOrders extends Migration
     {
         Schema::table('orders', function (Blueprint $table) {
             $table->dropForeign(['status_id']);
+            $table->dropColumn('status_id');
         });
     }
 }
