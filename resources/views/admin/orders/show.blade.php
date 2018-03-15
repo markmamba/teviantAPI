@@ -81,7 +81,7 @@
 							<li>
 							{{ $product->quantity }} x {{ $product->name }}
 								<br>
-								SKU: {{ number_format($product->sku) }}
+								SKU: {{ ($product->sku) }}
 								<span class="pull-right">{{ number_format($product->price) }}</span>
 							</li>
 						@endforeach
