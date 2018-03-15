@@ -68,16 +68,8 @@ class OrderCrudController extends CrudController
             'name'  => 'common_id'
         ]);
         $this->crud->addColumn([
-            'label' => 'User',
+            'label' => 'Customer',
             'name'  => 'full_user_name'
-        ]);
-        $this->crud->addColumn([
-            'label' => 'Shipping Address',
-            'name'  => 'full_shipping_address'
-        ]);
-        $this->crud->addColumn([
-            'label' => 'Billing Address',
-            'name'  => 'full_billing_address'
         ]);
         $this->crud->addColumn([
             'label' => 'Total',
