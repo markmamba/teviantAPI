@@ -208,7 +208,7 @@ class OrderCrudController extends CrudController
         $crud = $this->crud;
 
         $order = Order::findOrFail($id);
-        $order_status_options = OrderStatus::orderBy('id', 'asc')->pluck('name', 'id');
+        $order_status_options = collect(OrderStatus::orderBy('id', 'asc')->pluck('name', 'id'));
 
         return view('admin.orders.show', compact('order', 'crud', 'order_status_options'));
     }

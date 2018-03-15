@@ -86,6 +86,42 @@
 					<p>
 						Total <span class="pull-right">{{ number_format($order->total) }}</span>
 					</p>
+					<p>
+						{{-- Show the progressive order button accordingly --}}
+						@if($order->status->name == 'Pending')
+							{!! Form::open(['route' => ['crud.order.update', $order->id], 'method' => 'PATCH', '']) !!}
+								{!! Form::hidden('status_id', $order_status_options->search('Processed')) !!}
+								{!! Form::submit('Ship Order', ['class' => 'form-control btn btn-primary']) !!}
+							{!! Form::close() !!}
+						@endif
+						@if($order->status->name == 'Processed')
+							{!! Form::open(['route' => ['crud.order.update', $order->id], 'method' => 'PATCH', '']) !!}
+								{!! Form::hidden('status_id', $order_status_options->search('Delivered')) !!}
+								{!! Form::submit('Set as Delivered', ['class' => 'form-control btn btn-primary']) !!}
+							{!! Form::close() !!}
+						@endif
+						@if($order->status->name == 'Delivered')
+							{!! Form::open(['route' => ['crud.order.update', $order->id], 'method' => 'PATCH', '']) !!}
+								{!! Form::hidden('status_id', $order_status_options->search('Done')) !!}
+								{!! Form::submit('Complete Order', ['class' => 'form-control btn btn-primary']) !!}
+							{!! Form::close() !!}
+						@endif
+					</p>
+					{{-- Set the cancel button accordingly --}}
+					<p>
+						@if($order->status->name != 'Done')
+							{!! Form::open(['route' => ['crud.order.update', $order->id], 'method' => 'PATCH']) !!}
+								{!! Form::hidden('status_id', $order_status_options->search('Done')) !!}
+								{!! Form::submit('Cancel Order', ['class' => 'form-control btn btn-default']) !!}
+							{!! Form::close() !!}
+						@endif
+						@if($order->status->name == 'Done')
+							{!! Form::open(['route' => ['crud.order.update', $order->id], 'method' => 'PATCH']) !!}
+								{!! Form::hidden('status_id', $order_status_options->search('Pending')) !!}
+								{!! Form::submit('Re-open Order', ['class' => 'form-control btn btn-default']) !!}
+							{!! Form::close() !!}
+						@endif
+					</p>
 				</div>
 			</div>
 		</div>
