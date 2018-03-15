@@ -135,6 +135,10 @@ class OrderCrudController extends CrudController
         return view('admin.orders.show', compact('order', 'crud', 'order_status_options'));
     }
 
+    /**
+     * Sync the orders with the ecommerce site via its API.
+     * @return view
+     */
     public function sync()
     {
         $response = $this->ecommerce_client->get('api/orders');
