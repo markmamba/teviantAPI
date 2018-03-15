@@ -19,6 +19,7 @@ class OrderStatusesTableSeeder extends Seeder
             ['id' => 2, 'name' => 'Processed'],
             ['id' => 3, 'name' => 'Delivered'],
             ['id' => 4, 'name' => 'Done'],
+            ['id' => 5, 'name' => 'Cancelled'],
         ];
 
         DB::table('order_statuses')->insert($order_statuses);

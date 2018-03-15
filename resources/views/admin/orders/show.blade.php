@@ -50,6 +50,9 @@
 					@if($order->status->name == 'Done')
 						<span class="label label-success">Complete</span>
 					@endif
+					@if($order->status->name == 'Cancelled')
+						<span class="label label-danger">Cancelled</span>
+					@endif
 				</div>
 			</div>
 		</div>
@@ -114,13 +117,13 @@
 					</p>
 					{{-- Set the cancel button accordingly --}}
 					<p>
-						@if($order->status->name != 'Done')
+						@if($order->status->name != 'Done' && $order->status->name != 'Cancelled')
 							{!! Form::open(['route' => ['crud.order.update', $order->id], 'method' => 'PATCH']) !!}
-								{!! Form::hidden('status_id', $order_status_options->search('Done')) !!}
+								{!! Form::hidden('status_id', $order_status_options->search('Cancelled')) !!}
 								{!! Form::submit('Cancel Order', ['class' => 'form-control btn btn-default']) !!}
 							{!! Form::close() !!}
 						@endif
-						@if($order->status->name == 'Done')
+						@if($order->status->name == 'Done' || $order->status->name == 'Cancelled')
 							{!! Form::open(['route' => ['crud.order.update', $order->id], 'method' => 'PATCH']) !!}
 								{!! Form::hidden('status_id', $order_status_options->search('Pending')) !!}
 								{!! Form::submit('Re-open Order', ['class' => 'form-control btn btn-default']) !!}

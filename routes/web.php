@@ -70,6 +70,7 @@ Route::group([
     Route::get('order/sync', 'OrderCrudController@sync')->name('orders.sync');
     CRUD::resource('order', 'OrderCrudController');
     Route::get('order/{order_id}', 'OrderCrudController@show')->name('order.show');
+    Route::post('order/{order_id}/cancel', 'OrderCrudController@cancel')->name('order.cancel');
     // Route::patch('order/{order_id}', 'OrderCrudController@update')->name('order.update');
 
 });

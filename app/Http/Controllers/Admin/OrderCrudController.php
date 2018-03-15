@@ -116,6 +116,9 @@ class OrderCrudController extends CrudController
     {   
         $order = Order::findOrFail($id);
 
+        // Handle cancellation if so.
+        $request = $this->handleCancellation($request, $id);
+
         $order->update($request->all());
 
         \Alert::success('Status updated.')->flash();
@@ -203,7 +206,7 @@ class OrderCrudController extends CrudController
                     $query->where('code', $product->sku);
                 })->first()->id;
 
-                $order_product->product_id = Inventory::first()->id;
+                $order_product->product_id = Inventory::findBySku2($product->sku)->id;
                 $order_product->order_id   = $new_order->id;
                 $order_product->common_id  = $product->product_id;
                 $order_product->name       = $product->name;
@@ -211,6 +214,37 @@ class OrderCrudController extends CrudController
                 $order_product->quantity   = $product->quantity;
                 $order_product->price      = $product->price_with_tax;
                 $order_product->save();
+
+                // Reserve and or take available stock from the inventory.
+                
+                // Get items' stocks from all locations order by stock with most stock.
+                $item = Inventory::findBySku2($order_product->sku);
+                $stocks = $item->stocks()->orderBy('quantity', 'desc')->get();
+
+                // dd($item, $stocks);
+                
+                if (!$item->isInStock($order_product->quantity)) {
+                    // Record this deficiency so the admins know what to replenish
+                }
+                
+                // Check if we can reserve enough stock from the most abundant location.
+                if ($stocks->first()->hasEnoughStock($order_product->quantity)) {
+                    // Reserve the available stock.
+                    $stocks->first()->take($order_product->quantity);
+                    $order_product->quantity_reserved += $order_product->quantity;
+                    $order_product->save();
+                } else {
+                    // Take what's available from each stock location until we reserve the ordered quantity.
+                    // TODO: record reservations on another table for better tracking (order_product_reservations)
+                    foreach ($stocks as $stock) {
+                        if ($item->isInStock()) {
+                            // Formula: (order - (order - stock)) - reserved
+                            $stock->take(($order_product->quantity - ($order_product->quantity - $stock->quantity)) - $order_product->quantity_reserved);
+                        } else {
+                            continue;
+                        }
+                    }
+                }
             }
         }
 
@@ -219,5 +253,38 @@ class OrderCrudController extends CrudController
         \Alert::success('Synced orders.')->flash();
         
         return redirect()->route('crud.order.index');
+    }
+
+    public function cancel($request, $id)
+    {
+        $order = Order::find($id);
+        
+        // TODO: Put back each order items' stock to where they were taken.
+        // TODO: use rollbacks.
+        // For now lets put them back to any stock.
+        foreach ($order->products as $order_product) {
+            $stock = $order_product->product->stocks()->orderBy('quantity', 'desc')->first();
+            // dd($stock, $order_product->product, $order_product->product->stocks, $order_product->quantity_reserved);
+            $stock->add($order_product->quantity_reserved, 'Cancelled');
+            $order_product->quantity_reserved = 0;
+            $order_product->save();
+        }
+    }
+
+    private function handleCancellation($request, $id)
+    {
+        $cancelled_status = OrderStatus::where('name', 'cancelled')->first();
+        $done_status = OrderStatus::where('name', 'done')->first();
+        
+        if ($request->status_id == $cancelled_status->id) {
+            
+            $this->cancel($request, $id);
+            
+            // Afterwards, change the status_id to the Id of the Done status
+            // because the Ecommerce app does not have a cancelled status yet.
+            $request->status_id = $done_status->id;
+        }
+
+        return $request;
     }
 }
