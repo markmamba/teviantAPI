@@ -16,6 +16,7 @@ use App\Models\OrderProduct;
 // use App\Http\Requests\OrderRequest as UpdateRequest;
 use App\Http\Requests\UpdateOrderRequest;
 use GuzzleHttp\Client;
+use Illuminate\Http\Request;
 
 class OrderCrudController extends CrudController
 {
@@ -215,36 +216,8 @@ class OrderCrudController extends CrudController
                 $order_product->price      = $product->price_with_tax;
                 $order_product->save();
 
-                // Reserve and or take available stock from the inventory.
-                
-                // Get items' stocks from all locations order by stock with most stock.
-                $item = Inventory::findBySku2($order_product->sku);
-                $stocks = $item->stocks()->orderBy('quantity', 'desc')->get();
-
-                // dd($item, $stocks);
-                
-                if (!$item->isInStock($order_product->quantity)) {
-                    // Record this deficiency so the admins know what to replenish
-                }
-                
-                // Check if we can reserve enough stock from the most abundant location.
-                if ($stocks->first()->hasEnoughStock($order_product->quantity)) {
-                    // Reserve the available stock.
-                    $stocks->first()->take($order_product->quantity);
-                    $order_product->quantity_reserved += $order_product->quantity;
-                    $order_product->save();
-                } else {
-                    // Take what's available from each stock location until we reserve the ordered quantity.
-                    // TODO: record reservations on another table for better tracking (order_product_reservations)
-                    foreach ($stocks as $stock) {
-                        if ($item->isInStock()) {
-                            // Formula: (order - (order - stock)) - reserved
-                            $stock->take(($order_product->quantity - ($order_product->quantity - $stock->quantity)) - $order_product->quantity_reserved);
-                        } else {
-                            continue;
-                        }
-                    }
-                }
+                // handle product reservation
+                $this->reserveProduct($order_product);
             }
         }
 
@@ -255,10 +228,10 @@ class OrderCrudController extends CrudController
         return redirect()->route('crud.order.index');
     }
 
-    public function cancel($request, $id)
+    public function cancel($id, $request = null)
     {
         $order = Order::find($id);
-        
+
         // TODO: Put back each order items' stock to where they were taken.
         // TODO: use rollbacks.
         // For now lets put them back to any stock.
@@ -269,6 +242,32 @@ class OrderCrudController extends CrudController
             $order_product->quantity_reserved = 0;
             $order_product->save();
         }
+
+        if (!isset($request)) {
+            $order->update(request()->all());
+
+            return redirect()->route('crud.order.show', $id);
+        }
+    }
+
+    /**
+     * Reopen a given order.
+     * @param  Request $request
+     * @return view
+     */
+    public function reopen(Request $request, $id)
+    {
+        $order = Order::findOrFail($id);
+
+        // Reserve products again for the order.
+        foreach ($order->products as $product) {
+            $this->reserveProduct($product);
+        }
+
+        $pending_status = OrderStatus::where('name', 'pending')->first();
+        $order->update(['status_id' => $pending_status->id]);
+
+        return redirect()->route('crud.order.show', $id);
     }
 
     private function handleCancellation($request, $id)
@@ -278,7 +277,7 @@ class OrderCrudController extends CrudController
         
         if ($request->status_id == $cancelled_status->id) {
             
-            $this->cancel($request, $id);
+            $this->cancel($id, $request);
             
             // Afterwards, change the status_id to the Id of the Done status
             // because the Ecommerce app does not have a cancelled status yet.
@@ -286,5 +285,41 @@ class OrderCrudController extends CrudController
         }
 
         return $request;
+    }
+
+    /**
+     * Reserve and or take available stock from the inventory.
+     * @param  Inventory $inventory
+     */
+    private function reserveProduct(OrderProduct $order_product)
+    {
+        // Get items' stocks from all locations order by stock with most stock.
+        $item = Inventory::findBySku2($order_product->sku);
+        $stocks = $item->stocks()->orderBy('quantity', 'desc')->get();
+
+        // dd($item, $stocks);
+        
+        if (!$item->isInStock($order_product->quantity)) {
+            // Record this deficiency so the admins know what to replenish
+        }
+        
+        // Check if we can reserve enough stock from the most abundant location.
+        if ($stocks->first()->hasEnoughStock($order_product->quantity)) {
+            // Reserve the available stock.
+            $stocks->first()->take($order_product->quantity);
+            $order_product->quantity_reserved += $order_product->quantity;
+            $order_product->save();
+        } else {
+            // Take what's available from each stock location until we reserve the ordered quantity.
+            // TODO: record reservations on another table for better tracking (order_product_reservations)
+            foreach ($stocks as $stock) {
+                if ($item->isInStock()) {
+                    // Formula: (order - (order - stock)) - reserved
+                    $stock->take(($order_product->quantity - ($order_product->quantity - $stock->quantity)) - $order_product->quantity_reserved);
+                } else {
+                    continue;
+                }
+            }
+        }
     }
 }

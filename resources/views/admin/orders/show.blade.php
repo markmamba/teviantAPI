@@ -118,13 +118,13 @@
 					{{-- Set the cancel button accordingly --}}
 					<p>
 						@if($order->status->name != 'Done' && $order->status->name != 'Cancelled')
-							{!! Form::open(['route' => ['crud.order.update', $order->id], 'method' => 'PATCH']) !!}
+							{!! Form::open(['route' => ['order.cancel', $order->id], 'method' => 'PATCH']) !!}
 								{!! Form::hidden('status_id', $order_status_options->search('Cancelled')) !!}
 								{!! Form::submit('Cancel Order', ['class' => 'form-control btn btn-default']) !!}
 							{!! Form::close() !!}
 						@endif
 						@if($order->status->name == 'Done' || $order->status->name == 'Cancelled')
-							{!! Form::open(['route' => ['crud.order.update', $order->id], 'method' => 'PATCH']) !!}
+							{!! Form::open(['route' => ['order.reopen', $order->id], 'method' => 'PATCH']) !!}
 								{!! Form::hidden('status_id', $order_status_options->search('Pending')) !!}
 								{!! Form::submit('Re-open Order', ['class' => 'form-control btn btn-default']) !!}
 							{!! Form::close() !!}
