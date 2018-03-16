@@ -4,12 +4,14 @@ namespace App\Http\Controllers\Admin;
 
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 
+use Auth;
 use App\Models\Inventory;
 use App\Models\Order;
 use App\Models\OrderShippingAddress;
 use App\Models\OrderStatus;
 use App\Models\OrderBillingAddress;
 use App\Models\OrderProduct;
+use App\Models\OrderProductReservation;
 
 // VALIDATION: change the requests to match your own file names if you need form validation
 // use App\Http\Requests\OrderRequest as StoreRequest;
@@ -149,8 +151,8 @@ class OrderCrudController extends CrudController
         foreach ($orders as $order) {
 
             // Skip the order if it is already saved before.
-            if (Order::where('common_id', $order->id)->first())
-                continue;
+            // if (Order::where('common_id', $order->id)->first())
+            //     continue;
             
             // Save the new order
             $new_order = new Order;
@@ -292,6 +294,11 @@ class OrderCrudController extends CrudController
         $item = Inventory::findBySku2($order_product->sku);
         $stocks = $item->stocks()->orderBy('quantity', 'desc')->get();
         
+        // Initialize the product's reservation.
+        $reservation = new OrderProductReservation();
+        $reservation->order_product_id = $order_product->id;
+        $reservation->user_id = Auth::user()->id;
+        
         if (!$item->isInStock($order_product->quantity)) {
             // Record this deficiency so the admins know what to replenish
         }
@@ -302,22 +309,31 @@ class OrderCrudController extends CrudController
                 // dd($order_product, $stocks->first(), $order_product->quantity, $stocks->first()->hasEnoughStock($order_product->quantity));
 
                 // Reserve the available stock.
-                $stocks->first()->take($order_product->quantity);
-                $order_product->quantity_reserved += $order_product->quantity;
-                $order_product->save();
+                // $stocks->first()->take($order_product->quantity);
+                // $order_product->quantity_reserved += $order_product->quantity;
+                // $order_product->save();
+                
+                $reservation->stock_id = $stocks->first()->id;
+                $reservation->quantity_reserved += $order_product->quantity;
             }
         } catch (\Stevebauman\Inventory\Exceptions\NotEnoughStockException $e) {
             // Take what's available from each stock location until we reserve the ordered quantity.
             // TODO: record reservations on another table for better tracking (order_product_reservations)
             foreach ($stocks as $stock) {
-                if ($item->isInStock()) {
+                // if ($item->isInStock()) {
                     // Formula: (order - (order - stock)) - reserved
-                    $stock->take(($order_product->quantity - ($order_product->quantity - $stock->quantity)) - $order_product->quantity_reserved);
-                } else {
-                    continue;
-                }
+                    $stock_quantity_takable = ($order_product->quantity - ($order_product->quantity - $stock->quantity)) - $order_product->quantity_reserved;
+                    $stock->take($stock_quantity_takable);
+
+                    $reservation->stock_id = $stock->id;
+                    $reservation->quantity_reserved += $stock_quantity_takable;
+                // } else {
+                //     continue;
+                // }
             }
         }
+
+        $reservation->save();
 
         return $order_product->reservations();
     }
