@@ -213,7 +213,7 @@ class OrderCrudController extends CrudController
                 $order_product->name       = $product->name;
                 $order_product->sku        = $product->sku;
                 $order_product->quantity   = $product->quantity;
-                $order_product->price      = $product->price_with_tax;
+                $order_product->price      = isset($product->price_with_tax) ? $product->price_with_tax : $product->price;
                 $order_product->save();
 
                 // handle product reservation
