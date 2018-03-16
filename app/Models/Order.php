@@ -55,6 +55,11 @@ class Order extends Model
         return $this->hasOne('App\Models\OrderStatus', 'id', 'status_id');
     }
 
+    public function reservations()
+    {
+        return $this->hasManyThrough('App\Models\OrderProductReservation', 'App\Models\OrderProduct');
+    }
+
     /*
     |--------------------------------------------------------------------------
     | SCOPES

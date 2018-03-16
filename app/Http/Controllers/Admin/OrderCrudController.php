@@ -213,11 +213,11 @@ class OrderCrudController extends CrudController
                 $order_product->save();
 
                 // handle product reservation
-                $this->reserveProduct($order_product);
+                // $this->reserveProduct($order_product);
             }
-        }
 
-        // dd($orders);
+            $this->reserveOrder($new_order);
+        }
         
         \Alert::success('Synced orders.')->flash();
         
@@ -256,9 +256,7 @@ class OrderCrudController extends CrudController
         $order = Order::findOrFail($id);
 
         // Reserve products again for the order.
-        foreach ($order->products as $product) {
-            $this->reserveProduct($product);
-        }
+        $this->reserveOrder($order);
 
         $pending_status = OrderStatus::where('name', 'pending')->first();
         $order->update(['status_id' => $pending_status->id]);
@@ -284,28 +282,44 @@ class OrderCrudController extends CrudController
     }
 
     /**
+     * Reserve a given order's products.
+     * @param  App\Models\Order $order The model instance or the id of the model
+     * @return Collection of App\Models\OrderProductReservation
+     */
+    private function reserveOrder($order)
+    {
+        foreach ($order->products as $product) {
+            $this->reserveProduct($product);
+        }
+
+        return $order->reservations;
+    }
+
+    /**
      * Reserve and or take available stock from the inventory.
-     * @param  Inventory $inventory
+     * @return  Collection of App\Models\OrderProductReservation
      */
     private function reserveProduct(OrderProduct $order_product)
     {
         // Get items' stocks from all locations order by stock with most stock.
         $item = Inventory::findBySku2($order_product->sku);
         $stocks = $item->stocks()->orderBy('quantity', 'desc')->get();
-
-        // dd($item, $stocks);
         
         if (!$item->isInStock($order_product->quantity)) {
             // Record this deficiency so the admins know what to replenish
         }
-        
+
         // Check if we can reserve enough stock from the most abundant location.
-        if ($stocks->first()->hasEnoughStock($order_product->quantity)) {
-            // Reserve the available stock.
-            $stocks->first()->take($order_product->quantity);
-            $order_product->quantity_reserved += $order_product->quantity;
-            $order_product->save();
-        } else {
+        try {
+            if ($stocks->first()->hasEnoughStock($order_product->quantity)) {
+                // dd($order_product, $stocks->first(), $order_product->quantity, $stocks->first()->hasEnoughStock($order_product->quantity));
+
+                // Reserve the available stock.
+                $stocks->first()->take($order_product->quantity);
+                $order_product->quantity_reserved += $order_product->quantity;
+                $order_product->save();
+            }
+        } catch (\Stevebauman\Inventory\Exceptions\NotEnoughStockException $e) {
             // Take what's available from each stock location until we reserve the ordered quantity.
             // TODO: record reservations on another table for better tracking (order_product_reservations)
             foreach ($stocks as $stock) {
@@ -317,5 +331,7 @@ class OrderCrudController extends CrudController
                 }
             }
         }
+
+        return $order_product->reservations();
     }
 }
