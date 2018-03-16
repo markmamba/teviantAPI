@@ -37,6 +37,21 @@ class Inventory extends Model
     | FUNCTIONS
     |--------------------------------------------------------------------------
     */
+   
+    /**
+     * Alternate findBySku.
+     * Because were getting the error with findBySku():
+     * 'Inventory class not found'
+     * 
+     * @param  string $sku
+     * @return App\Models\Inventory
+     */
+    public static function findBySku2($sku = '')
+    {
+        return self::whereHas('sku', function ($query) use ($sku) {
+            $query->where('code', $sku);
+        })->first();
+    }
 
     /*
     |--------------------------------------------------------------------------
@@ -66,6 +81,11 @@ class Inventory extends Model
     public function suppliers()
     {
         return $this->belongsToMany('App\Models\Supplier', 'inventory_suppliers', 'inventory_id')->withTimestamps();
+    }
+
+    public function order_products()
+    {
+        return $this->hasMany('App\Models\OrderProduct', 'product_id');
     }
 
     /*

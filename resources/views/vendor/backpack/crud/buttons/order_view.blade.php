@@ -1,0 +1,1 @@
+<a href="{{ route('order.show', $entry->getKey()) }}" class="btn btn-xs btn-default" title="View order" data-toggle="tooltip"><i class="fa fa-eye"></i> View</a>
