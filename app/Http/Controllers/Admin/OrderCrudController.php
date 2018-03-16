@@ -309,10 +309,7 @@ class OrderCrudController extends CrudController
                 // dd($order_product, $stocks->first(), $order_product->quantity, $stocks->first()->hasEnoughStock($order_product->quantity));
 
                 // Reserve the available stock.
-                // $stocks->first()->take($order_product->quantity);
-                // $order_product->quantity_reserved += $order_product->quantity;
-                // $order_product->save();
-                
+                $stocks->first()->take($order_product->quantity);
                 $reservation->stock_id = $stocks->first()->id;
                 $reservation->quantity_reserved += $order_product->quantity;
             }
@@ -320,16 +317,12 @@ class OrderCrudController extends CrudController
             // Take what's available from each stock location until we reserve the ordered quantity.
             // TODO: record reservations on another table for better tracking (order_product_reservations)
             foreach ($stocks as $stock) {
-                // if ($item->isInStock()) {
-                    // Formula: (order - (order - stock)) - reserved
-                    $stock_quantity_takable = ($order_product->quantity - ($order_product->quantity - $stock->quantity)) - $order_product->quantity_reserved;
-                    $stock->take($stock_quantity_takable);
+                // Formula: (order - (order - stock)) - reserved
+                $stock_quantity_takable = ($order_product->quantity - ($order_product->quantity - $stock->quantity)) - $order_product->quantity_reserved;
+                $stock->take($stock_quantity_takable);
 
-                    $reservation->stock_id = $stock->id;
-                    $reservation->quantity_reserved += $stock_quantity_takable;
-                // } else {
-                //     continue;
-                // }
+                $reservation->stock_id = $stock->id;
+                $reservation->quantity_reserved += $stock_quantity_takable;
             }
         }
 
