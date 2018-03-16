@@ -12,11 +12,11 @@ return [
     */
 
     // Project name. Shown in the breadcrumbs and a few other places.
-    'project_name' => 'Teviant Inventory',
+    'project_name' => 'Teviant OMS',
 
     // Menu logos
-    'logo_lg'   => '<b>Teviant</b> Inventory',
-    'logo_mini' => '<b>t</b>i',
+    'logo_lg'   => '<b>Teviant</b> OMS',
+    'logo_mini' => '<b>t</b>oms',
 
     // Developer or company name. Shown in footer.
     'developer_name' => 'Boomtech.co',
