@@ -28,6 +28,18 @@ class Order extends Model
     | FUNCTIONS
     |--------------------------------------------------------------------------
     */
+   
+    /**
+     * Return true if the order has sufficient reservations else, return the defiency.
+     * @return boolean
+     */
+    public function isSufficient()
+    {
+        if ($this->products->sum('quantity') - $this->reservations->sum('quantity_reserved'))
+            return false;
+        else
+            return true;
+    }
 
     /*
     |--------------------------------------------------------------------------
@@ -101,5 +113,10 @@ class Order extends Model
     public function getTotalAttribute()
     {
         return $this->products->sum('price');
+    }
+
+    public function getDeficiencyAttribute()
+    {
+        return $this->products->sum('quantity') - $this->reservations->sum('quantity_reserved');
     }
 }

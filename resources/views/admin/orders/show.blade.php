@@ -141,6 +141,12 @@
 			<div class="box">
 				<div class="box-header with-border">
 					<h3 class="box-title">Pick List (Reservations)</h3>
+					<br>
+					@if($order->isSufficient())
+						<span class="label label-success">Sufficient</span>
+					@else
+						<span class="label label-danger">{{ $order->deficiency }} {{ str_plural('Deficieny', $order->deficiency) }} </span>
+					@endif
 				</div>
 				<div class="box-body">
 					<table class="table table-responsive">
