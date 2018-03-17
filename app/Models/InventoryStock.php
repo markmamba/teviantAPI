@@ -52,6 +52,15 @@ class InventoryStock extends Model
 
     //     return '<a class="btn btn-xs btn-default" href="' . $route . '" data-toggle="tooltip" title="Subtract stock"><i class="fa fa-minus"></i> Subtract</a>';
     // }
+    
+    /**
+     * Get the last movement of the stock.
+     * @return App\Models\InventoryStockMovement
+     */
+    public function getLastMovement()
+    {
+        return $this->movements()->orderBy('created_at', 'desc')->first();
+    }
 
     /*
     |--------------------------------------------------------------------------

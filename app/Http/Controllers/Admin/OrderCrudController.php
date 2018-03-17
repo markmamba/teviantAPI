@@ -294,11 +294,6 @@ class OrderCrudController extends CrudController
         $item = Inventory::findBySku2($order_product->sku);
         $stocks = $item->stocks()->orderBy('quantity', 'desc')->get();
         
-        // Initialize the product's reservation.
-        $reservation = new OrderProductReservation();
-        $reservation->order_product_id = $order_product->id;
-        $reservation->user_id = Auth::user()->id;
-        
         if (!$item->isInStock($order_product->quantity)) {
             // Record this deficiency so the admins know what to replenish
         }
@@ -306,27 +301,41 @@ class OrderCrudController extends CrudController
         // Check if we can reserve enough stock from the most abundant location.
         try {
             if ($stocks->first()->hasEnoughStock($order_product->quantity)) {
-                // dd($order_product, $stocks->first(), $order_product->quantity, $stocks->first()->hasEnoughStock($order_product->quantity));
-
                 // Reserve the available stock.
                 $stocks->first()->take($order_product->quantity);
+
+                // Save the product's reservation.
+                $reservation = new OrderProductReservation();
+                $reservation->order_product_id = $order_product->id;
+                $reservation->user_id = Auth::user()->id;
                 $reservation->stock_id = $stocks->first()->id;
                 $reservation->quantity_reserved += $order_product->quantity;
+                $reservation->movement_id = $stocks->first()->getLastMovement()->id;
+                $reservation->save();
             }
         } catch (\Stevebauman\Inventory\Exceptions\NotEnoughStockException $e) {
             // Take what's available from each stock location until we reserve the ordered quantity.
-            // TODO: record reservations on another table for better tracking (order_product_reservations)
             foreach ($stocks as $stock) {
-                // Formula: (order - (order - stock)) - reserved
-                $stock_quantity_takable = ($order_product->quantity - ($order_product->quantity - $stock->quantity)) - $order_product->quantity_reserved;
-                $stock->take($stock_quantity_takable);
+                try {
+                    if ($stock->quantity > 0) {
+                        // Formula: (order - (order - stock)) - reserved
+                        $stock_quantity_takable = ($order_product->quantity - ($order_product->quantity - $stock->quantity)) - $order_product->quantity_reserved;
+                        $stock->take($stock_quantity_takable);
 
-                $reservation->stock_id = $stock->id;
-                $reservation->quantity_reserved += $stock_quantity_takable;
+                        // Save the product's reservation.
+                        $reservation = new OrderProductReservation();
+                        $reservation->order_product_id = $order_product->id;
+                        $reservation->user_id = Auth::user()->id;
+                        $reservation->stock_id = $stocks->first()->id;
+                        $reservation->quantity_reserved += $stock_quantity_takable;
+                        $reservation->movement_id = $stock->getLastMovement()->id;
+                        $reservation->save();
+                    }
+                } catch (\Stevebauman\Inventory\Exceptions\NotEnoughStockException $e) {
+                    break;
+                }
             }
         }
-
-        $reservation->save();
 
         return $order_product->reservations();
     }
