@@ -28,4 +28,13 @@ class OrderProductReservation extends Model
     {
         return $this->belongsTo('App\Models\InventoryStockMovement', 'movement_id');
     }
+
+    /**
+     * Get the deficiency of the reservation.
+     * @return int
+     */
+    public function getDeficiencyAttribute()
+    {
+        return $this->order_product->quantity - $this->quantity_reserved;
+    }
 }
