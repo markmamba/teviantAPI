@@ -23,4 +23,9 @@ class OrderProductReservation extends Model
     {
     	return $this->belongsTo('App\Models\InventoryStock');
     }
+
+    public function movement()
+    {
+        return $this->belongsTo('App\Models\InventoryStockMovement', 'movement_id');
+    }
 }

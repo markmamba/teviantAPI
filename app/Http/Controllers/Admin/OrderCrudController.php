@@ -218,10 +218,9 @@ class OrderCrudController extends CrudController
         $order = Order::find($id);
         
         // Put back stock to the stock they where taken from.
-        // TODO: use movement rollbacks() instead of add()
         foreach ($order->products as $order_product) {
             foreach ($order_product->reservations as $reservation) {
-                $reservation->stock->add($reservation->quantity_reserved, 'Cancelled');
+                $reservation->movement->rollback();
                 $reservation->quantity_reserved = 0;
                 $reservation->save();
             }
