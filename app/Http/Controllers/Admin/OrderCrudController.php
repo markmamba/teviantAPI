@@ -216,18 +216,18 @@ class OrderCrudController extends CrudController
     public function cancel($id, $request = null)
     {
         $order = Order::find($id);
-
-        // TODO: Put back each order items' stock to where they were taken.
-        // TODO: use rollbacks.
-        // For now lets put them back to any stock.
+        
+        // Put back stock to the stock they where taken from.
+        // TODO: use movement rollbacks() instead of add()
         foreach ($order->products as $order_product) {
-            $stock = $order_product->product->stocks()->orderBy('quantity', 'desc')->first();
-            // dd($stock, $order_product->product, $order_product->product->stocks, $order_product->quantity_reserved);
-            $stock->add($order_product->quantity_reserved, 'Cancelled');
-            $order_product->quantity_reserved = 0;
-            $order_product->save();
+            foreach ($order_product->reservations as $reservation) {
+                $reservation->stock->add($reservation->quantity_reserved, 'Cancelled');
+                $reservation->quantity_reserved = 0;
+                $reservation->save();
+            }
         }
 
+        // If this function was triggered from an HTTP submit form.
         if (!isset($request)) {
             $order->update(request()->all());
 

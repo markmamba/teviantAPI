@@ -18,4 +18,9 @@ class OrderProductReservation extends Model
     {
     	return $this->belongsTo('App\Models\OrderProduct');
     }
+
+    public function stock()
+    {
+    	return $this->belongsTo('App\Models\InventoryStock');
+    }
 }
