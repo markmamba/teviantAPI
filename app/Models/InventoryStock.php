@@ -52,6 +52,15 @@ class InventoryStock extends Model
 
     //     return '<a class="btn btn-xs btn-default" href="' . $route . '" data-toggle="tooltip" title="Subtract stock"><i class="fa fa-minus"></i> Subtract</a>';
     // }
+    
+    /**
+     * Get the last movement of the stock.
+     * @return App\Models\InventoryStockMovement
+     */
+    public function getLastMovement()
+    {
+        return $this->movements()->orderBy('created_at', 'desc')->first();
+    }
 
     /*
     |--------------------------------------------------------------------------
@@ -76,6 +85,11 @@ class InventoryStock extends Model
     public function location()
     {
         return $this->hasOne('App\Models\Location', 'id', 'location_id');
+    }
+
+    public function reservations()
+    {
+        return $this->hasMany('App\Models\OrderProductReservation');
     }
 
     /*

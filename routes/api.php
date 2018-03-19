@@ -16,3 +16,14 @@ use Illuminate\Http\Request;
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+Route::group(['namespace' => 'Api', 'middleware' => ['client'], 'as' => 'api.'], function() {
+
+	// test route
+	Route::get('test', function (Request $request) {
+    	return 'Welcome to our API!';
+	});
+
+	Route::apiResource('orders', 'OrdersController');
+
+});

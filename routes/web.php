@@ -69,5 +69,9 @@ Route::group([
     // Orders
     Route::get('order/sync', 'OrderCrudController@sync')->name('orders.sync');
     CRUD::resource('order', 'OrderCrudController');
+    Route::get('order/{order_id}', 'OrderCrudController@show')->name('order.show');
+    Route::patch('order/{order_id}/cancel', 'OrderCrudController@cancel')->name('order.cancel');
+    Route::patch('order/{order_id}/reopen', 'OrderCrudController@reopen')->name('order.reopen');
+    // Route::patch('order/{order_id}', 'OrderCrudController@update')->name('order.update');
 
 });

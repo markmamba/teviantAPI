@@ -4,22 +4,26 @@ namespace App\Http\Controllers\Admin;
 
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 
+use Auth;
 use App\Models\Inventory;
 use App\Models\Order;
 use App\Models\OrderShippingAddress;
+use App\Models\OrderStatus;
 use App\Models\OrderBillingAddress;
 use App\Models\OrderProduct;
+use App\Models\OrderProductReservation;
 
 // VALIDATION: change the requests to match your own file names if you need form validation
-use App\Http\Requests\OrderRequest as StoreRequest;
-use App\Http\Requests\OrderRequest as UpdateRequest;
+// use App\Http\Requests\OrderRequest as StoreRequest;
+// use App\Http\Requests\OrderRequest as UpdateRequest;
+use App\Http\Requests\UpdateOrderRequest;
 use GuzzleHttp\Client;
+use Illuminate\Http\Request;
 
 class OrderCrudController extends CrudController
 {
     public function setup()
     {
-
         /*
         |--------------------------------------------------------------------------
         | BASIC CRUD INFORMATION
@@ -35,97 +39,55 @@ class OrderCrudController extends CrudController
         |--------------------------------------------------------------------------
         */
 
-        $this->crud->setFromDb();
-
         // ------ CRUD FIELDS
-        // $this->crud->addField($options, 'update/create/both');
-        // $this->crud->addFields($array_of_arrays, 'update/create/both');
-        // $this->crud->removeField('name', 'update/create/both');
-        // $this->crud->removeFields($array_of_names, 'update/create/both');
 
         // ------ CRUD COLUMNS
-        // $this->crud->addColumn(); // add a single column, at the end of the stack
-        // $this->crud->addColumns(); // add multiple columns, at the end of the stack
-        // $this->crud->removeColumn('column_name'); // remove a column from the stack
-        // $this->crud->removeColumns(['column_name_1', 'column_name_2']); // remove an array of columns from the stack
-        // $this->crud->setColumnDetails('column_name', ['attribute' => 'value']); // adjusts the properties of the passed in column (by name)
-        // $this->crud->setColumnsDetails(['column_1', 'column_2'], ['attribute' => 'value']);
         
-        // $this->crud->addColumn([
-        //    // 1-n relationship
-        //    'label'     => 'Order', // Table column heading
-        //    'type'      => 'select',
-        //    'name'      => 'order_id', // the column that contains the ID of that connected entity;
-        //    'entity'    => 'order', // the method that defines the relationship in your Model
-        //    'attribute' => 'products_count', // foreign key attribute that is shown to user
-        //    'tab'       => 'Primary',
-        // ]);
-
-        $this->crud->removeColumn('common_id');
-        // $this->crud->addColumn('user_name');
-        // $this->crud->addColumn('shipping_address');
-        // $this->crud->addColumn('billing_address');
-        $this->crud->addColumn('products_count');
-        $this->crud->addColumn('created_at'); // add a single column, at the end of the stack
+        $this->crud->addColumn([
+            'label' => 'Id',
+            'name'  => 'common_id'
+        ]);
+        $this->crud->addColumn([
+            'label' => 'Customer',
+            'name'  => 'full_user_name'
+        ]);
+        $this->crud->addColumn([
+            'label' => 'Total',
+            'name'  => 'total'
+        ]);
+        $this->crud->addColumn([
+           'label'     => 'Status',
+           'type'      => 'select',
+           'name'      => 'status_id',
+           'entity'    => 'status',
+           'attribute' => 'name',
+        ]);
+        $this->crud->addColumn([
+            'label' => 'Created At',
+            'name'  => 'created_at'
+        ]);
 
         // ------ CRUD BUTTONS
-        // possible positions: 'beginning' and 'end'; defaults to 'beginning' for the 'line' stack, 'end' for the others;
-        // $this->crud->addButton($stack, $name, $type, $content, $position); // add a button; possible types are: view, model_function
-        // $this->crud->addButtonFromModelFunction($stack, $name, $model_function_name, $position); // add a button whose HTML is returned by a method in the CRUD model
-        // $this->crud->addButtonFromView($stack, $name, $view, $position); // add a button whose HTML is in a view placed at resources\views\vendor\backpack\crud\buttons
-        // $this->crud->removeButton($name);
-        // $this->crud->removeButtonFromStack($name, $stack);
-        // $this->crud->removeAllButtons();
-        // $this->crud->removeAllButtonsFromStack('line');
         
         $this->crud->removeAllButtonsFromStack('top');
         $this->crud->removeAllButtonsFromStack('line');
 
         $this->crud->addButtonFromView('top', 'sync_orders', 'sync_orders', 'top');
+        $this->crud->addButtonFromView('line', 'order_view', 'order_view', 'beginning');
 
         // ------ CRUD ACCESS
-        // $this->crud->allowAccess(['list', 'create', 'update', 'reorder', 'delete']);
-        // $this->crud->denyAccess(['list', 'create', 'update', 'reorder', 'delete']);
 
         // ------ CRUD REORDER
-        // $this->crud->enableReorder('label_name', MAX_TREE_LEVEL);
-        // NOTE: you also need to do allow access to the right users: $this->crud->allowAccess('reorder');
 
         // ------ CRUD DETAILS ROW
-        // $this->crud->enableDetailsRow();
-        // NOTE: you also need to do allow access to the right users: $this->crud->allowAccess('details_row');
-        // NOTE: you also need to do overwrite the showDetailsRow($id) method in your EntityCrudController to show whatever you'd like in the details row OR overwrite the views/backpack/crud/details_row.blade.php
 
         // ------ REVISIONS
-        // You also need to use \Venturecraft\Revisionable\RevisionableTrait;
-        // Please check out: https://laravel-backpack.readme.io/docs/crud#revisions
-        // $this->crud->allowAccess('revisions');
 
         // ------ AJAX TABLE VIEW
-        // Please note the drawbacks of this though:
-        // - 1-n and n-n columns are not searchable
-        // - date and datetime columns won't be sortable anymore
-        // $this->crud->enableAjaxTable();
 
         // ------ DATATABLE EXPORT BUTTONS
-        // Show export to PDF, CSV, XLS and Print buttons on the table view.
-        // Does not work well with AJAX datatables.
-        // $this->crud->enableExportButtons();
 
         // ------ ADVANCED QUERIES
-        // $this->crud->addClause('active');
-        // $this->crud->addClause('type', 'car');
-        // $this->crud->addClause('where', 'name', '==', 'car');
-        // $this->crud->addClause('whereName', 'car');
-        // $this->crud->addClause('whereHas', 'posts', function($query) {
-        //     $query->activePosts();
-        // });
-        // $this->crud->addClause('withoutGlobalScopes');
-        // $this->crud->addClause('withoutGlobalScope', VisibleScope::class);
-        // $this->crud->with(); // eager load relationships
-        // $this->crud->orderBy();
-        // $this->crud->groupBy();
-        // $this->crud->limit();
     }
 
     public function __construct()
@@ -140,17 +102,6 @@ class OrderCrudController extends CrudController
         ]);
     }
 
-    // public function index()
-    // {
-    //     $this->crud->hasAccessOrFail('list');
- 
-    //     $this->data['crud'] = $this->crud;
-    //     $this->data['title'] = ucfirst($this->crud->entity_name_plural);
- 
-    //     // load the view from /resources/views/vendor/backpack/crud/ if it exists, otherwise load the one in the package
-    //     return view($this->crud->getListView(), $this->data);
-    // }
-
     public function store(StoreRequest $request)
     {
         // your additional operations before save here
@@ -160,15 +111,36 @@ class OrderCrudController extends CrudController
         return $redirect_location;
     }
 
-    public function update(UpdateRequest $request)
-    {
-        // your additional operations before save here
-        $redirect_location = parent::updateCrud($request);
-        // your additional operations after save here
-        // use $this->data['entry'] or $this->crud->entry
-        return $redirect_location;
+    public function update(UpdateOrderRequest $request, $id)
+    {   
+        $order = Order::findOrFail($id);
+
+        // Handle cancellation if so.
+        $request = $this->handleCancellation($request, $id);
+
+        $order->update($request->all());
+
+        \Alert::success('Status updated.')->flash();
+
+        return redirect()->route('order.show', $id);
     }
 
+    public function show($id)
+    {
+        // $this->crud->hasAccessOrFail('show');
+
+        $crud = $this->crud;
+
+        $order = Order::findOrFail($id);
+        $order_status_options = collect(OrderStatus::orderBy('id', 'asc')->pluck('name', 'id'));
+
+        return view('admin.orders.show', compact('order', 'crud', 'order_status_options'));
+    }
+
+    /**
+     * Sync the orders with the ecommerce site via its API.
+     * @return view
+     */
     public function sync()
     {
         $response = $this->ecommerce_client->get('api/orders');
@@ -179,17 +151,22 @@ class OrderCrudController extends CrudController
         foreach ($orders as $order) {
 
             // Skip the order if it is already saved before.
-            if (Order::where('common_id', $order->id)->first())
-                continue;
+            // if (Order::where('common_id', $order->id)->first())
+            //     continue;
             
             // Save the new order
             $new_order = new Order;
             $new_order->common_id = $order->id;
             $new_order->save();
 
+            // Save the new order's user
+            // $order_user = new OrderUser;
+            // $order_user->first_name
+
             // Save the new order's shipping address
             $shipping_address               = new OrderShippingAddress;
             $shipping_address->common_id    = $order->shipping_address->id;
+            $shipping_address->order_id     = $new_order->id;
             $shipping_address->name         = $order->shipping_address->name;
             $shipping_address->address1     = $order->shipping_address->address1;
             $shipping_address->address2     = $order->shipping_address->address2;
@@ -203,6 +180,7 @@ class OrderCrudController extends CrudController
             // Save the new order's billing address
             $billing_address               = new OrderBillingAddress;
             $billing_address->common_id    = $order->billing_address->id;
+            $billing_address->order_id     = $new_order->id;
             $billing_address->name         = $order->billing_address->name;
             $billing_address->address1     = $order->billing_address->address1;
             $billing_address->address2     = $order->billing_address->address2;
@@ -215,20 +193,148 @@ class OrderCrudController extends CrudController
 
             // Save each order's products.
             foreach ($order->products as $product) {
-                $new_product             = new OrderProduct();
-                // $new_product->product_id = Inventory::findBySku($product->sku);
-                $new_product->order_id   = $new_order->id;
-                $new_product->product_id = Inventory::first()->id;
-                $new_product->common_id  = $product->product_id;
-                $new_product->name       = $product->name;
-                $new_product->sku        = $product->sku;
-                $new_product->quantity   = $product->quantity;
-                $new_product->save();
+                $order_product             = new OrderProduct();
+                $order_product->product_id = Inventory::findBySku2($product->sku)->id;
+                $order_product->order_id   = $new_order->id;
+                $order_product->common_id  = $product->product_id;
+                $order_product->name       = $product->name;
+                $order_product->sku        = $product->sku;
+                $order_product->quantity   = $product->quantity;
+                $order_product->price      = isset($product->price_with_tax) ? $product->price_with_tax : $product->price;
+                $order_product->save();
+            }
+
+             // Handle product reservation
+            $this->reserveOrder($new_order);
+        }
+        
+        \Alert::success('Synced orders.')->flash();
+        
+        return redirect()->route('crud.order.index');
+    }
+
+    public function cancel($id, $request = null)
+    {
+        $order = Order::find($id);
+        
+        // Put back stock to the stock they where taken from.
+        foreach ($order->products as $order_product) {
+            foreach ($order_product->reservations as $reservation) {
+                $reservation->movement->rollback();
+                $reservation->delete();
             }
         }
 
-        // dd($orders);
+        // If this function was triggered from an HTTP submit form.
+        if (!isset($request)) {
+            $order->update(request()->all());
+
+            return redirect()->route('crud.order.show', $id);
+        }
+    }
+
+    /**
+     * Reopen a given order.
+     * @param  Request $request
+     * @return view
+     */
+    public function reopen(Request $request, $id)
+    {
+        $order = Order::findOrFail($id);
+
+        // Reserve products again for the order.
+        $this->reserveOrder($order);
+
+        $pending_status = OrderStatus::where('name', 'pending')->first();
+        $order->update(['status_id' => $pending_status->id]);
+
+        return redirect()->route('crud.order.show', $id);
+    }
+
+    private function handleCancellation($request, $id)
+    {
+        $cancelled_status = OrderStatus::where('name', 'cancelled')->first();
+        $done_status = OrderStatus::where('name', 'done')->first();
         
-        return redirect()->route('crud.order.index');
+        if ($request->status_id == $cancelled_status->id) {
+            
+            $this->cancel($id, $request);
+            
+            // Afterwards, change the status_id to the Id of the Done status
+            // because the Ecommerce app does not have a cancelled status yet.
+            $request->status_id = $done_status->id;
+        }
+
+        return $request;
+    }
+
+    /**
+     * Reserve a given order's products.
+     * @param  App\Models\Order $order The model instance or the id of the model
+     * @return Collection of App\Models\OrderProductReservation
+     */
+    private function reserveOrder($order)
+    {
+        foreach ($order->products as $product) {
+            $this->reserveProduct($product);
+        }
+
+        return $order->reservations;
+    }
+
+    /**
+     * Reserve and or take available stock from the inventory.
+     * @return  Collection of App\Models\OrderProductReservation
+     */
+    private function reserveProduct(OrderProduct $order_product)
+    {
+        // Get items' stocks from all locations order by stock with most stock.
+        $item = Inventory::findBySku2($order_product->sku);
+        $stocks = $item->stocks()->orderBy('quantity', 'desc')->get();
+        
+        if (!$item->isInStock($order_product->quantity)) {
+            // Record this deficiency so the admins know what to replenish
+        }
+
+        // Check if we can reserve enough stock from the most abundant location.
+        try {
+            if ($stocks->first()->hasEnoughStock($order_product->quantity)) {
+                // Reserve the available stock.
+                $stocks->first()->take($order_product->quantity);
+
+                // Save the product's reservation.
+                $reservation = new OrderProductReservation();
+                $reservation->order_product_id = $order_product->id;
+                $reservation->user_id = Auth::user()->id;
+                $reservation->stock_id = $stocks->first()->id;
+                $reservation->quantity_reserved += $order_product->quantity;
+                $reservation->movement_id = $stocks->first()->getLastMovement()->id;
+                $reservation->save();
+            }
+        } catch (\Stevebauman\Inventory\Exceptions\NotEnoughStockException $e) {
+            // Take what's available from each stock location until we reserve the ordered quantity.
+            foreach ($stocks as $stock) {
+                try {
+                    if ($stock->quantity > 0) {
+                        // Formula: (order - (order - stock)) - reserved
+                        $stock_quantity_takable = ($order_product->quantity - ($order_product->quantity - $stock->quantity)) - $order_product->quantity_reserved;
+                        $stock->take($stock_quantity_takable);
+
+                        // Save the product's reservation.
+                        $reservation = new OrderProductReservation();
+                        $reservation->order_product_id = $order_product->id;
+                        $reservation->user_id = Auth::user()->id;
+                        $reservation->stock_id = $stocks->first()->id;
+                        $reservation->quantity_reserved += $stock_quantity_takable;
+                        $reservation->movement_id = $stock->getLastMovement()->id;
+                        $reservation->save();
+                    }
+                } catch (\Stevebauman\Inventory\Exceptions\NotEnoughStockException $e) {
+                    break;
+                }
+            }
+        }
+
+        return $order_product->reservations();
     }
 }
