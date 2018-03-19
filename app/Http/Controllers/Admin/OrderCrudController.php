@@ -221,8 +221,7 @@ class OrderCrudController extends CrudController
         foreach ($order->products as $order_product) {
             foreach ($order_product->reservations as $reservation) {
                 $reservation->movement->rollback();
-                $reservation->quantity_reserved = 0;
-                $reservation->save();
+                $reservation->delete();
             }
         }
 
