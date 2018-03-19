@@ -135,6 +135,53 @@
 		</div>
 	</div>
 
+	{{-- Picked List (Reservations) panel --}}
+	<div class="row">
+		<div class="col-md-12">
+			<div class="box">
+				<div class="box-header with-border">
+					<h3 class="box-title">Pick List (Reservations)</h3>
+					<br>
+					@if($order->isSufficient())
+						<span class="label label-success">Sufficient</span>
+					@else
+						<span class="label label-danger">{{ $order->deficiency }} {{ str_plural('Deficieny', $order->deficiency) }} </span>
+					@endif
+				</div>
+				<div class="box-body">
+					<table class="table table-responsive">
+						<thead>
+							<th>SKU</th>
+							<th>Location</th>
+							<th>Aisle-Row-Bin</th>
+							<th>Reserved</th>
+							<th>Picked</th>
+							<th>Deficiency</th>
+						</thead>
+						<tbody>
+							@foreach($order->reservations as $reservation)
+								<tr>
+									<td>{{ $reservation->stock->item->sku_code }}</td>
+									<td>{{ $reservation->stock->location->name }}</td>
+									<td>{{ $reservation->stock->aisle }}-{{ $reservation->stock->row }}-{{ $reservation->stock->bin }}</td>
+									<td>{{ $reservation->quantity_reserved }}</td>
+									<td>{{ $reservation->quantity_taken }}</td>
+									<td>
+										@if(!$reservation->deficiency)
+											{{ $reservation->deficiency }}
+										@else
+											<span class="label label-danger">{{ $reservation->deficiency }}</span>
+										@endif
+									</td>
+								</tr>
+							@endforeach
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+
 	<a href="{{ route('crud.order.index') }}">
 		<i class="fa fa-angle-double-left"></i> Back to all orders
 	</a>

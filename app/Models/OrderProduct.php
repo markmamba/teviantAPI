@@ -15,4 +15,9 @@ class OrderProduct extends Model
     {
     	return $this->belongsTo('App\Models\Inventory', 'product_id');
     }
+
+    public function reservations()
+    {
+    	return $this->hasMany('App\Models\OrderProductReservation');
+    }
 }
