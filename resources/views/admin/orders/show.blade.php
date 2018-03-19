@@ -96,11 +96,8 @@
 					</p>
 					<p>
 						{{-- Show the progressive order button accordingly --}}
-						@if($order->status->name == 'Pending')
-							{!! Form::open(['route' => ['crud.order.update', $order->id], 'method' => 'PATCH', '']) !!}
-								{!! Form::hidden('status_id', $order_status_options->search('Processed')) !!}
-								{!! Form::submit('Ship Order', ['class' => 'form-control btn btn-primary']) !!}
-							{!! Form::close() !!}
+						@if($order->status->name == 'Pending' && $order->isSufficient())
+							<a href="{{ route('order.ship', $order->id) }}" class="btn btn-primary btn-block">Ship Order</a>
 						@endif
 						@if($order->status->name == 'Processed')
 							{!! Form::open(['route' => ['crud.order.update', $order->id], 'method' => 'PATCH', '']) !!}
