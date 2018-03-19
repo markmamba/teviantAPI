@@ -72,6 +72,11 @@ class Order extends Model
         return $this->hasManyThrough('App\Models\OrderProductReservation', 'App\Models\OrderProduct');
     }
 
+    public function carrier()
+    {
+        return $this->hasOne('App\Models\OrderCarrier', 'order_id');
+    }
+
     /*
     |--------------------------------------------------------------------------
     | SCOPES

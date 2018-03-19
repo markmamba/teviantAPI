@@ -7,6 +7,7 @@ use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Auth;
 use App\Models\Inventory;
 use App\Models\Order;
+use App\Models\OrderCarrier;
 use App\Models\OrderShippingAddress;
 use App\Models\OrderStatus;
 use App\Models\OrderBillingAddress;
@@ -191,6 +192,13 @@ class OrderCrudController extends CrudController
             $billing_address->mobile_phone = $order->billing_address->mobile_phone;
             $billing_address->save();
 
+            // Save the order's carrier
+            $carrier = OrderCarrier::create(
+                collect($order->carrier)
+                ->merge(['order_id' => $new_order->id])
+                ->toArray()
+            );
+
             // Save each order's products.
             foreach ($order->products as $product) {
                 $order_product             = new OrderProduct();
@@ -249,6 +257,16 @@ class OrderCrudController extends CrudController
         $order->update(['status_id' => $pending_status->id]);
 
         return redirect()->route('crud.order.show', $id);
+    }
+
+    public function ship(Request $request, $id)
+    {
+        // $this->crud->hasAccessOrFail('show');
+        $crud = $this->crud;
+        $order = Order::findOrFail($id);
+        $order_status_options = collect(OrderStatus::orderBy('id', 'asc')->pluck('name', 'id'));
+
+        return view('admin.orders.ship', compact('crud', 'order', 'order_status_options'));
     }
 
     private function handleCancellation($request, $id)
