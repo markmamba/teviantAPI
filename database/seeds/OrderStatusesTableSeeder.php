@@ -34,6 +34,7 @@ class OrderStatusesTableSeeder extends Seeder
             ['name' => 'Packed'],
             ['name' => 'Shipped'],
             ['name' => 'Delivered'],
+            ['name' => 'Done'],
             ['name' => 'Cancelled'],
         ];
 
