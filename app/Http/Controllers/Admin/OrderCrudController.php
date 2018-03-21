@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 
 use Auth;
+use App\Http\Requests\PackOrderRequest;
 use App\Models\Inventory;
 use App\Models\Order;
 use App\Models\OrderCarrier;
@@ -267,6 +268,58 @@ class OrderCrudController extends CrudController
         $order_status_options = collect(OrderStatus::orderBy('id', 'asc')->pluck('name', 'id'));
 
         return view('admin.orders.ship', compact('crud', 'order', 'order_status_options'));
+    }
+
+    /**
+     * Show the pack form.
+     * @return view
+     */
+    public function packForm(Request $request, $id)
+    {
+        // $this->crud->hasAccessOrFail('resource.action');
+
+        $this->crud->model = Order::findOrFail($id);
+        $this->crud->route = route('order.pack', $this->crud->model->id);
+
+        // prepare the fields you need to show
+        $this->data['crud'] = $this->crud;
+        $this->data['saveAction'] = $this->getSaveAction();
+        $this->data['fields'] = $this->crud->getCreateFields();
+        $this->data['title'] = 'Pack Order';
+
+        // ------ CRUD FIELDS
+        $this->crud->addField([
+            'name' => 'status_id',
+            'type' => 'hidden',
+            'value' => OrderStatus::where('name', 'Packed')->first()->id,
+        ]);
+        $this->crud->addField([
+           'label'     => 'Packer',
+           'type'      => 'select2',
+           'name'      => 'packer',
+           'entity'    => 'packer',
+           'attribute' => 'name',
+        ]);
+
+        // load the view from /resources/views/vendor/backpack/crud/ if it exists, otherwise load the one in the package
+        return view('admin.orders.pack', $this->data);
+    }
+
+    public function pack(PackOrderRequest $request, $id)
+    {
+        $order = Order::findOrFail($id);
+        $order->update($request->all());
+        $order->packed_at = \Carbon\Carbon::now();
+        $order->save();
+
+        foreach ($order->reservations as $reservation) {
+            $reservation->quantity_taken = $reservation->quantity_reserved;
+            $reservation->picked_at      = \Carbon\Carbon::now();
+            $reservation->picked_by      = Auth::user()->id;
+            $reservation->save();
+        }
+
+        return redirect()->route('order.show', $order->id);
     }
 
     private function handleCancellation($request, $id)

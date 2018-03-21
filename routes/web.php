@@ -72,6 +72,8 @@ Route::group([
     Route::get('order/{order_id}', 'OrderCrudController@show')->name('order.show');
     Route::patch('order/{order_id}/cancel', 'OrderCrudController@cancel')->name('order.cancel');
     Route::patch('order/{order_id}/reopen', 'OrderCrudController@reopen')->name('order.reopen');
+    Route::get('order/{order_id}/pack', 'OrderCrudController@packForm')->name('order.pack.form');
+    Route::patch('order/{order_id}/pack', 'OrderCrudController@pack')->name('order.pack');
     Route::get('order/{order_id}/ship', 'OrderCrudController@ship')->name('order.ship');
     // Route::patch('order/{order_id}', 'OrderCrudController@update')->name('order.update');
 

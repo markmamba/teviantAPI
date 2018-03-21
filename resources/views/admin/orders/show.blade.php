@@ -121,10 +121,7 @@
 							@endif
 						@endif
 						@if($order->status->name == 'Pick Listed')
-							{!! Form::open(['route' => ['crud.order.update', $order->id], 'method' => 'PATCH']) !!}
-								{!! Form::hidden('status_id', $order_status_options->search('Packed')) !!}
-								{!! Form::submit('Set as Packed', ['class' => 'form-control btn btn-primary']) !!}
-							{!! Form::close() !!}
+							<a href="{{ route('order.pack', $order->id) }}" class="btn btn-primary btn-block">Pack Order</a>
 						@endif
 						@if($order->status->name == 'Packed')
 							<a href="{{ route('order.ship', $order->id) }}" class="btn btn-primary btn-block">Ship Order</a>
@@ -169,32 +166,47 @@
 		<div class="col-md-12">
 			<div class="box">
 				<div class="box-header with-border">
-					<h3 class="box-title">Pick List (Reservations)</h3>
-					<br>
-					@if($order->isSufficient())
-						<span class="label label-success">Sufficient</span>
-					@else
-						<span class="label label-danger">{{ $order->deficiency }} {{ str_plural('Deficieny', $order->deficiency) }} </span>
-					@endif
+					<div class="row">
+						<div class="col-md-6">
+							<h3 class="box-title">Pick List (Reservations)</h3>
+							<br>
+							@if($order->isSufficient())
+								<span class="label label-success">Sufficient</span>
+							@else
+								<span class="label label-danger">{{ $order->deficiency }} {{ str_plural('Deficieny', $order->deficiency) }} </span>
+							@endif
+						</div>
+						<div class="col-md-6">
+							<div class="pull-right">
+								<a href="#" class="btn btn-default"><i class="fa fa-print"></i> Print</a>
+							</div>
+						</div>
+					</div>
 				</div>
 				<div class="box-body">
 					<table class="table table-responsive">
 						<thead>
 							<th>SKU</th>
+							<th>Quantity</th>
 							<th>Location</th>
 							<th>Aisle-Row-Bin</th>
 							<th>Reserved</th>
 							<th>Picked</th>
+							<th>Picker</th>
+							<th>Date Picked</th>
 							<th>Deficiency</th>
 						</thead>
 						<tbody>
 							@foreach($order->reservations as $reservation)
 								<tr>
 									<td>{{ $reservation->stock->item->sku_code }}</td>
+									<td>{{ $reservation->order_product->quantity }}</td>
 									<td>{{ $reservation->stock->location->name }}</td>
 									<td>{{ $reservation->stock->aisle }}-{{ $reservation->stock->row }}-{{ $reservation->stock->bin }}</td>
-									<td>{{ $reservation->quantity_reserved }}</td>
-									<td>{{ $reservation->quantity_taken }}</td>
+									<td>{{ $reservation->quantity_reserved }}/{{ $reservation->order_product->quantity }}</td>
+									<td>{{ $reservation->quantity_taken}}/{{$reservation->order_product->quantity }}</td>
+									<td>{{ $reservation->picker->name or null}}</td>
+									<td>{{ $reservation->picked_at or null}}</td>
 									<td>
 										@if(!$reservation->deficiency)
 											{{ $reservation->deficiency }}
