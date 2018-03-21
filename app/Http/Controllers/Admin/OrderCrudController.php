@@ -251,6 +251,9 @@ class OrderCrudController extends CrudController
     {
         $order = Order::findOrFail($id);
 
+        // Delete previous reservations
+        $order->reservations()->delete();
+
         // Reserve products again for the order.
         $this->reserveOrder($order);
 
