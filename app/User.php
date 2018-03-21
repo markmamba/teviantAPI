@@ -50,6 +50,6 @@ class User extends Authenticatable
 
     public function packs()
     {
-        return $this->hasMany('App\Models\Order', 'packer');
+        return $this->hasMany('App\Models\Order', 'packer_id');
     }
 }

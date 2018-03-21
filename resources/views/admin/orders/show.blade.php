@@ -224,6 +224,11 @@
 						</tbody>
 					</table>
 				</div>
+				<div class="box-footer">
+					@if(in_array($order->status->name, ['Packed', 'Shipped', 'Delivered', 'Done']))
+						Packed by {{ $order->packer->name }}
+					@endif
+				</div>
 			</div>
 		</div>
 	</div>
