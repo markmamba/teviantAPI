@@ -91,6 +91,8 @@ class OrderObserver
                 break;
             }
         }
+        // Debug
+        // die();
 
         // Update the ecommerce through its API.
         try {
