@@ -319,6 +319,8 @@ class OrderCrudController extends CrudController
             $reservation->save();
         }
 
+        \Alert::success('Status updated.')->flash();
+
         return redirect()->route('order.show', $order->id);
     }
 
