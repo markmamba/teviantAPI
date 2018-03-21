@@ -19,7 +19,7 @@ class Order extends Model
     //protected $primaryKey = 'id';
     // public $timestamps = false;
     // protected $guarded = ['id'];
-    protected $fillable = ['status_id'];
+    protected $fillable = ['status_id', 'packer', 'packed_at'];
     // protected $hidden = [];
     // protected $dates = [];
 
@@ -75,6 +75,11 @@ class Order extends Model
     public function carrier()
     {
         return $this->hasOne('App\Models\OrderCarrier', 'order_id');
+    }
+
+    public function packer()
+    {
+        return $this->belongsTo('App\User', 'packer');
     }
 
     /*
