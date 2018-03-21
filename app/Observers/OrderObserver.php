@@ -67,7 +67,7 @@ class OrderObserver
     }
 
     // WIP
-    public function saved(Order $order)
+    public function updated(Order $order)
     {
         $order_statuses = collect(OrderStatus::orderBy('id', 'asc')->pluck('name', 'id'))->toArray();
         $status_name = $order_statuses[request()->status_id];

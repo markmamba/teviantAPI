@@ -51,7 +51,10 @@
 						<span class="label label-primary">Shipping</span>
 					@endif
 					@if($order->status->name == 'Delivered')
-						<span class="label label-success">Delivered</span>
+						<span class="label label-primary">Delivered</span>
+					@endif
+					@if($order->status->name == 'Done')
+						<span class="label label-success">Done</span>
 					@endif
 					@if($order->status->name == 'Cancelled')
 						<span class="label label-danger">Cancelled</span>
@@ -132,18 +135,24 @@
 								{!! Form::submit('Set as Delivered', ['class' => 'form-control btn btn-primary']) !!}
 							{!! Form::close() !!}
 						@endif
+						@if($order->status->name == 'Delivered')
+							{!! Form::open(['route' => ['crud.order.update', $order->id], 'method' => 'PATCH']) !!}
+								{!! Form::hidden('status_id', $order_status_options->search('Done')) !!}
+								{!! Form::submit('Set as Done', ['class' => 'form-control btn btn-primary']) !!}
+							{!! Form::close() !!}
+						@endif
 					</p>
 					{{-- Set the cancel button accordingly --}}
 					<p>
 						{{-- Cancel button --}}
-						@if($order->status->name != 'Delivered' && $order->status->name != 'Cancelled')
+						@if($order->status->name != 'Done' && $order->status->name != 'Cancelled')
 							{!! Form::open(['route' => ['order.cancel', $order->id], 'method' => 'PATCH']) !!}
 								{!! Form::hidden('status_id', $order_status_options->search('Cancelled')) !!}
 								{!! Form::submit('Cancel Order', ['class' => 'form-control btn btn-default']) !!}
 							{!! Form::close() !!}
 						@endif
 						{{-- Reopen button --}}
-						@if($order->status->name == 'Delivered' || $order->status->name == 'Cancelled')
+						@if($order->status->name == 'Done' || $order->status->name == 'Cancelled')
 							{!! Form::open(['route' => ['order.reopen', $order->id], 'method' => 'PATCH']) !!}
 								{!! Form::hidden('status_id', $order_status_options->search('Pending')) !!}
 								{!! Form::submit('Re-open Order', ['class' => 'form-control btn btn-default']) !!}
