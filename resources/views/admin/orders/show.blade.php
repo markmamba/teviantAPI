@@ -3,7 +3,32 @@
 @section('header')
 	<section class="content-header">
 	  <h1>
-	    <span>{{ title_case($crud->entity_name) }} #{{ $order->id }}</span>
+	    <span>
+	    	{{ title_case($crud->entity_name) }} #{{ $order->id }}
+	    </span>
+	    <small>
+	    	@if($order->status->name == 'Pending')
+				<span class="label label-warning">Pending</span>
+			@endif
+			@if($order->status->name == 'Pick Listed')
+				<span class="label label-primary">Ready for Picking</span>
+			@endif
+			@if($order->status->name == 'Packed')
+				<span class="label label-primary">Ready for Shipping</span>
+			@endif
+			@if($order->status->name == 'Shipped')
+				<span class="label label-primary">Shipping</span>
+			@endif
+			@if($order->status->name == 'Delivered')
+				<span class="label label-primary">Delivered</span>
+			@endif
+			@if($order->status->name == 'Done')
+				<span class="label label-success">Done</span>
+			@endif
+			@if($order->status->name == 'Cancelled')
+				<span class="label label-danger">Cancelled</span>
+			@endif
+	    </small>
 	  </h1>
 	  <ol class="breadcrumb">
 	    <li><a href="{{ url(config('backpack.base.route_prefix'), 'dashboard') }}">{{ trans('backpack::crud.admin') }}</a></li>
@@ -38,27 +63,7 @@
 					
 					{{-- Show order status accordingly --}}
 					<h5>Status</h5>
-					@if($order->status->name == 'Pending')
-						<span class="label label-warning">Pending</span>
-					@endif
-					@if($order->status->name == 'Pick Listed')
-						<span class="label label-primary">Ready for Picking</span>
-					@endif
-					@if($order->status->name == 'Packed')
-						<span class="label label-primary">Ready for Shipping</span>
-					@endif
-					@if($order->status->name == 'Shipped')
-						<span class="label label-primary">Shipping</span>
-					@endif
-					@if($order->status->name == 'Delivered')
-						<span class="label label-primary">Delivered</span>
-					@endif
-					@if($order->status->name == 'Done')
-						<span class="label label-success">Done</span>
-					@endif
-					@if($order->status->name == 'Cancelled')
-						<span class="label label-danger">Cancelled</span>
-					@endif
+					<span class="label label-default">{{ $order->status->name }}</span>
 				</div>
 			</div>
 		</div>
