@@ -299,7 +299,7 @@ class OrderCrudController extends CrudController
         $this->crud->addField([
            'label'     => 'Packer',
            'type'      => 'select2',
-           'name'      => 'packer',
+           'name'      => 'packer_id',
            'entity'    => 'packer',
            'attribute' => 'name',
         ]);

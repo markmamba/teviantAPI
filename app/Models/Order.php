@@ -79,7 +79,7 @@ class Order extends Model
 
     public function packer()
     {
-        return $this->belongsTo('App\User', 'packer');
+        return $this->belongsTo('App\User', 'packer_id');
     }
 
     /*
