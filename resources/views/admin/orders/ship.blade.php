@@ -22,7 +22,7 @@
 			@include('errors.list')
 
 			{!! Form::open(['route' => ['crud.order.update', $order->id], 'method' => 'PATCH', '']) !!}
-			{!! Form::hidden('status_id', $order_status_options->search('Processed')) !!}
+			{!! Form::hidden('status_id', $order_status_options->search('Shipped')) !!}
 			<div class="box">
 				<div class="box-header with-border">
 					<h3 class="panel-title">Shipment Form</h3>

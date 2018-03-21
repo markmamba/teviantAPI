@@ -41,14 +41,17 @@
 					@if($order->status->name == 'Pending')
 						<span class="label label-warning">Pending</span>
 					@endif
-					@if($order->status->name == 'Processed')
-						<span class="label label-primary">Shipped</span>
+					@if($order->status->name == 'Pick Listed')
+						<span class="label label-primary">Ready for Picking</span>
+					@endif
+					@if($order->status->name == 'Packed')
+						<span class="label label-primary">Ready for Shipping</span>
+					@endif
+					@if($order->status->name == 'Shipped')
+						<span class="label label-primary">Shipping</span>
 					@endif
 					@if($order->status->name == 'Delivered')
-						<span class="label label-info">Delivered</span>
-					@endif
-					@if($order->status->name == 'Done')
-						<span class="label label-success">Complete</span>
+						<span class="label label-success">Delivered</span>
 					@endif
 					@if($order->status->name == 'Cancelled')
 						<span class="label label-danger">Cancelled</span>
@@ -95,32 +98,52 @@
 						Total <span class="pull-right">{{ number_format($order->total) }}</span>
 					</p>
 					<p>
-						{{-- Show the progressive order button accordingly --}}
-						@if($order->status->name == 'Pending' && $order->isSufficient())
-							<a href="{{ route('order.ship', $order->id) }}" class="btn btn-primary btn-block">Ship Order</a>
+						{{-- 
+							Show the appropriate primary button according to the order's current status
+							- Pending
+							- Pick Listed
+							- Packed
+							- Shipped
+							- Delivered
+							- Cancelled
+						 --}}
+						@if($order->status->name == 'Pending')
+							@if($order->isSufficient())
+								{!! Form::open(['route' => ['crud.order.update', $order->id], 'method' => 'PATCH']) !!}
+									{!! Form::hidden('status_id', $order_status_options->search('Pick Listed')) !!}
+									{!! Form::submit('Set as Pick-listed', ['class' => 'form-control btn btn-primary']) !!}
+								{!! Form::close() !!}
+							@else
+								<a href="#" class="btn btn-primary btn-block" disabled>Set as Pick-listed</a>
+							@endif
 						@endif
-						@if($order->status->name == 'Processed')
-							{!! Form::open(['route' => ['crud.order.update', $order->id], 'method' => 'PATCH', '']) !!}
-								{!! Form::hidden('status_id', $order_status_options->search('Delivered')) !!}
-								{!! Form::submit('Set as Delivered', ['class' => 'form-control btn btn-primary']) !!}
+						@if($order->status->name == 'Pick Listed')
+							{!! Form::open(['route' => ['crud.order.update', $order->id], 'method' => 'PATCH']) !!}
+								{!! Form::hidden('status_id', $order_status_options->search('Packed')) !!}
+								{!! Form::submit('Set as Packed', ['class' => 'form-control btn btn-primary']) !!}
 							{!! Form::close() !!}
 						@endif
-						@if($order->status->name == 'Delivered')
-							{!! Form::open(['route' => ['crud.order.update', $order->id], 'method' => 'PATCH', '']) !!}
-								{!! Form::hidden('status_id', $order_status_options->search('Done')) !!}
-								{!! Form::submit('Complete Order', ['class' => 'form-control btn btn-primary']) !!}
+						@if($order->status->name == 'Packed')
+							<a href="{{ route('order.ship', $order->id) }}" class="btn btn-primary btn-block">Ship Order</a>
+						@endif
+						@if($order->status->name == 'Shipped')
+							{!! Form::open(['route' => ['crud.order.update', $order->id], 'method' => 'PATCH']) !!}
+								{!! Form::hidden('status_id', $order_status_options->search('Delivered')) !!}
+								{!! Form::submit('Set as Delivered', ['class' => 'form-control btn btn-primary']) !!}
 							{!! Form::close() !!}
 						@endif
 					</p>
 					{{-- Set the cancel button accordingly --}}
 					<p>
-						@if($order->status->name != 'Done' && $order->status->name != 'Cancelled')
+						{{-- Cancel button --}}
+						@if($order->status->name != 'Delivered' && $order->status->name != 'Cancelled')
 							{!! Form::open(['route' => ['order.cancel', $order->id], 'method' => 'PATCH']) !!}
 								{!! Form::hidden('status_id', $order_status_options->search('Cancelled')) !!}
 								{!! Form::submit('Cancel Order', ['class' => 'form-control btn btn-default']) !!}
 							{!! Form::close() !!}
 						@endif
-						@if($order->status->name == 'Done' || $order->status->name == 'Cancelled')
+						{{-- Reopen button --}}
+						@if($order->status->name == 'Delivered' || $order->status->name == 'Cancelled')
 							{!! Form::open(['route' => ['order.reopen', $order->id], 'method' => 'PATCH']) !!}
 								{!! Form::hidden('status_id', $order_status_options->search('Pending')) !!}
 								{!! Form::submit('Re-open Order', ['class' => 'form-control btn btn-default']) !!}
