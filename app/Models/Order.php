@@ -87,6 +87,18 @@ class Order extends Model
     | SCOPES
     |--------------------------------------------------------------------------
     */
+   
+    /**
+     * Scope orders to only include records that are not marked as Done.
+     * @param  $query Illuminate\Database\Eloquent\Builder
+     * @return Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeIncomplete($query)
+    {
+        return $query->whereHas('status', function ($query) {
+            $query->where('name', '!=', 'Done');
+        });
+    }
 
     /*
     |--------------------------------------------------------------------------

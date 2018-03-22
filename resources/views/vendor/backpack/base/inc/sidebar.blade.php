@@ -29,7 +29,16 @@
           {{-- Suppliers --}}
           <li><a href="{{ backpack_url('supplier') }}"><i class="fa fa-truck"></i> <span>Suppliers</span></a></li>
           {{-- Orders --}}
-          <li><a href="{{ backpack_url('order') }}"><i class="fa fa-list-alt"></i> <span>Orders</span></a></li>
+          <li>
+            <a href="{{ backpack_url('order') }}">
+              <i class="fa fa-list-alt"></i> <span>Orders</span>
+              @if(isset($orders_incomplete_count))
+                <span class="pull-right-container">
+                  <span class="label label-primary pull-right">{{ $orders_incomplete_count }}</span>
+                </span>
+              @endif
+            </a>
+          </li>
 
           <li><a href="{{  backpack_url('elfinder') }}"><i class="fa fa-files-o"></i> <span>Files</span></a></li>
 
