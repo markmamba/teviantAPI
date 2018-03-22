@@ -214,7 +214,7 @@ class OrderCrudController extends CrudController
             }
 
              // Handle product reservation
-            $this->reserveOrder($new_order);
+            $this->reserveOrder($new_order, true);
         }
         
         \Alert::success('Synced orders.')->flash();
@@ -255,7 +255,7 @@ class OrderCrudController extends CrudController
         $order->reservations()->delete();
 
         // Reserve products again for the order.
-        $this->reserveOrder($order);
+        $this->reserveOrder($order, true);
 
         $pending_status = OrderStatus::where('name', 'pending')->first();
         $order->update(['status_id' => $pending_status->id]);
@@ -346,13 +346,22 @@ class OrderCrudController extends CrudController
 
     /**
      * Reserve a given order's products.
-     * @param  App\Models\Order $order The model instance or the id of the model
+     * @param  App\Models\Order  $order The model instance or the id of the model
+     * @param  App\Models\Order  $order
+     * @param  boolean $auto_pick_list Auto-set the status of the order to "Pick Listed"
+     * if the order has reserved enough stocks.
      * @return Collection of App\Models\OrderProductReservation
      */
-    private function reserveOrder($order)
+    private function reserveOrder($order, $auto_pick_list = false)
     {
         foreach ($order->products as $product) {
             $this->reserveProduct($product);
+
+            if ($auto_pick_list)
+                if ($order->isSufficient()) {
+                    $order->status_id = OrderStatus::where('name', 'Pick Listed')->first()->id;
+                    $order->save();
+                }
         }
 
         return $order->reservations;
@@ -369,7 +378,7 @@ class OrderCrudController extends CrudController
         $stocks = $item->stocks()->orderBy('quantity', 'desc')->get();
         
         if (!$item->isInStock($order_product->quantity)) {
-            // Record this deficiency so the admins know what to replenish
+            // TODO: Record this deficiency so the admins know what to replenish
         }
 
         // Check if we can reserve enough stock from the most abundant location.
