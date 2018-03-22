@@ -32,7 +32,7 @@
           <li>
             <a href="{{ backpack_url('order') }}">
               <i class="fa fa-list-alt"></i> <span>Orders</span>
-              @if(isset($orders_incomplete_count))
+              @if($orders_incomplete_count)
                 <span class="pull-right-container">
                   <span class="label label-primary pull-right">{{ $orders_incomplete_count }}</span>
                 </span>
