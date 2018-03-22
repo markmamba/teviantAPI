@@ -183,7 +183,11 @@
 						</div>
 						<div class="col-md-6">
 							<div class="pull-right">
-								<a href="#" class="btn btn-default"><i class="fa fa-print"></i> Print</a>
+								@if($order->isSufficient())
+									<a href="{{ route('order.print_pick_list', $order->id) }}" class="btn btn-default" target="_blank"><i class="fa fa-print"></i> Print</a>
+								@else
+									<a href="#" class="btn btn-default" disabled><i class="fa fa-print"></i> Print</a>
+								@endif
 							</div>
 						</div>
 					</div>
