@@ -310,10 +310,13 @@ class OrderCrudController extends CrudController
 
     public function pack(PackOrderRequest $request, $id)
     {
+        // dd($request->all());
         $order = Order::findOrFail($id);
-        $order->update($request->all());
-        $order->packed_at = \Carbon\Carbon::now();
-        $order->save();
+        $order->update(
+            collect($request->all())
+            ->merge(['packed_at' => \Carbon\Carbon::now()])
+            ->toArray()
+        );
 
         foreach ($order->reservations as $reservation) {
             $reservation->quantity_taken = $reservation->quantity_reserved;

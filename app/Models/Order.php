@@ -19,7 +19,7 @@ class Order extends Model
     //protected $primaryKey = 'id';
     // public $timestamps = false;
     // protected $guarded = ['id'];
-    protected $fillable = ['status_id', 'packer', 'packed_at'];
+    protected $fillable = ['status_id', 'packer_id', 'packed_at'];
     // protected $hidden = [];
     // protected $dates = [];
 
