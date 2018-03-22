@@ -24,6 +24,24 @@ use Illuminate\Http\Request;
 
 class OrderCrudController extends CrudController
 {
+    /**
+     * Auto-set the order status to "Pick Listed"
+     * @var boolean
+     */
+    private $auto_pick_list = true;
+
+    public function __construct()
+    {
+        parent::__construct();
+
+        $this->ecommerce_client = new Client([
+            // Base URI is used with relative requests
+            'base_uri' => env('ECOMMERCE_BASE_URI'),
+            // You can set any number of default request options.
+            'timeout'  => 2.0,
+        ]);
+    }
+
     public function setup()
     {
         /*
@@ -90,18 +108,6 @@ class OrderCrudController extends CrudController
         // ------ DATATABLE EXPORT BUTTONS
 
         // ------ ADVANCED QUERIES
-    }
-
-    public function __construct()
-    {
-        parent::__construct();
-
-        $this->ecommerce_client = new Client([
-            // Base URI is used with relative requests
-            'base_uri' => env('ECOMMERCE_BASE_URI'),
-            // You can set any number of default request options.
-            'timeout'  => 2.0,
-        ]);
     }
 
     public function store(StoreRequest $request)
@@ -214,7 +220,7 @@ class OrderCrudController extends CrudController
             }
 
              // Handle product reservation
-            $this->reserveOrder($new_order, true);
+            $this->reserveOrder($new_order, $this->auto_pick_list);
         }
         
         \Alert::success('Synced orders.')->flash();
@@ -255,7 +261,7 @@ class OrderCrudController extends CrudController
         $order->reservations()->delete();
 
         // Reserve products again for the order.
-        $this->reserveOrder($order, true);
+        $this->reserveOrder($order, $this->auto_pick_list);
 
         $pending_status = OrderStatus::where('name', 'pending')->first();
         $order->update(['status_id' => $pending_status->id]);
