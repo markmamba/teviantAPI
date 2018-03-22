@@ -5,10 +5,15 @@ Teviant's Order Management System
 ## Setup
 
 To setup, run the following:
+
 `git clone git@bitbucket.org:boomtechco/teviant-oms.git`
+
 `cd teviant-oms`
+
 `composer install`
+
 `cp env.example .env` (the edit the `.env` file accordingly)
+
 `php artisan migrate`
 
 ## Branches
