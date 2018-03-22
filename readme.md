@@ -14,7 +14,7 @@ To setup, run the following:
 
 `cp env.example .env` (the edit the `.env` file accordingly)
 
-`php artisan migrate`
+`php artisan migrate --seed`
 
 ## Branches
 
