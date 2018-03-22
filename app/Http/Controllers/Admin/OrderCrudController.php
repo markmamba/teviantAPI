@@ -153,8 +153,8 @@ class OrderCrudController extends CrudController
         foreach ($orders as $order) {
 
             // Skip the order if it is already saved before.
-            // if (Order::where('common_id', $order->id)->first())
-            //     continue;
+            if (Order::where('common_id', $order->id)->first())
+                continue;
             
             // Save the new order
             $new_order = new Order;
