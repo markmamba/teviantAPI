@@ -263,8 +263,10 @@ class OrderCrudController extends CrudController
         // Reserve products again for the order.
         $this->reserveOrder($order, $this->auto_pick_list);
 
-        $pending_status = OrderStatus::where('name', 'pending')->first();
-        $order->update(['status_id' => $pending_status->id]);
+        if (!$this->auto_pick_list) {
+            $pending_status = OrderStatus::where('name', 'pending')->first();
+            $order->update(['status_id' => $pending_status->id]);
+        }
 
         return redirect()->route('crud.order.show', $id);
     }
