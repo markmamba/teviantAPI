@@ -70,7 +70,8 @@ class OrderObserver
     public function updated(Order $order)
     {
         $order_statuses = collect(OrderStatus::orderBy('id', 'asc')->pluck('name', 'id'))->toArray();
-        $status_name = $order_statuses[request()->status_id];
+        // Get the status Id from request() if its updated via form submit or via programatically.
+        $status_name = $order_statuses[isset(request()->status_id) ? request()->status_id : $order->status_id];
 
         // Debug
     	// echo '<br>';
