@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Admin;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 
 use Auth;
+use App\Http\Requests\PackOrderRequest;
 use App\Models\Inventory;
 use App\Models\Order;
+use App\Models\OrderCarrier;
 use App\Models\OrderShippingAddress;
 use App\Models\OrderStatus;
 use App\Models\OrderBillingAddress;
@@ -22,6 +24,24 @@ use Illuminate\Http\Request;
 
 class OrderCrudController extends CrudController
 {
+    /**
+     * Auto-set the order status to "Pick Listed"
+     * @var boolean
+     */
+    private $auto_pick_list = true;
+
+    public function __construct()
+    {
+        parent::__construct();
+
+        $this->ecommerce_client = new Client([
+            // Base URI is used with relative requests
+            'base_uri' => env('ECOMMERCE_BASE_URI'),
+            // You can set any number of default request options.
+            'timeout'  => 2.0,
+        ]);
+    }
+
     public function setup()
     {
         /*
@@ -90,18 +110,6 @@ class OrderCrudController extends CrudController
         // ------ ADVANCED QUERIES
     }
 
-    public function __construct()
-    {
-        parent::__construct();
-
-        $this->ecommerce_client = new Client([
-            // Base URI is used with relative requests
-            'base_uri' => env('ECOMMERCE_BASE_URI'),
-            // You can set any number of default request options.
-            'timeout'  => 2.0,
-        ]);
-    }
-
     public function store(StoreRequest $request)
     {
         // your additional operations before save here
@@ -151,8 +159,8 @@ class OrderCrudController extends CrudController
         foreach ($orders as $order) {
 
             // Skip the order if it is already saved before.
-            // if (Order::where('common_id', $order->id)->first())
-            //     continue;
+            if (Order::where('common_id', $order->id)->first())
+                continue;
             
             // Save the new order
             $new_order = new Order;
@@ -191,6 +199,13 @@ class OrderCrudController extends CrudController
             $billing_address->mobile_phone = $order->billing_address->mobile_phone;
             $billing_address->save();
 
+            // Save the order's carrier
+            $carrier = OrderCarrier::create(
+                collect($order->carrier)
+                ->merge(['order_id' => $new_order->id])
+                ->toArray()
+            );
+
             // Save each order's products.
             foreach ($order->products as $product) {
                 $order_product             = new OrderProduct();
@@ -205,7 +220,7 @@ class OrderCrudController extends CrudController
             }
 
              // Handle product reservation
-            $this->reserveOrder($new_order);
+            $this->reserveOrder($new_order, $this->auto_pick_list);
         }
         
         \Alert::success('Synced orders.')->flash();
@@ -242,13 +257,98 @@ class OrderCrudController extends CrudController
     {
         $order = Order::findOrFail($id);
 
-        // Reserve products again for the order.
-        $this->reserveOrder($order);
+        // Delete previous reservations
+        $order->reservations()->delete();
 
-        $pending_status = OrderStatus::where('name', 'pending')->first();
-        $order->update(['status_id' => $pending_status->id]);
+        // Reserve products again for the order.
+        $this->reserveOrder($order, $this->auto_pick_list);
+
+        if (!$this->auto_pick_list) {
+            $pending_status = OrderStatus::where('name', 'pending')->first();
+            $order->update(['status_id' => $pending_status->id]);
+        }
 
         return redirect()->route('crud.order.show', $id);
+    }
+
+    public function ship(Request $request, $id)
+    {
+        // $this->crud->hasAccessOrFail('show');
+        $crud = $this->crud;
+        $order = Order::findOrFail($id);
+        $order_status_options = collect(OrderStatus::orderBy('id', 'asc')->pluck('name', 'id'));
+
+        return view('admin.orders.ship', compact('crud', 'order', 'order_status_options'));
+    }
+
+    /**
+     * Show the pack form.
+     * @return view
+     */
+    public function packForm(Request $request, $id)
+    {
+        // $this->crud->hasAccessOrFail('resource.action');
+
+        $this->crud->model = Order::findOrFail($id);
+        $this->crud->route = route('order.pack', $this->crud->model->id);
+
+        // prepare the fields you need to show
+        $this->data['crud'] = $this->crud;
+        $this->data['saveAction'] = $this->getSaveAction();
+        $this->data['fields'] = $this->crud->getCreateFields();
+        $this->data['title'] = 'Pack Order';
+
+        // ------ CRUD FIELDS
+        $this->crud->addField([
+            'name' => 'status_id',
+            'type' => 'hidden',
+            'value' => OrderStatus::where('name', 'Packed')->first()->id,
+        ]);
+        $this->crud->addField([
+           'label'     => 'Packer',
+           'type'      => 'select2',
+           'name'      => 'packer_id',
+           'entity'    => 'packer',
+           'attribute' => 'name',
+        ]);
+
+        // load the view from /resources/views/vendor/backpack/crud/ if it exists, otherwise load the one in the package
+        return view('admin.orders.pack', $this->data);
+    }
+
+    public function pack(PackOrderRequest $request, $id)
+    {
+        // dd($request->all());
+        $order = Order::findOrFail($id);
+        $order->update(
+            collect($request->all())
+            ->merge([
+                'packer_id' => isset(request()->packer_id) ? request()->packer_id : Auth::user()->id,
+                'packed_at' => \Carbon\Carbon::now()
+            ])
+            ->toArray()
+        );
+
+        foreach ($order->reservations as $reservation) {
+            $reservation->quantity_taken = $reservation->quantity_reserved;
+            $reservation->picked_at      = \Carbon\Carbon::now();
+            $reservation->picked_by      = Auth::user()->id;
+            $reservation->save();
+        }
+
+        \Alert::success('Status updated.')->flash();
+
+        return redirect()->route('order.show', $order->id);
+    }
+
+    public function printPickList($id)
+    {
+        $order = Order::findOrFail($id);
+
+        // return view('pdf.pick_list', compact('order'));
+
+        $pdf = \PDF::loadView('pdf.pick_list', compact('order'));
+        return $pdf->stream();
     }
 
     private function handleCancellation($request, $id)
@@ -270,13 +370,21 @@ class OrderCrudController extends CrudController
 
     /**
      * Reserve a given order's products.
-     * @param  App\Models\Order $order The model instance or the id of the model
+     * @param  App\Models\Order  $order The model instance or the id of the model
+     * @param  App\Models\Order  $order
+     * @param  boolean $auto_pick_list Auto-set the status of the order to "Pick Listed"
+     * if the order has reserved enough stocks.
      * @return Collection of App\Models\OrderProductReservation
      */
-    private function reserveOrder($order)
+    private function reserveOrder($order, $auto_pick_list = false)
     {
         foreach ($order->products as $product) {
-            $this->reserveProduct($product);
+            $reservations = $this->reserveProduct($product);
+        }
+
+        if ($auto_pick_list && $order->isSufficient()) {
+            $order->status_id = OrderStatus::where('name', 'Pick Listed')->first()->id;
+            $order->save();
         }
 
         return $order->reservations;
@@ -293,7 +401,7 @@ class OrderCrudController extends CrudController
         $stocks = $item->stocks()->orderBy('quantity', 'desc')->get();
         
         if (!$item->isInStock($order_product->quantity)) {
-            // Record this deficiency so the admins know what to replenish
+            // TODO: Record this deficiency so the admins know what to replenish
         }
 
         // Check if we can reserve enough stock from the most abundant location.

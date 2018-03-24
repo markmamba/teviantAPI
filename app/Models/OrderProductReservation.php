@@ -29,6 +29,11 @@ class OrderProductReservation extends Model
         return $this->belongsTo('App\Models\InventoryStockMovement', 'movement_id');
     }
 
+    public function picker()
+    {
+        return $this->belongsTo('App\User', 'picked_by');
+    }
+
     /**
      * Get the deficiency of the reservation.
      * @return int
