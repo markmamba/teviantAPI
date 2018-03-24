@@ -363,6 +363,16 @@ class OrderCrudController extends CrudController
         return $pdf->stream();
     }
 
+    public function printReceipt($id)
+    {
+        $order = Order::findOrFail($id);
+
+        // return view('pdf.pick_list', compact('order'));
+
+        $pdf = \PDF::loadView('pdf.receipt', compact('order'));
+        return $pdf->stream();
+    }    
+
     private function handleCancellation($request, $id)
     {
         $cancelled_status = OrderStatus::where('name', 'cancelled')->first();
