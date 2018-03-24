@@ -322,7 +322,10 @@ class OrderCrudController extends CrudController
         $order = Order::findOrFail($id);
         $order->update(
             collect($request->all())
-            ->merge(['packed_at' => \Carbon\Carbon::now()])
+            ->merge([
+                'packer_id' => isset(request()->packer_id) ? request()->packer_id : Auth::user()->id,
+                'packed_at' => \Carbon\Carbon::now()
+            ])
             ->toArray()
         );
 
