@@ -108,6 +108,7 @@ class OrderCrudController extends CrudController
         // ------ DATATABLE EXPORT BUTTONS
 
         // ------ ADVANCED QUERIES
+        $this->crud->orderBy('created_at', 'desc');
         
         // Status filter
         $order_status_options = collect(OrderStatus::orderBy('id', 'asc')->pluck('name', 'id'))->toArray();
