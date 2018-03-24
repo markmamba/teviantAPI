@@ -108,6 +108,18 @@ class OrderCrudController extends CrudController
         // ------ DATATABLE EXPORT BUTTONS
 
         // ------ ADVANCED QUERIES
+        
+        // Status filter
+        $order_status_options = collect(OrderStatus::orderBy('id', 'asc')->pluck('name', 'id'))->toArray();
+        $this->crud->addFilter([
+            'name' => 'status',
+            'type' => 'dropdown',
+            'label'=> 'Status'
+        ], $order_status_options, function ($value) { // if the filter is active
+            $this->crud->addClause('whereHas', 'status', function ($query) use ($value) {
+                $query->where('id', 'like', '%'.$value.'%');
+            });
+        });
     }
 
     public function store(StoreRequest $request)
