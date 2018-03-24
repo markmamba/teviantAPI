@@ -27,6 +27,11 @@
       .text-center {
         text-align: center;
       }
+
+      .text-right {
+        text-align: right;
+      }
+
     </style>
 </head>
 <body>
