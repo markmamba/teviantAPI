@@ -173,20 +173,20 @@
 				<div class="box-header with-border">
 					<div class="row">
 						<div class="col-md-6">
-							<h3 class="box-title">Pick List (Reservations)</h3>
+							<h3 class="box-title">Pick List</h3>
 							<br>
 							@if($order->isSufficient())
-								<span class="label label-success">Sufficient</span>
+								<p class="text-success">Ready for pick-up.</p>
 							@else
-								<span class="label label-danger">{{ $order->deficiency }} {{ str_plural('Deficieny', $order->deficiency) }} </span>
+								<p class="text-warning">Insufficient stocks.</p>
 							@endif
 						</div>
 						<div class="col-md-6">
 							<div class="pull-right">
 								@if($order->isSufficient())
-									<a href="{{ route('order.print_pick_list', $order->id) }}" class="btn btn-default" target="_blank"><i class="fa fa-print"></i> Print</a>
+									<a href="{{ route('order.print_pick_list', $order->id) }}" class="btn btn-default" target="_blank"><i class="fa fa-print"></i> Print Pick List</a>
 								@else
-									<a href="#" class="btn btn-default" disabled><i class="fa fa-print"></i> Print</a>
+									<a href="#" class="btn btn-default" disabled><i class="fa fa-print"></i> Print Pick List</a>
 								@endif
 							</div>
 						</div>
@@ -230,7 +230,7 @@
 				</div>
 				<div class="box-footer">
 					@if(in_array($order->status->name, ['Packed', 'Shipped', 'Delivered', 'Done']))
-						Packed by {{ $order->packer->name }}
+						Packed by {{ $order->packer->name }} on {{ $order->packed_at }}
 					@endif
 				</div>
 			</div>
