@@ -69,6 +69,7 @@ class OrderObserver
     public function updated(Order $order)
     {
         $this->updateRemoteOrder($order);
+        $this->updateRemoteOrderProducts($order);
     }
 
     protected function updateRemoteOrder($order)
@@ -95,6 +96,26 @@ class OrderObserver
         } catch (\Exception $e) {
             Log::alert('Failed to update order on the ecommerce API.', ['message' => $e->getMessage()]);
         }
+    }
 
+    /**
+     * @param  App\Models\Inventory $products
+     * @return void
+     */
+    protected function updateRemoteOrderProducts($order)
+    {
+        foreach ($order->products as $product) {
+            // Update the ecommerce through its API.
+            try {
+                $response = $this->ecommerce_client->patch('api/products/' . $product->product->common_id, [
+                    'form_params' => [
+                        'stock' => $product->product->stock
+                    ],
+                ]);
+                Log::info('Updated Ecommerce product via API.');
+            } catch (\Exception $e) {
+                Log::alert('Failed to update the product on the ecommerce API.', ['message' => $e->getMessage()]);
+            }
+        }
     }
 }
