@@ -30,15 +30,15 @@ class Order extends Model
     */
    
     /**
-     * Return true if the order has sufficient reservations else, return the defiency.
+     * Return true if the order has sufficient reservations else return false.
      * @return boolean
      */
     public function isSufficient()
     {
-        if ($this->products->sum('quantity') - $this->reservations->sum('quantity_reserved'))
-            return false;
-        else
+        if ($this->products->sum('quantity') == $this->reservations->sum('quantity_reserved'))
             return true;
+        else
+            return false;
     }
 
     /*
