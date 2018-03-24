@@ -65,8 +65,13 @@ class OrderObserver
             'timeout'  => 2.0,
         ]);
     }
-    
+
     public function updated(Order $order)
+    {
+        $this->updateRemoteOrder($order);
+    }
+
+    protected function updateRemoteOrder($order)
     {
         $order_statuses = collect(OrderStatus::orderBy('id', 'asc')->pluck('name', 'id'))->toArray();
         
@@ -76,7 +81,7 @@ class OrderObserver
         foreach ($this->status_associations as $key => $value) {
             // Search
             if (in_array($status_name, $value)) {
-            	request()->status_id = collect($this->ecommerce_order_statuses)->search($key);
+                request()->status_id = collect($this->ecommerce_order_statuses)->search($key);
                 break;
             }
         }
@@ -90,5 +95,6 @@ class OrderObserver
         } catch (\Exception $e) {
             Log::alert('Failed to update order on the ecommerce API.', ['message' => $e->getMessage()]);
         }
+
     }
 }
