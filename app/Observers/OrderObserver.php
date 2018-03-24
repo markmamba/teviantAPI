@@ -66,34 +66,26 @@ class OrderObserver
         ]);
     }
 
-    // WIP
     public function updated(Order $order)
     {
+        $this->updateRemoteOrder($order);
+        $this->updateRemoteOrderProducts($order);
+    }
+
+    protected function updateRemoteOrder($order)
+    {
         $order_statuses = collect(OrderStatus::orderBy('id', 'asc')->pluck('name', 'id'))->toArray();
+        
         // Get the status Id from request() if its updated via form submit or via programatically.
         $status_name = $order_statuses[isset(request()->status_id) ? request()->status_id : $order->status_id];
-
-        // Debug
-    	// echo '<br>';
-    	// echo 'status_id = ' . request()->status_id . ' | ' . $status_name;
         
         foreach ($this->status_associations as $key => $value) {
-            // Debug
-            // $matched = array_search($status_name, $value);
-            // echo '<br> ';
-            // echo $key . ' => ' . implode($value, ',') . ' | Searched: ' . $matched;
-            
             // Search
             if (in_array($status_name, $value)) {
-            	request()->status_id = collect($this->ecommerce_order_statuses)->search($key);
-            	// Debug
-				// echo '<br>';
-				// echo 'Matched = ' . request()->status_id;
+                request()->status_id = collect($this->ecommerce_order_statuses)->search($key);
                 break;
             }
         }
-        // Debug
-        // die();
 
         // Update the ecommerce through its API.
         try {
@@ -103,6 +95,27 @@ class OrderObserver
             Log::info('Ecommerce order updated via API.');
         } catch (\Exception $e) {
             Log::alert('Failed to update order on the ecommerce API.', ['message' => $e->getMessage()]);
+        }
+    }
+
+    /**
+     * @param  App\Models\Inventory $products
+     * @return void
+     */
+    protected function updateRemoteOrderProducts($order)
+    {
+        foreach ($order->products as $product) {
+            // Update the ecommerce through its API.
+            try {
+                $response = $this->ecommerce_client->patch('api/products/' . $product->product->common_id, [
+                    'form_params' => [
+                        'stock' => $product->product->stock
+                    ],
+                ]);
+                Log::info('Updated Ecommerce product via API.');
+            } catch (\Exception $e) {
+                Log::alert('Failed to update the product on the ecommerce API.', ['message' => $e->getMessage()]);
+            }
         }
     }
 }

@@ -108,6 +108,7 @@ class OrderCrudController extends CrudController
         // ------ DATATABLE EXPORT BUTTONS
 
         // ------ ADVANCED QUERIES
+        $this->crud->orderBy('created_at', 'desc');
         
         // Status filter
         $order_status_options = collect(OrderStatus::orderBy('id', 'asc')->pluck('name', 'id'))->toArray();
@@ -177,7 +178,8 @@ class OrderCrudController extends CrudController
             // Save the new order
             $new_order = new Order;
             $new_order->common_id = $order->id;
-            $new_order->save();
+            $new_order->created_at = \Carbon\Carbon::parse($order->created_at);
+            $new_order->save(['timestamps' => false]);
 
             // Save the new order's user
             // $order_user = new OrderUser;
