@@ -376,13 +376,12 @@ class OrderCrudController extends CrudController
     private function reserveOrder($order, $auto_pick_list = false)
     {
         foreach ($order->products as $product) {
-            $this->reserveProduct($product);
+            $reservations = $this->reserveProduct($product);
+        }
 
-            if ($auto_pick_list)
-                if ($order->isSufficient()) {
-                    $order->status_id = OrderStatus::where('name', 'Pick Listed')->first()->id;
-                    $order->save();
-                }
+        if ($auto_pick_list && $order->isSufficient()) {
+            $order->status_id = OrderStatus::where('name', 'Pick Listed')->first()->id;
+            $order->save();
         }
 
         return $order->reservations;
