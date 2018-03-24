@@ -19,7 +19,7 @@ class Order extends Model
     //protected $primaryKey = 'id';
     // public $timestamps = false;
     // protected $guarded = ['id'];
-    protected $fillable = ['status_id'];
+    protected $fillable = ['status_id', 'packer_id', 'packed_at'];
     // protected $hidden = [];
     // protected $dates = [];
 
@@ -30,15 +30,15 @@ class Order extends Model
     */
    
     /**
-     * Return true if the order has sufficient reservations else, return the defiency.
+     * Return true if the order has sufficient reservations else return false.
      * @return boolean
      */
     public function isSufficient()
     {
-        if ($this->products->sum('quantity') - $this->reservations->sum('quantity_reserved'))
-            return false;
-        else
+        if ($this->products->sum('quantity') == $this->reservations->sum('quantity_reserved'))
             return true;
+        else
+            return false;
     }
 
     /*
@@ -72,11 +72,33 @@ class Order extends Model
         return $this->hasManyThrough('App\Models\OrderProductReservation', 'App\Models\OrderProduct');
     }
 
+    public function carrier()
+    {
+        return $this->hasOne('App\Models\OrderCarrier', 'order_id');
+    }
+
+    public function packer()
+    {
+        return $this->belongsTo('App\User', 'packer_id');
+    }
+
     /*
     |--------------------------------------------------------------------------
     | SCOPES
     |--------------------------------------------------------------------------
     */
+   
+    /**
+     * Scope orders to only include records that are not marked as Done.
+     * @param  $query Illuminate\Database\Eloquent\Builder
+     * @return Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeIncomplete($query)
+    {
+        return $query->whereHas('status', function ($query) {
+            $query->where('name', '!=', 'Done');
+        });
+    }
 
     /*
     |--------------------------------------------------------------------------
