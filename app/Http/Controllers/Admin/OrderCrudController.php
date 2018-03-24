@@ -64,7 +64,7 @@ class OrderCrudController extends CrudController
         // ------ CRUD COLUMNS
         
         $this->crud->addColumn([
-            'label' => 'Id',
+            'label' => 'Order #',
             'name'  => 'common_id'
         ]);
         $this->crud->addColumn([
@@ -72,8 +72,12 @@ class OrderCrudController extends CrudController
             'name'  => 'full_user_name'
         ]);
         $this->crud->addColumn([
-            'label' => 'Total',
+            'label' => 'Price',
             'name'  => 'total'
+        ]);
+        $this->crud->addColumn([
+            'label' => 'Date',
+            'name'  => 'created_at'
         ]);
         $this->crud->addColumn([
            'label'     => 'Status',
@@ -81,10 +85,6 @@ class OrderCrudController extends CrudController
            'name'      => 'status_id',
            'entity'    => 'status',
            'attribute' => 'name',
-        ]);
-        $this->crud->addColumn([
-            'label' => 'Created At',
-            'name'  => 'created_at'
         ]);
 
         // ------ CRUD BUTTONS
