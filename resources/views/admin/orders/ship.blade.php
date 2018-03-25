@@ -43,9 +43,6 @@
 				</div>
 				<div class="box-footer">
 					<div class="form-group">
-						<a href="{{ route('order.print_receipt', $order->id) }}" class="btn btn-default" target="_blank"><i class="fa fa-print"></i> Official Receipt</a>
-						<a href="#" class="btn btn-default" target="_blank"><i class="fa fa-print"></i> Delivery Receipt</a>
-						<a href="#" class="btn btn-default" target="_blank"><i class="fa fa-print"></i> Carrier Receipt</a>
 						<button type="submit" class="btn btn-primary"><i class="fa fa-check"></i> Confirm Shipment</button>
 					</div>
 				</div>

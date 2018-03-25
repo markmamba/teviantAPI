@@ -32,6 +32,10 @@
         text-align: right;
       }
 
+      .page-break {
+        page-break-after: always;
+      }
+
     </style>
 </head>
 <body>

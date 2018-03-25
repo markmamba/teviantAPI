@@ -105,4 +105,13 @@ class Inventory extends Model
     | MUTATORS
     |--------------------------------------------------------------------------
     */
+   
+    /**
+     * Return the total stock of the inventory.
+     * @return int
+     */
+    public function getStockAttribute()
+    {
+        return $this->stocks->sum('quantity');
+    }
 }
