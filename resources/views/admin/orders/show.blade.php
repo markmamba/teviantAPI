@@ -172,21 +172,29 @@
 			<div class="box">
 				<div class="box-header with-border">
 					<div class="row">
-						<div class="col-md-6">
+						<div class="col-md-3">
 							<h3 class="box-title">Pick List</h3>
 							<br>
 							@if($order->isSufficient())
 								<p class="text-success">Ready for pick-up.</p>
 							@else
-								<p class="text-warning">Insufficient stocks.</p>
+								<p class="text-warning">Insufficient stocks. Replenish stocks!</p>
 							@endif
 						</div>
-						<div class="col-md-6">
+						<div class="col-md-9">
 							<div class="pull-right">
 								@if($order->isSufficient())
-									<a href="{{ route('order.print_pick_list', $order->id) }}" class="btn btn-default" target="_blank"><i class="fa fa-print"></i> Print Pick List</a>
+									<a href="{{ route('order.print_pick_list', $order->id) }}" class="btn btn-default btn-sm" title="Print Pick List" data-toggle="tooltip" target="_blank"><i class="fa fa-print"></i> Pick List</a>
+									<a href="{{ route('order.print_receipt', $order->id) }}" class="btn btn-default btn-sm" title="Print Official Receipt" data-toggle="tooltip" target="_blank"><i class="fa fa-print"></i> Official Receipt</a>
+									<a href="#" class="btn btn-default btn-sm" title="Print Delivery Receipt" data-toggle="tooltip" target="_blank"><i class="fa fa-print"></i> Delivery Receipt</a>
+									<a href="#" class="btn btn-default btn-sm" title="Print Carrier Receipt" data-toggle="tooltip" target="_blank"><i class="fa fa-print"></i> Carrier Receipt</a>
+									<a href="{{ route('order.print_all', $order->id) }}" class="btn btn-default btn-sm" title="Print All" data-toggle="tooltip"><i class="fa fa-print"></i> Print All</a>
 								@else
-									<a href="#" class="btn btn-default" disabled><i class="fa fa-print"></i> Print Pick List</a>
+									<a href="#" class="btn btn-default btn-sm" title="Pick List" data-toggle="tooltip" disabled><i class="fa fa-print"></i> Pick List</a>
+									<a href="#" class="btn btn-default btn-sm" title="Print Official Receipt" data-toggle="tooltip" disabled><i class="fa fa-print"></i> Official Receipt</a>
+									<a href="#" class="btn btn-default btn-sm" title="Print Delivery Receipt" data-toggle="tooltip" disabled><i class="fa fa-print"></i> Delivery Receipt</a>
+									<a href="#" class="btn btn-default btn-sm" title="Print Carrier Receipt" data-toggle="tooltip" disabled><i class="fa fa-print"></i> Carrier Receipt</a>
+									<a href="#" class="btn btn-default btn-sm" title="Print All" data-toggle="tooltip" disabled><i class="fa fa-print"></i> Print All</a>
 								@endif
 							</div>
 						</div>
