@@ -204,15 +204,13 @@ class MovementCrudController extends CrudController
     public function inventoryNameOptions() {
         $term = $this->request->input('term');
         
-        // WIP: select where the stock movement's item.name/item.sku_de = $term
         $options = InventoryStockMovement::with('stock.item')
             ->whereHas('stock.item', function ($query) use ($term) {
                 $query->where('name', 'like', '%'.$term.'%');
             })
             ->get();
 
-        // return $options;
-        return $options->pluck('stock.item.name', 'id');
+        return collect($options->pluck('stock.item.name', 'stock.item.name'))->unique();
     }
 
     /**
