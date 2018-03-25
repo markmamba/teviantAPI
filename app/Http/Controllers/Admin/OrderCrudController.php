@@ -6,9 +6,11 @@ use Backpack\CRUD\app\Http\Controllers\CrudController;
 
 use Auth;
 use App\Http\Requests\PackOrderRequest;
+use App\Http\Requests\ShipOrderRequest;
 use App\Models\Inventory;
 use App\Models\Order;
 use App\Models\OrderCarrier;
+use App\Models\OrderShipment;
 use App\Models\OrderShippingAddress;
 use App\Models\OrderStatus;
 use App\Models\OrderBillingAddress;
@@ -285,14 +287,32 @@ class OrderCrudController extends CrudController
         return redirect()->route('crud.order.show', $id);
     }
 
-    public function ship(Request $request, $id)
+    public function shipForm($id)
     {
         // $this->crud->hasAccessOrFail('show');
+        
         $crud = $this->crud;
         $order = Order::findOrFail($id);
         $order_status_options = collect(OrderStatus::orderBy('id', 'asc')->pluck('name', 'id'));
 
         return view('admin.orders.ship', compact('crud', 'order', 'order_status_options'));
+    }
+
+    public function ship(ShipOrderRequest $request, $id)
+    {
+        $order = Order::findOrFail($id);
+
+        $order->update($request->all());
+
+        $order->shipment = OrderShipment::create(
+            collect(['order_id' => $id])
+            ->merge($request->all())
+            ->toArray()
+        );
+
+        \Alert::success('Status updated.')->flash();
+
+        return redirect()->route('order.show', $id);
     }
 
     /**

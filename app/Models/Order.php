@@ -52,6 +52,11 @@ class Order extends Model
         return $this->hasMany('App\Models\OrderProduct');
     }
 
+    public function shipment()
+    {
+        return $this->hasOne('App\Models\OrderShipment', 'order_id');
+    }
+
     public function shippingAddress()
     {
         return $this->hasOne('App\Models\OrderShippingAddress');

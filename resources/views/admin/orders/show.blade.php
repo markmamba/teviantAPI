@@ -245,6 +245,27 @@
 		</div>
 	</div>
 
+	{{-- Shipment Panel --}}
+	<div class="box box-default">
+		<div class="box-header with-border">
+			<h3 class="box-title">Shipment</h3>
+		</div>
+		<div class="box-body">
+			<div class="form-group">
+				<label>Carrier</label>
+				<p class="form-control-static">{{ $order->carrier->name }}</p>
+			</div>
+			<div class="form-group">
+				<label>Package Dimensions</label>
+				<p class="form-control-static">{{ $order->shipment->package_length }} x {{ $order->shipment->package_width }} x {{ $order->shipment->package_height }} cm</p>
+			</div>
+			<div class="form-group">
+				<label>Package Weight</label>
+				<p class="form-control-static">{{ $order->shipment->package_weight }} g</p>
+			</div>
+		</div>
+	</div>
+
 	<a href="{{ route('crud.order.index') }}">
 		<i class="fa fa-angle-double-left"></i> Back to all orders
 	</a>
