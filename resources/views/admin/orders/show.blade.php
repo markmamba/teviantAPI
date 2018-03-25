@@ -188,7 +188,7 @@
 									<a href="{{ route('order.print_receipt', $order->id) }}" class="btn btn-default btn-sm" title="Print Official Receipt" data-toggle="tooltip" target="_blank"><i class="fa fa-print"></i> Official Receipt</a>
 									<a href="#" class="btn btn-default btn-sm" title="Print Delivery Receipt" data-toggle="tooltip" target="_blank"><i class="fa fa-print"></i> Delivery Receipt</a>
 									<a href="#" class="btn btn-default btn-sm" title="Print Carrier Receipt" data-toggle="tooltip" target="_blank"><i class="fa fa-print"></i> Carrier Receipt</a>
-									<a href="{{ route('order.print_all', $order->id) }}" class="btn btn-default btn-sm" title="Print All" data-toggle="tooltip"><i class="fa fa-print"></i> Print All</a>
+									<a href="{{ route('order.print_all', $order->id) }}" class="btn btn-default btn-sm" title="Print All" data-toggle="tooltip" target="_blank"><i class="fa fa-print"></i> Print All</a>
 								@else
 									<a href="#" class="btn btn-default btn-sm" title="Pick List" data-toggle="tooltip" disabled><i class="fa fa-print"></i> Pick List</a>
 									<a href="#" class="btn btn-default btn-sm" title="Print Official Receipt" data-toggle="tooltip" disabled><i class="fa fa-print"></i> Official Receipt</a>
