@@ -397,8 +397,6 @@ class OrderCrudController extends CrudController
     {
         $order = Order::findOrFail($id);
 
-        // return view('pdf.pick_list', compact('order'));
-
         $pdf = \PDF::loadView('pdf.receipt', compact('order'));
         return $pdf->stream();
     }
