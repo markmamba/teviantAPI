@@ -268,7 +268,11 @@
 			</div>
 			<div class="form-group">
 				<label>Package Weight</label>
-				<p class="form-control-static">{{ $order->shipment->package_weight }} g</p>
+				@if(isset($order->shipment->package_weight))
+					<p class="form-control-static">{{ $order->shipment->package_weight }} grams</p>
+				@else
+					<p class="form-control-static">Unspecified</p>
+				@endif
 			</div>
 		</div>
 	</div>
