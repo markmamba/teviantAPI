@@ -180,6 +180,12 @@ class MovementCrudController extends CrudController
         );
     }
 
+    public function create()
+    {
+        // Disable the create function.
+        abort(404);
+    }
+
     public function store(StoreRequest $request)
     {
         // your additional operations before save here
