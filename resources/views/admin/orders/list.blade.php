@@ -23,9 +23,20 @@
       <div class="box">
         <div class="box-header {{ $crud->hasAccess('create')?'with-border':'' }}">
 
-          @include('crud::inc.button_stack', ['stack' => 'top'])
+          <div class="pull-right">
+            @include('crud::inc.button_stack', ['stack' => 'top'])
+          </div>
+          
+          <ul class="nav nav-tabs">
+            <li class="active"><a href="#">All</a></li>
+            <li><a href="#">Pending <span class="label label-default">{{ $orders_on_statuses_count['pending'] }}</span></a></li>
+            <li><a href="#">For Picking <span class="label label-default">{{ $orders_on_statuses_count['for_picking'] }}</span></a></li>
+            <li><a href="#">For Shipping <span class="label label-default">{{ $orders_on_statuses_count['for_shipping'] }}</span></a></li>
+            <li><a href="#">Completed <span class="label label-default">{{ $orders_on_statuses_count['completed'] }}</span></a></li>
+          </ul>
 
           <div id="datatable_button_stack" class="pull-right text-right"></div>
+
         </div>
 
         <div class="box-body table-responsive">

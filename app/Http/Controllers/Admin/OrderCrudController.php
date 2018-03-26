@@ -129,6 +129,15 @@ class OrderCrudController extends CrudController
     {
         $this->crud->hasAccessOrFail('list');
 
+        $orders_on_statuses_count = [
+            'pending'      => Order::pending()->count(),
+            'for_picking'  => Order::forPicking()->count(),
+            'for_shipping' => Order::forShipping()->count(),
+            'completed'    => Order::completed()->count(),
+            'cancelled'    => Order::cancelled()->count(),
+        ];
+
+        $this->data['orders_on_statuses_count'] = $orders_on_statuses_count;
         $this->data['crud'] = $this->crud;
         $this->data['title'] = ucfirst($this->crud->entity_name_plural);
 

@@ -105,6 +105,46 @@ class Order extends Model
         });
     }
 
+    public function scopePending($query)
+    {
+        return $query->whereHas('status', function ($query) {
+            $query->where('name', 'Pending');
+        });
+    }
+
+    public function scopeForPicking($query)
+    {
+        return $query->whereHas('status', function ($query) {
+            $query->where('name', 'Pick Listed');
+        });
+    }
+
+    public function scopeForShipping($query)
+    {
+        return $query->whereHas('status', function ($query) {
+            $query->where('name', 'Packed');
+        });
+    }
+
+    public function scopeDone($query)
+    {
+        return $query->whereHas('status', function ($query) {
+            $query->where('name', 'Done');
+        });
+    }
+
+    public function scopeCompleted($query)
+    {
+        return $this->scopeDone($query);
+    }
+
+    public function scopeCancelled($query)
+    {
+        return $query->whereHas('status', function ($query) {
+            $query->where('name', 'Cancelled');
+        });
+    }
+
     /*
     |--------------------------------------------------------------------------
     | ACCESORS
