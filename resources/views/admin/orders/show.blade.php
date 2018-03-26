@@ -246,7 +246,7 @@
 	</div>
 
 	{{-- Shipment Panel --}}
-	@if($order->status->name == 'Shipped')
+	@if(in_array($order->status->name, ['Shipped', 'Delivered', 'Done']))
 	<div class="box box-default">
 		<div class="box-header with-border">
 			<h3 class="box-title">Shipment</h3>
