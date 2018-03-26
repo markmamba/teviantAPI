@@ -25,7 +25,14 @@ class InventoryStockRequest extends \Backpack\CRUD\app\Http\Requests\CrudRequest
     public function rules()
     {
         return [
-            // 'name' => 'required|min:5|max:255'
+            'inventory_id' => 'required',
+            'location_id'  => 'required',
+            'quantity'     => 'required|numeric|min:0',
+            'cost'         => 'nullable|numeric|min:0',
+            'reason'       => 'nullable|min:2|max:255',
+            'aisle'        => 'nullable|max:255',
+            'row'          => 'nullable|max:255',
+            'bin'          => 'nullable|max:255',
         ];
     }
 
