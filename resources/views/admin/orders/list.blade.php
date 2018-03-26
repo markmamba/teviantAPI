@@ -28,11 +28,27 @@
           </div>
           
           <ul class="nav nav-tabs">
-            <li class="active"><a href="#">All</a></li>
-            <li><a href="#">Pending <span class="label label-default">{{ $orders_on_statuses_count['pending'] }}</span></a></li>
-            <li><a href="#">For Picking <span class="label label-default">{{ $orders_on_statuses_count['for_picking'] }}</span></a></li>
-            <li><a href="#">For Shipping <span class="label label-default">{{ $orders_on_statuses_count['for_shipping'] }}</span></a></li>
-            <li><a href="#">Completed <span class="label label-default">{{ $orders_on_statuses_count['completed'] }}</span></a></li>
+            <li class="{{ !isset($tab) ? 'active' : null }}">
+              <a href="{{ route('crud.order.index') }}">All</a>
+            </li>
+            <li class="{{ isset($tab) && $tab == 'pending' ? 'active' : null }}">
+              <a href="{{ route('crud.order.index', ['tab' => 'pending']) }}">Pending <span class="label label-default">{{ $orders_on_statuses_count['pending'] }}</span></a>
+            </li>
+            <li class="{{ isset($tab) && $tab == 'for_picking' ? 'active' : null }}">
+              <a href="{{ route('crud.order.index', ['tab' => 'for_picking']) }}">For Picking <span class="label label-default">{{ $orders_on_statuses_count['for_picking'] }}</span></a>
+            </li>
+            <li class="{{ isset($tab) && $tab == 'for_shipping' ? 'active' : null }}">
+              <a href="{{ route('crud.order.index', ['tab' => 'for_shipping']) }}">For Shipping <span class="label label-default">{{ $orders_on_statuses_count['for_shipping'] }}</span></a>
+            </li>
+            <li class="{{ isset($tab) && $tab == 'shipped' ? 'active' : null }}">
+              <a href="{{ route('crud.order.index', ['tab' => 'shipped']) }}">Shipping <span class="label label-default">{{ $orders_on_statuses_count['shipped'] }}</span></a>
+            </li>
+            <li class="{{ isset($tab) && $tab == 'completed' ? 'active' : null }}">
+              <a href="{{ route('crud.order.index', ['tab' => 'completed']) }}">Completed <span class="label label-default">{{ $orders_on_statuses_count['completed'] }}</span></a>
+            </li>
+            <li class="{{ isset($tab) && $tab == 'cancelled' ? 'active' : null }}">
+              <a href="{{ route('crud.order.index', ['tab' => 'cancelled']) }}">Cancelled <span class="label label-default">{{ $orders_on_statuses_count['cancelled'] }}</span></a>
+            </li>
           </ul>
 
           <div id="datatable_button_stack" class="pull-right text-right"></div>

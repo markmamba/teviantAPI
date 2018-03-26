@@ -126,6 +126,13 @@ class Order extends Model
         });
     }
 
+    public function scopeShipped($query)
+    {
+        return $query->whereHas('status', function ($query) {
+            $query->where('name', 'Shipped');
+        });
+    }
+
     public function scopeDone($query)
     {
         return $query->whereHas('status', function ($query) {

@@ -123,6 +123,9 @@ class OrderCrudController extends CrudController
                 $query->where('id', 'like', '%'.$value.'%');
             });
         });
+
+        // Custom queries
+        $this->applyCustomQueries();
     }
 
     public function index()
@@ -133,10 +136,12 @@ class OrderCrudController extends CrudController
             'pending'      => Order::pending()->count(),
             'for_picking'  => Order::forPicking()->count(),
             'for_shipping' => Order::forShipping()->count(),
+            'shipped'      => Order::shipped()->count(),
             'completed'    => Order::completed()->count(),
             'cancelled'    => Order::cancelled()->count(),
         ];
 
+        $this->data['tab'] = request()->tab;
         $this->data['orders_on_statuses_count'] = $orders_on_statuses_count;
         $this->data['crud'] = $this->crud;
         $this->data['title'] = ucfirst($this->crud->entity_name_plural);
@@ -522,5 +527,33 @@ class OrderCrudController extends CrudController
         }
 
         return $order_product->reservations();
+    }
+
+    /**
+     * Apply custom queries here.
+     * @return void
+     */
+    private function applyCustomQueries()
+    {
+        // Filter status based on tab
+        $tab = request()->tab;
+
+        if (!in_array($tab, ['pending', 'for_picking', 'for_shipping', 'shipped', 'completed', 'cancelled']))
+            return redirect()->route('crud.order.index');
+        
+        if (isset($tab)) {
+            if ($tab == 'pending')
+                $this->crud->addClause('pending');
+            if ($tab == 'for_picking')
+                $this->crud->addClause('forPicking');
+            if ($tab == 'for_shipping')
+                $this->crud->addClause('forShipping');
+            if ($tab == 'shipped')
+                $this->crud->addClause('shipped');
+            if ($tab == 'completed')
+                $this->crud->addClause('completed');
+            if ($tab == 'cancelled')
+                $this->crud->addClause('cancelled');
+        }
     }
 }
