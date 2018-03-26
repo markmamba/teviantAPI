@@ -246,6 +246,7 @@
 	</div>
 
 	{{-- Shipment Panel --}}
+	@if($order->status->name == 'Shipped')
 	<div class="box box-default">
 		<div class="box-header with-border">
 			<h3 class="box-title">Shipment</h3>
@@ -257,7 +258,13 @@
 			</div>
 			<div class="form-group">
 				<label>Package Dimensions</label>
-				<p class="form-control-static">{{ $order->shipment->package_length }} x {{ $order->shipment->package_width }} x {{ $order->shipment->package_height }} cm</p>
+				@if(isset($order->shipment->package_length, $order->shipment->package_width, $order->shipment->package_height))
+					<p class="form-control-static">
+						{{ $order->shipment->package_length }} x {{ $order->shipment->package_width }} x {{ $order->shipment->package_height }} cm
+					</p>
+				@else
+					<p>Unspecified</p>
+				@endif
 			</div>
 			<div class="form-group">
 				<label>Package Weight</label>
@@ -265,6 +272,7 @@
 			</div>
 		</div>
 	</div>
+	@endif
 
 	<a href="{{ route('crud.order.index') }}">
 		<i class="fa fa-angle-double-left"></i> Back to all orders
