@@ -256,6 +256,10 @@ class OrderCrudController extends CrudController
             }
         }
 
+        // Delete order's shipment record.
+        if (isset($order->shipment))
+            $order->shipment->delete();
+
         // If this function was triggered from an HTTP submit form.
         if (!isset($request)) {
             $order->update(request()->all());
@@ -272,6 +276,10 @@ class OrderCrudController extends CrudController
     public function reopen(Request $request, $id)
     {
         $order = Order::findOrFail($id);
+
+        // Delete order's shipment record.
+        if (isset($order->shipment))
+            $order->shipment->delete();
 
         // Delete previous reservations
         $order->reservations()->delete();
