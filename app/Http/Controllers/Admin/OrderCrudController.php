@@ -125,6 +125,17 @@ class OrderCrudController extends CrudController
         });
     }
 
+    public function index()
+    {
+        $this->crud->hasAccessOrFail('list');
+
+        $this->data['crud'] = $this->crud;
+        $this->data['title'] = ucfirst($this->crud->entity_name_plural);
+
+        // load the view from /resources/views/vendor/backpack/crud/ if it exists, otherwise load the one in the package
+        return view('admin.orders.list', $this->data);
+    }
+
     public function store(StoreRequest $request)
     {
         // your additional operations before save here
