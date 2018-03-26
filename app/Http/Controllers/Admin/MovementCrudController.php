@@ -108,6 +108,7 @@ class MovementCrudController extends CrudController
         
         // $this->crud->removeAllButtonsFromStack('line');
         $this->crud->addButtonFromView('line', 'movement_rollback', 'movement_rollback', 'beginning');
+        $this->crud->removeButton('create');
         $this->crud->removeButton('update');
         $this->crud->removeButton('delete');
 
