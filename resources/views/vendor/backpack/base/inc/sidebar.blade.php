@@ -40,7 +40,7 @@
             </a>
           </li>
 
-          <li><a href="{{  backpack_url('elfinder') }}"><i class="fa fa-files-o"></i> <span>Files</span></a></li>
+          {{-- <li><a href="{{  backpack_url('elfinder') }}"><i class="fa fa-files-o"></i> <span>Files</span></a></li> --}}
 
           {{-- Users, Roles Permissions --}}
           <li class="treeview">
