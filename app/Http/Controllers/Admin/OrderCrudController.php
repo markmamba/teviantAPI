@@ -6,9 +6,11 @@ use Backpack\CRUD\app\Http\Controllers\CrudController;
 
 use Auth;
 use App\Http\Requests\PackOrderRequest;
+use App\Http\Requests\ShipOrderRequest;
 use App\Models\Inventory;
 use App\Models\Order;
 use App\Models\OrderCarrier;
+use App\Models\OrderShipment;
 use App\Models\OrderShippingAddress;
 use App\Models\OrderStatus;
 use App\Models\OrderBillingAddress;
@@ -121,6 +123,31 @@ class OrderCrudController extends CrudController
                 $query->where('id', 'like', '%'.$value.'%');
             });
         });
+
+        // Custom queries
+        $this->applyCustomQueries();
+    }
+
+    public function index()
+    {
+        $this->crud->hasAccessOrFail('list');
+
+        $orders_on_statuses_count = [
+            'pending'      => Order::pending()->count(),
+            'for_picking'  => Order::forPicking()->count(),
+            'for_shipping' => Order::forShipping()->count(),
+            'shipped'      => Order::shipped()->count(),
+            'completed'    => Order::completed()->count(),
+            'cancelled'    => Order::cancelled()->count(),
+        ];
+
+        $this->data['tab'] = request()->tab;
+        $this->data['orders_on_statuses_count'] = $orders_on_statuses_count;
+        $this->data['crud'] = $this->crud;
+        $this->data['title'] = ucfirst($this->crud->entity_name_plural);
+
+        // load the view from /resources/views/vendor/backpack/crud/ if it exists, otherwise load the one in the package
+        return view('admin.orders.list', $this->data);
     }
 
     public function store(StoreRequest $request)
@@ -254,6 +281,10 @@ class OrderCrudController extends CrudController
             }
         }
 
+        // Delete order's shipment record.
+        if (isset($order->shipment))
+            $order->shipment->delete();
+
         // If this function was triggered from an HTTP submit form.
         if (!isset($request)) {
             $order->update(request()->all());
@@ -271,6 +302,10 @@ class OrderCrudController extends CrudController
     {
         $order = Order::findOrFail($id);
 
+        // Delete order's shipment record.
+        if (isset($order->shipment))
+            $order->shipment->delete();
+
         // Delete previous reservations
         $order->reservations()->delete();
 
@@ -285,14 +320,32 @@ class OrderCrudController extends CrudController
         return redirect()->route('crud.order.show', $id);
     }
 
-    public function ship(Request $request, $id)
+    public function shipForm($id)
     {
         // $this->crud->hasAccessOrFail('show');
+        
         $crud = $this->crud;
         $order = Order::findOrFail($id);
         $order_status_options = collect(OrderStatus::orderBy('id', 'asc')->pluck('name', 'id'));
 
         return view('admin.orders.ship', compact('crud', 'order', 'order_status_options'));
+    }
+
+    public function ship(ShipOrderRequest $request, $id)
+    {
+        $order = Order::findOrFail($id);
+
+        $order->update($request->all());
+
+        $order->shipment = OrderShipment::create(
+            collect(['order_id' => $id])
+            ->merge($request->all())
+            ->toArray()
+        );
+
+        \Alert::success('Status updated.')->flash();
+
+        return redirect()->route('order.show', $id);
     }
 
     /**
@@ -369,8 +422,6 @@ class OrderCrudController extends CrudController
     {
         $order = Order::findOrFail($id);
 
-        // return view('pdf.pick_list', compact('order'));
-
         $pdf = \PDF::loadView('pdf.receipt', compact('order'));
         return $pdf->stream();
     }
@@ -378,8 +429,6 @@ class OrderCrudController extends CrudController
     public function printAll($id)
     {
         $order = Order::findOrFail($id);
-
-        // return view('pdf.pick_list', compact('order'));
 
         $pdf = \PDF::loadView('pdf.all', compact('order'));
         return $pdf->stream();
@@ -478,5 +527,33 @@ class OrderCrudController extends CrudController
         }
 
         return $order_product->reservations();
+    }
+
+    /**
+     * Apply custom queries here.
+     * @return void
+     */
+    private function applyCustomQueries()
+    {
+        // Filter status based on tab
+        $tab = request()->tab;
+
+        if (!in_array($tab, ['pending', 'for_picking', 'for_shipping', 'shipped', 'completed', 'cancelled']))
+            return redirect()->route('crud.order.index');
+        
+        if (isset($tab)) {
+            if ($tab == 'pending')
+                $this->crud->addClause('pending');
+            if ($tab == 'for_picking')
+                $this->crud->addClause('forPicking');
+            if ($tab == 'for_shipping')
+                $this->crud->addClause('forShipping');
+            if ($tab == 'shipped')
+                $this->crud->addClause('shipped');
+            if ($tab == 'completed')
+                $this->crud->addClause('completed');
+            if ($tab == 'cancelled')
+                $this->crud->addClause('cancelled');
+        }
     }
 }

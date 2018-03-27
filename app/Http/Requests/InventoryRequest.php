@@ -25,7 +25,11 @@ class InventoryRequest extends \Backpack\CRUD\app\Http\Requests\CrudRequest
     public function rules()
     {
         return [
-            // 'name' => 'required|min:5|max:255'
+            'metric_id'   => 'required',
+            'category_id' => 'required',
+            'name'        => 'required|min:2|max:255|unique:inventories,name,' . $this->route('inventory'),
+            'sku_code'    => 'required|min:2|max:255|unique:inventory_skus,code,' . $this->route('inventory'),
+            'description' => 'nullable|min:2|max:255',
         ];
     }
 
