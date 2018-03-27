@@ -24,7 +24,7 @@ use App\Http\Requests\UpdateOrderRequest;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 
-class OrderCrudController extends CrudController
+class OutboundCrudController extends CrudController
 {
     /**
      * Auto-set the order status to "Pick Listed"
@@ -52,8 +52,9 @@ class OrderCrudController extends CrudController
         |--------------------------------------------------------------------------
         */
         $this->crud->setModel('App\Models\Order');
-        $this->crud->setRoute(config('backpack.base.route_prefix') . '/order');
-        $this->crud->setEntityNameStrings('order', 'orders');
+        $this->crud->setRoute(config('backpack.base.route_prefix') . '/outbound');
+        // $this->crud->setRoute("admin/outbound/pickings");
+        $this->crud->setEntityNameStrings('for picking', 'for pickings');
 
         /*
         |--------------------------------------------------------------------------
@@ -94,7 +95,7 @@ class OrderCrudController extends CrudController
         $this->crud->removeAllButtonsFromStack('top');
         $this->crud->removeAllButtonsFromStack('line');
 
-        $this->crud->addButtonFromView('top', 'sync_orders', 'sync_orders', 'top');
+        // $this->crud->addButtonFromView('top', 'sync_orders', 'sync_orders', 'top');
         $this->crud->addButtonFromView('line', 'order_view', 'order_view', 'beginning');
 
         // ------ CRUD ACCESS
@@ -111,21 +112,23 @@ class OrderCrudController extends CrudController
 
         // ------ ADVANCED QUERIES
         $this->crud->orderBy('created_at', 'desc');
-        
-        // Status filter
-        $order_status_options = collect(OrderStatus::orderBy('id', 'asc')->pluck('name', 'id'))->toArray();
-        $this->crud->addFilter([
-            'name' => 'status',
-            'type' => 'dropdown',
-            'label'=> 'Status'
-        ], $order_status_options, function ($value) { // if the filter is active
-            $this->crud->addClause('whereHas', 'status', function ($query) use ($value) {
-                $query->where('id', 'like', '%'.$value.'%');
-            });
-        });
 
         // Custom queries
         $this->applyCustomQueries();
+    }
+
+    /**
+     * Show orders list for picking.
+     * @return view
+     */
+    public function pickings()
+    {
+        // $this->crud->hasAccessOrFail('pickings.index');
+
+        $this->data['crud'] = $this->crud;
+        $this->data['title'] = 'For Pickings';
+
+        return view('admin.outbound.list', $this->data);
     }
 
     public function index()
@@ -426,22 +429,6 @@ class OrderCrudController extends CrudController
         return $pdf->stream();
     }
 
-    public function printDeliveryReceipt($id)
-    {
-        $order = Order::findOrFail($id);
-
-        $pdf = \PDF::loadView('pdf.delivery_receipt', compact('order'));
-        return $pdf->stream();
-    }
-
-    public function printCarrierReceipt($id)
-    {
-        $order = Order::findOrFail($id);
-
-        $pdf = \PDF::loadView('pdf.carrier_receipt', compact('order'));
-        return $pdf->stream();
-    }
-
     public function printAll($id)
     {
         $order = Order::findOrFail($id);
@@ -551,25 +538,20 @@ class OrderCrudController extends CrudController
      */
     private function applyCustomQueries()
     {
-        // Filter status based on tab
-        $tab = request()->tab;
+        // WIP
 
-        if (!in_array($tab, ['pending', 'for_picking', 'for_shipping', 'shipped', 'completed', 'cancelled']))
-            return redirect()->route('crud.order.index');
+        // This works
+        // $this->crud->addClause('forPicking');
         
-        if (isset($tab)) {
-            if ($tab == 'pending')
-                $this->crud->addClause('pending');
-            if ($tab == 'for_picking')
-                $this->crud->addClause('forPicking');
-            if ($tab == 'for_shipping')
-                $this->crud->addClause('forShipping');
-            if ($tab == 'shipped')
-                $this->crud->addClause('shipped');
-            if ($tab == 'completed')
-                $this->crud->addClause('completed');
-            if ($tab == 'cancelled')
-                $this->crud->addClause('cancelled');
+        // debug
+        // dd(\Route::currentRouteName(), (\Route::currentRouteName() == 'outbound.pickings'));
+        
+        // This does not work, but should
+        if (\Route::currentRouteName() == 'outbound.pickings') {
+            $this->crud->addClause('forPicking');
+        }
+        if (\Route::currentRouteName() == 'outbound.shippings') {
+            $this->crud->addClause('forShipping');
         }
     }
 }

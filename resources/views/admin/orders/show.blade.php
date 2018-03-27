@@ -186,9 +186,9 @@
 								@if($order->isSufficient())
 									<a href="{{ route('order.print_pick_list', $order->id) }}" class="btn btn-default btn-sm" title="Print Pick List" data-toggle="tooltip" target="_blank"><i class="fa fa-print"></i> Pick List</a>
 									<a href="{{ route('order.print_receipt', $order->id) }}" class="btn btn-default btn-sm" title="Print Official Receipt" data-toggle="tooltip" target="_blank"><i class="fa fa-print"></i> Official Receipt</a>
-									<a href="#" class="btn btn-default btn-sm" title="Print Delivery Receipt" data-toggle="tooltip" target="_blank"><i class="fa fa-print"></i> Delivery Receipt</a>
-									<a href="#" class="btn btn-default btn-sm" title="Print Carrier Receipt" data-toggle="tooltip" target="_blank"><i class="fa fa-print"></i> Carrier Receipt</a>
-									<a href="{{ route('order.print_all', $order->id) }}" class="btn btn-default btn-sm" title="Print All" data-toggle="tooltip"><i class="fa fa-print"></i> Print All</a>
+									<a href="{{ route('order.print_delivery_receipt', $order->id) }}" class="btn btn-default btn-sm" title="Print Delivery Receipt" data-toggle="tooltip" target="_blank"><i class="fa fa-print"></i> Delivery Receipt</a>
+									<a href="{{ route('order.print_carrier_receipt', $order->id) }}" class="btn btn-default btn-sm" title="Print Carrier Receipt" data-toggle="tooltip" target="_blank"><i class="fa fa-print"></i> Carrier Receipt</a>
+									<a href="{{ route('order.print_all', $order->id) }}" class="btn btn-default btn-sm" title="Print All" data-toggle="tooltip" target="_blank"><i class="fa fa-print"></i> Print All</a>
 								@else
 									<a href="#" class="btn btn-default btn-sm" title="Pick List" data-toggle="tooltip" disabled><i class="fa fa-print"></i> Pick List</a>
 									<a href="#" class="btn btn-default btn-sm" title="Print Official Receipt" data-toggle="tooltip" disabled><i class="fa fa-print"></i> Official Receipt</a>
@@ -246,6 +246,7 @@
 	</div>
 
 	{{-- Shipment Panel --}}
+	@if(in_array($order->status->name, ['Shipped', 'Delivered', 'Done']))
 	<div class="box box-default">
 		<div class="box-header with-border">
 			<h3 class="box-title">Shipment</h3>
@@ -257,14 +258,25 @@
 			</div>
 			<div class="form-group">
 				<label>Package Dimensions</label>
-				<p class="form-control-static">{{ $order->shipment->package_length }} x {{ $order->shipment->package_width }} x {{ $order->shipment->package_height }} cm</p>
+				@if(isset($order->shipment->package_length, $order->shipment->package_width, $order->shipment->package_height))
+					<p class="form-control-static">
+						{{ $order->shipment->package_length }} x {{ $order->shipment->package_width }} x {{ $order->shipment->package_height }} cm
+					</p>
+				@else
+					<p>Unspecified</p>
+				@endif
 			</div>
 			<div class="form-group">
 				<label>Package Weight</label>
-				<p class="form-control-static">{{ $order->shipment->package_weight }} g</p>
+				@if(isset($order->shipment->package_weight))
+					<p class="form-control-static">{{ $order->shipment->package_weight }} grams</p>
+				@else
+					<p class="form-control-static">Unspecified</p>
+				@endif
 			</div>
 		</div>
 	</div>
+	@endif
 
 	<a href="{{ route('crud.order.index') }}">
 		<i class="fa fa-angle-double-left"></i> Back to all orders
