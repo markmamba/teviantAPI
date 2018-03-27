@@ -24,10 +24,10 @@ class ShipOrderRequest extends FormRequest
     public function rules()
     {
         return [
-            'package_length' => 'numeric|min:0',
-            'package_width'  => 'numeric|min:0',
-            'package_height' => 'numeric|min:0',
-            'package_weight' => 'numeric|min:0',
+            'package_length' => 'nullable|numeric|min:0',
+            'package_width'  => 'nullable|numeric|min:0',
+            'package_height' => 'nullable|numeric|min:0',
+            'package_weight' => 'nullable|numeric|min:0',
         ];
     }
 }
