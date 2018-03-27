@@ -434,6 +434,14 @@ class OrderCrudController extends CrudController
         return $pdf->stream();
     }
 
+    public function printCarrierReceipt($id)
+    {
+        $order = Order::findOrFail($id);
+
+        $pdf = \PDF::loadView('pdf.carrier_receipt', compact('order'));
+        return $pdf->stream();
+    }
+
     public function printAll($id)
     {
         $order = Order::findOrFail($id);

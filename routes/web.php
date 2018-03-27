@@ -77,6 +77,7 @@ Route::group([
     Route::get('order/{order_id}/print-pick-list', 'OrderCrudController@printPickList')->name('order.print_pick_list');
     Route::get('order/{order_id}/print-receipt', 'OrderCrudController@printReceipt')->name('order.print_receipt');
     Route::get('order/{order_id}/print-delivery-receipt', 'OrderCrudController@printDeliveryReceipt')->name('order.print_delivery_receipt');
+    Route::get('order/{order_id}/print-carrier-receipt', 'OrderCrudController@printCarrierReceipt')->name('order.print_carrier_receipt');
     Route::get('order/{order_id}/print-all', 'OrderCrudController@printAll')->name('order.print_all');
     Route::get('order/{order_id}/ship', 'OrderCrudController@shipForm')->name('order.ship.form');
     Route::patch('order/{order_id}/ship', 'OrderCrudController@ship')->name('order.ship');
