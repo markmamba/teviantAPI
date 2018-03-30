@@ -13,21 +13,42 @@
           <!-- ==== Recommended place for admin menu items ==== -->
           <!-- ================================================ -->
           <li><a href="{{ backpack_url('dashboard') }}"><i class="fa fa-dashboard"></i> <span>{{ trans('backpack::base.dashboard') }}</span></a></li>
-        
-          {{-- Metrics --}}
-          <li><a href="{{ backpack_url('metric') }}"><i class="fa fa-balance-scale"></i> <span>Metrics</span></a></li>
-          {{-- Category --}}
-          <li><a href="{{ backpack_url('category') }}"><i class="fa fa-tags"></i> <span>Categories</span></a></li>
-          {{-- Inventories --}}
-          <li><a href="{{ backpack_url('inventory') }}"><i class="fa fa-archive"></i> <span>Inventories</span></a></li>
-          {{-- Locations --}}
-          <li><a href="{{ backpack_url('location') }}"><i class="fa fa-map-pin"></i> <span>Locations</span></a></li>
-          {{-- Stock --}}
-          <li><a href="{{ backpack_url('stock') }}"><i class="fa fa-bars"></i> <span>Stocks</span></a></li>
-          {{-- Movements --}}
-          <li><a href="{{ backpack_url('movement') }}"><i class="fa fa-exchange"></i> <span>Movements</span></a></li>
-          {{-- Suppliers --}}
-          <li><a href="{{ backpack_url('supplier') }}"><i class="fa fa-truck"></i> <span>Suppliers</span></a></li>
+
+          {{-- Inventory --}}
+          <li class="treeview">
+            <a href="#"><i class="fa fa-archive"></i> <span>Inventory</span> <i class="fa fa-angle-left pull-right"></i></a>
+            <ul class="treeview-menu">
+              {{-- Metrics --}}
+              <li><a href="{{ backpack_url('metric') }}"><i class="fa fa-balance-scale"></i> <span>Metrics</span></a></li>
+              {{-- Category --}}
+              <li><a href="{{ backpack_url('category') }}"><i class="fa fa-tags"></i> <span>Categories</span></a></li>
+              {{-- Locations --}}
+              <li><a href="{{ backpack_url('location') }}"><i class="fa fa-map-pin"></i> <span>Locations</span></a></li>
+              {{-- Inventories --}}
+              <li><a href="{{ backpack_url('inventory') }}"><i class="fa fa-star"></i> <span>Items</span></a></li>
+              {{-- Stock --}}
+              <li><a href="{{ backpack_url('stock') }}"><i class="fa fa-bars"></i> <span>Stocks</span></a></li>
+              {{-- Movements --}}
+              <li><a href="{{ backpack_url('movement') }}"><i class="fa fa-exchange"></i> <span>Movements</span></a></li>
+              {{-- Suppliers --}}
+              <li><a href="{{ backpack_url('supplier') }}"><i class="fa fa-truck"></i> <span>Suppliers</span></a></li>    
+            </ul>
+          </li>
+
+          <li class="header">INBOUND</li>
+          <li>
+            <a href="#">
+              <i class="fa fa-download"></i> <span>Receivings</span>
+            </a>
+          </li>
+          <li>
+            <a href="#">
+              <i class="fa fa-check-square-o"></i> <span>Purchase Orders</span>
+            </a>
+          </li>
+
+          <li class="header">OUTBOUND</li>
+          
           {{-- Orders --}}
           <li>
             <a href="{{ backpack_url('order') }}">
@@ -42,9 +63,11 @@
 
           {{-- <li><a href="{{  backpack_url('elfinder') }}"><i class="fa fa-files-o"></i> <span>Files</span></a></li> --}}
 
+          <li class="header">SYSTEM</li>
+
           {{-- Users, Roles Permissions --}}
           <li class="treeview">
-            <a href="#"><i class="fa fa-group"></i> <span>Users, Roles, Permissions</span> <i class="fa fa-angle-left pull-right"></i></a>
+            <a href="#"><i class="fa fa-group"></i> <span>Users</span> <i class="fa fa-angle-left pull-right"></i></a>
             <ul class="treeview-menu">
               <li><a href="{{ url(config('backpack.base.route_prefix', 'admin') . '/user') }}"><i class="fa fa-user"></i> <span>Users</span></a></li>
               <li><a href="{{ url(config('backpack.base.route_prefix', 'admin') . '/role') }}"><i class="fa fa-group"></i> <span>Roles</span></a></li>
