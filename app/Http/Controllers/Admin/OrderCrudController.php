@@ -546,21 +546,21 @@ class OrderCrudController extends CrudController
             $reservation->movement_id       = $stocks->first()->getLastMovement()->id;
             $reservation->save();
 
-            // tmp debug
-            echo '<hr>';
-            echo 'Stock #: '.$stocks->first()->id;
-            echo '<br>';
-            echo 'Order quantity: '.$order_product->quantity;
-            echo '<br>';
-            echo 'Stock quantity: '.$stocks->first()->quantity;
-            echo '<br>';
-            echo 'Reservable: '.$stocks->first()->quantityReservable();
-            echo '<br>';
-            echo 'Total reserved: '.$order_product->quantity_reserved;
-            echo '<br>';
-            echo 'Reserved: '.$reservation->quantity_reserved;
-            echo '<br>';
-            echo 'Fully reserved?: '.$order_product->isFullyReserved();
+            // // tmp debug
+            // echo '<hr>';
+            // echo 'Stock #: '.$stocks->first()->id;
+            // echo '<br>';
+            // echo 'Order quantity: '.$order_product->quantity;
+            // echo '<br>';
+            // echo 'Stock quantity: '.$stocks->first()->quantity;
+            // echo '<br>';
+            // echo 'Reservable: '.$stocks->first()->quantityReservable();
+            // echo '<br>';
+            // echo 'Total reserved: '.$order_product->quantity_reserved;
+            // echo '<br>';
+            // echo 'Reserved: '.$reservation->quantity_reserved;
+            // echo '<br>';
+            // echo 'Fully reserved?: '.$order_product->isFullyReserved();
         } else {
             
             // // tmp debug
@@ -571,17 +571,17 @@ class OrderCrudController extends CrudController
                 
                 if ($stock->hasEnoughStockForReservation() && !$order_product->isFullyReserved()) {
 
-                    // tmp debug
-                    echo '<hr>';
-                    echo 'Stock #: '.$stock->id;
-                    echo '<br>';
-                    echo 'Order quantity: '.$order_product->quantity;
-                    echo '<br>';
-                    echo 'Stock quantity: '.$stock->quantity;
-                    echo '<br>';
-                    echo 'Reservable: '.$stock->quantityReservable();
-                    echo '<br>';
-                    echo 'Total reserved: '.$order_product->quantity_reserved;
+                    // // tmp debug
+                    // echo '<hr>';
+                    // echo 'Stock #: '.$stock->id;
+                    // echo '<br>';
+                    // echo 'Order quantity: '.$order_product->quantity;
+                    // echo '<br>';
+                    // echo 'Stock quantity: '.$stock->quantity;
+                    // echo '<br>';
+                    // echo 'Reservable: '.$stock->quantityReservable();
+                    // echo '<br>';
+                    // echo 'Total reserved: '.$order_product->quantity_reserved;
 
                     // Formula: (order - (order - stock)) - reserved
                     // $stock_quantity_takable = ($order_product->quantity - ($order_product->quantity - $stock->quantity)) - $order_product->quantity_reserved;
@@ -591,20 +591,20 @@ class OrderCrudController extends CrudController
                     // if ($formula_result <= 0) {
                     if ($formula_result <= $order_product->quantity && $formula_result >= 0) {
                         $stock_quantity_reservable = $order_product->quantity - ($order_product->quantity - $stock->quantityReservable()) - $order_product->quantity_reserved;
-                        // tmp debug
-                        echo '<br>';
-                        echo 'Reservable formula: '. $order_product->quantity .'-('.$order_product->quantity .'-'. $stock->quantityReservable().')-'. $order_product->quantity_reserved;
+                        // // tmp debug
+                        // echo '<br>';
+                        // echo 'Reservable formula: '. $order_product->quantity .'-('.$order_product->quantity .'-'. $stock->quantityReservable().')-'. $order_product->quantity_reserved;
                     }
                     else {
                         $stock_quantity_reservable = $order_product->quantity - $order_product->quantity_reserved;
-                        // tmp debug
-                        echo '<br>';
-                        echo 'Reservable formula used: '. $order_product->quantity .'-'. $order_product->quantity_reserved;
+                        // // tmp debug
+                        // echo '<br>';
+                        // echo 'Reservable formula used: '. $order_product->quantity .'-'. $order_product->quantity_reserved;
                     }
 
-                    // tmp
-                    echo '<br>';
-                    echo '$stock_quantity_reservable: '.$stock_quantity_reservable;
+                    // // tmp
+                    // echo '<br>';
+                    // echo '$stock_quantity_reservable: '.$stock_quantity_reservable;
 
                     try {
                         // Save the product's reservation.
@@ -618,16 +618,16 @@ class OrderCrudController extends CrudController
                         $reservation->save();
                     } catch (\Exception $e) {
                         abort(500, $e->getMessage());
-                        // tmp debug
-                        echo '<br>';
-                        echo 'Error on iteration: '.$key;
+                        // // tmp debug
+                        // echo '<br>';
+                        // echo 'Error on iteration: '.$key;
                     }
 
-                    // tmp debug
-                    echo '<br>';
-                    echo 'Reserved: '.$reservation->quantity_reserved;
-                    echo '<br>';
-                    echo 'Fully reserved?: '.$order_product->isFullyReserved();
+                    // // tmp debug
+                    // echo '<br>';
+                    // echo 'Reserved: '.$reservation->quantity_reserved;
+                    // echo '<br>';
+                    // echo 'Fully reserved?: '.$order_product->isFullyReserved();
                 } else {
                     break;
                 }
