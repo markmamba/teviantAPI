@@ -18,6 +18,19 @@ class OrderProduct extends Model
 
     public function reservations()
     {
-    	return $this->hasMany('App\Models\OrderProductReservation');
+    	return $this->hasMany('App\Models\OrderProductReservation', 'order_product_id');
+    }
+
+    public function isFullyReserved()
+    {
+        if ($this->quantity == $this->quantity_reserved)
+            return true;
+        else
+            return false;
+    }
+
+    public function getQuantityReservedAttribute()
+    {
+        return $this->reservations()->sum('quantity_reserved');
     }
 }
