@@ -15,6 +15,7 @@ use App\Models\OrderShippingAddress;
 use App\Models\OrderStatus;
 use App\Models\OrderBillingAddress;
 use App\Models\OrderProduct;
+use App\Models\OrderProductPicking;
 use App\Models\OrderProductReservation;
 
 // VALIDATION: change the requests to match your own file names if you need form validation
@@ -163,8 +164,7 @@ class OrderCrudController extends CrudController
     {   
         $order = Order::findOrFail($id);
 
-        // Handle cancellation if so.
-        $request = $this->handleCancellation($request, $id);
+        $this->handleStatusChange($request, $order);
 
         $order->update($request->all());
 
@@ -263,6 +263,9 @@ class OrderCrudController extends CrudController
              // Handle product reservation
             $this->reserveOrder($new_order, $this->auto_pick_list);
         }
+
+        // // tmp debug
+        // die();
         
         \Alert::success('Synced orders.')->flash();
         
@@ -277,6 +280,7 @@ class OrderCrudController extends CrudController
         foreach ($order->products as $order_product) {
             foreach ($order_product->reservations as $reservation) {
                 $reservation->movement->rollback();
+                $reservation->pickings()->delete();
                 $reservation->delete();
             }
         }
@@ -401,6 +405,25 @@ class OrderCrudController extends CrudController
             $reservation->picked_at      = \Carbon\Carbon::now();
             $reservation->picked_by      = Auth::user()->id;
             $reservation->save();
+
+            // WIP, upong picking, use take() to deplete stock from the inventory
+
+            // Create a picking record. For now, we'lll do 1-1.
+            $picking = new OrderProductPicking;
+            $picking->reservation_id  = $reservation->id;
+            $picking->quantity_picked = $reservation->quantity_taken;
+            $picking->picker_id       = Auth::user()->id;
+            $picking->picked_at       = \Carbon\Carbon::now();
+            $picking->save();
+
+            // Deplete the stock record
+            try {
+                $reservation->stock->take($picking->quantity_picked);
+            } catch (\Stevebauman\Inventory\Exceptions\NotEnoughStockException $e) {
+                // This shouldn't happen, if so, something is wrong on the reservation.
+                \Alert::error($e->getMessage())->flash();
+                return back();
+            }
         }
 
         \Alert::success('Status updated.')->flash();
@@ -450,14 +473,20 @@ class OrderCrudController extends CrudController
         return $pdf->stream();
     }
 
-    private function handleCancellation($request, $id)
+    public function handleStatusChange($request, $order)
+    {
+        $this->handleCancellation($request, $order);
+        // $this->handlePicking($request, $order);
+    }
+
+    private function handleCancellation($request, $order)
     {
         $cancelled_status = OrderStatus::where('name', 'cancelled')->first();
         $done_status = OrderStatus::where('name', 'done')->first();
         
         if ($request->status_id == $cancelled_status->id) {
             
-            $this->cancel($id, $request);
+            $this->cancel($order->id, $request);
             
             // Afterwards, change the status_id to the Id of the Done status
             // because the Ecommerce app does not have a cancelled status yet.
@@ -504,39 +533,102 @@ class OrderCrudController extends CrudController
         }
 
         // Check if we can reserve enough stock from the most abundant location.
-        try {
-            if ($stocks->first()->hasEnoughStock($order_product->quantity)) {
-                // Reserve the available stock.
-                $stocks->first()->take($order_product->quantity);
+        if ($stocks->first()->hasEnoughStockForReservation($order_product->quantity)) {
+            // Reserve the available stock.
+            // $stocks->first()->take($order_product->quantity);
 
-                // Save the product's reservation.
-                $reservation = new OrderProductReservation();
-                $reservation->order_product_id = $order_product->id;
-                $reservation->user_id = Auth::user()->id;
-                $reservation->stock_id = $stocks->first()->id;
-                $reservation->quantity_reserved += $order_product->quantity;
-                $reservation->movement_id = $stocks->first()->getLastMovement()->id;
-                $reservation->save();
-            }
-        } catch (\Stevebauman\Inventory\Exceptions\NotEnoughStockException $e) {
-            // Take what's available from each stock location until we reserve the ordered quantity.
-            foreach ($stocks as $stock) {
-                try {
-                    if ($stock->quantity > 0) {
-                        // Formula: (order - (order - stock)) - reserved
-                        $stock_quantity_takable = ($order_product->quantity - ($order_product->quantity - $stock->quantity)) - $order_product->quantity_reserved;
-                        $stock->take($stock_quantity_takable);
+            // Save the product's reservation.
+            $reservation                    = new OrderProductReservation();
+            $reservation->order_product_id  = $order_product->id;
+            $reservation->user_id           = Auth::user()->id;
+            $reservation->stock_id          = $stocks->first()->id;
+            $reservation->quantity_reserved += $order_product->quantity;
+            $reservation->movement_id       = $stocks->first()->getLastMovement()->id;
+            $reservation->save();
 
-                        // Save the product's reservation.
-                        $reservation = new OrderProductReservation();
-                        $reservation->order_product_id = $order_product->id;
-                        $reservation->user_id = Auth::user()->id;
-                        $reservation->stock_id = $stocks->first()->id;
-                        $reservation->quantity_reserved += $stock_quantity_takable;
-                        $reservation->movement_id = $stock->getLastMovement()->id;
-                        $reservation->save();
+            // tmp debug
+            echo '<hr>';
+            echo 'Stock #: '.$stocks->first()->id;
+            echo '<br>';
+            echo 'Order quantity: '.$order_product->quantity;
+            echo '<br>';
+            echo 'Stock quantity: '.$stocks->first()->quantity;
+            echo '<br>';
+            echo 'Reservable: '.$stocks->first()->quantityReservable();
+            echo '<br>';
+            echo 'Total reserved: '.$order_product->quantity_reserved;
+            echo '<br>';
+            echo 'Reserved: '.$reservation->quantity_reserved;
+            echo '<br>';
+            echo 'Fully reserved?: '.$order_product->isFullyReserved();
+        } else {
+            
+            // // tmp debug
+            // echo '<br>';
+            // echo 'Order #: '.$order_product->order->id;
+
+            foreach ($stocks as $key => $stock) {
+                
+                if ($stock->hasEnoughStockForReservation() && !$order_product->isFullyReserved()) {
+
+                    // tmp debug
+                    echo '<hr>';
+                    echo 'Stock #: '.$stock->id;
+                    echo '<br>';
+                    echo 'Order quantity: '.$order_product->quantity;
+                    echo '<br>';
+                    echo 'Stock quantity: '.$stock->quantity;
+                    echo '<br>';
+                    echo 'Reservable: '.$stock->quantityReservable();
+                    echo '<br>';
+                    echo 'Total reserved: '.$order_product->quantity_reserved;
+
+                    // Formula: (order - (order - stock)) - reserved
+                    // $stock_quantity_takable = ($order_product->quantity - ($order_product->quantity - $stock->quantity)) - $order_product->quantity_reserved;
+                    // $stock->take($stock_quantity_takable);
+
+                    $formula_result = $order_product->quantity - ($order_product->quantity - $stock->quantityReservable()) - $order_product->quantity_reserved;
+                    // if ($formula_result <= 0) {
+                    if ($formula_result <= $order_product->quantity && $formula_result >= 0) {
+                        $stock_quantity_reservable = $order_product->quantity - ($order_product->quantity - $stock->quantityReservable()) - $order_product->quantity_reserved;
+                        // tmp debug
+                        echo '<br>';
+                        echo 'Reservable formula: '. $order_product->quantity .'-('.$order_product->quantity .'-'. $stock->quantityReservable().')-'. $order_product->quantity_reserved;
                     }
-                } catch (\Stevebauman\Inventory\Exceptions\NotEnoughStockException $e) {
+                    else {
+                        $stock_quantity_reservable = $order_product->quantity - $order_product->quantity_reserved;
+                        // tmp debug
+                        echo '<br>';
+                        echo 'Reservable formula used: '. $order_product->quantity .'-'. $order_product->quantity_reserved;
+                    }
+
+                    // tmp
+                    echo '<br>';
+                    echo '$stock_quantity_reservable: '.$stock_quantity_reservable;
+
+                    try {
+                        // Save the product's reservation.
+                        $reservation                    = new OrderProductReservation();
+                        $reservation->order_product_id  = $order_product->id;
+                        $reservation->user_id           = Auth::user()->id;
+                        $reservation->stock_id          = $stock->id;
+                        $reservation->quantity_reserved += $stock_quantity_reservable;
+                        // TODO: remove movement_id in reservation.
+                        $reservation->movement_id       = $stock->getLastMovement()->id;
+                        $reservation->save();
+                    } catch (\Exception $e) {
+                        abort(500, $e->getMessage());
+                        // tmp debug
+                        echo '<br>';
+                        echo 'Error on iteration: '.$key;
+                    }
+
+                    // tmp debug
+                    echo '<br>';
+                    echo 'Reserved: '.$reservation->quantity_reserved;
+                    echo '<br>';
+                    echo 'Fully reserved?: '.$order_product->isFullyReserved();
+                } else {
                     break;
                 }
             }

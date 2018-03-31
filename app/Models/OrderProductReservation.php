@@ -34,6 +34,11 @@ class OrderProductReservation extends Model
         return $this->belongsTo('App\User', 'picked_by');
     }
 
+    public function pickings()
+    {
+        return $this->hasMany('App\Models\OrderProductPicking', 'reservation_id');
+    }
+
     /**
      * Get the deficiency of the reservation.
      * @return int
