@@ -27,7 +27,7 @@
               {{-- Inventories --}}
               <li><a href="{{ backpack_url('inventory') }}"><i class="fa fa-star"></i> <span>Items</span></a></li>
               {{-- Stock --}}
-              <li><a href="{{ backpack_url('stock') }}"><i class="fa fa-bars"></i> <span>Stocks</span></a></li>
+              <li><a href="{{ backpack_url('stock') }}"><i class="fa fa-th"></i> <span>Stocks</span></a></li>
               {{-- Movements --}}
               <li><a href="{{ backpack_url('movement') }}"><i class="fa fa-exchange"></i> <span>Movements</span></a></li>
               {{-- Suppliers --}}
@@ -43,7 +43,7 @@
           </li>
           <li>
             <a href="#">
-              <i class="fa fa-check-square-o"></i> <span>Purchase Orders</span>
+              <i class="fa fa-clipboard"></i> <span>Purchase Orders</span>
             </a>
           </li>
 
@@ -52,7 +52,7 @@
           {{-- Orders --}}
           <li>
             <a href="{{ backpack_url('order') }}">
-              <i class="fa fa-list-alt"></i> <span>Orders</span>
+              <i class="fa fa-shopping-bag"></i> <span>Orders</span>
               @if($orders_incomplete_count)
                 <span class="pull-right-container">
                   <span class="label label-primary pull-right">{{ $orders_incomplete_count }}</span>
