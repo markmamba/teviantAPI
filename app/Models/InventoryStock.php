@@ -10,10 +10,6 @@ class InventoryStock extends Model
 {
     use CrudTrait;
     use InventoryStockTrait;
-    // When overriding
-    // use InventoryStockTrait {
-    //     hasEnoughStock as traitHasEnoughStock;
-    // }
 
      /*
     |--------------------------------------------------------------------------
@@ -43,19 +39,6 @@ class InventoryStock extends Model
     | FUNCTIONS
     |--------------------------------------------------------------------------
     */
-    // public function addStock($crud = false)
-    // {
-    //     $route = route('crud.stock.add', $this->id);
-
-    //     return '<a class="btn btn-xs btn-default" href="' . $route . '" data-toggle="tooltip" title="Add stock"><i class="fa fa-plus"></i> Add</a>';
-    // }
-
-    // public function subtractStock($crud = false)
-    // {
-    //     $route = route('crud.stock.add', $this->id);
-
-    //     return '<a class="btn btn-xs btn-default" href="' . $route . '" data-toggle="tooltip" title="Subtract stock"><i class="fa fa-minus"></i> Subtract</a>';
-    // }
     
     /**
      * Get the last movement of the stock.
@@ -147,24 +130,7 @@ class InventoryStock extends Model
     {
         return $this->quantityReservable();
     }
-   
-    /*
-    |--------------------------------------------------------------------------
-    | TRAIT OVERRIDES
-    |--------------------------------------------------------------------------
-    */
-   
-    /**
-     * Returns true if the quantity entered is less than
-     * or equal to the amount of available stock.
-     * Available stock = stock - reservations
-     * @return boolean
-     */
-    // public function hasEnoughStock($quantity = 0)
-    // {
-    //     return $this->traitHasEnoughStock();
-    // }
-
+    
     public function quantityReservable()
     {
         return abs($this->quantity - $this->pendingReservationsCount());

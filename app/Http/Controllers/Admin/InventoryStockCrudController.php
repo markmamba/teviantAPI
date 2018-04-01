@@ -510,7 +510,7 @@ class InventoryStockCrudController extends CrudController
     }
 
     /**
-     * Execute the depletion of stocks submitted byt the form.
+     * Execute the depletion of stocks submitted by the form.
      * @return view
      */
     public function postRemoveStock(DepleteStockRequest $request, $stock_id)
