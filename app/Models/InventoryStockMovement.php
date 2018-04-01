@@ -53,11 +53,6 @@ class InventoryStockMovement extends Model
         return $this->belongsTo('App\User', 'user_id', 'id');
     }
 
-    public function reservations()
-    {
-        return $this->hasMany('App\Models\OrderProductReservation', 'movement_id');
-    }
-
     /*
     |--------------------------------------------------------------------------
     | SCOPES

@@ -279,7 +279,6 @@ class OrderCrudController extends CrudController
         // Put back stock to the stock they where taken from.
         foreach ($order->products as $order_product) {
             foreach ($order_product->reservations as $reservation) {
-                $reservation->movement->rollback();
                 $reservation->pickings()->delete();
                 $reservation->delete();
             }
@@ -543,7 +542,6 @@ class OrderCrudController extends CrudController
             $reservation->user_id           = Auth::user()->id;
             $reservation->stock_id          = $stocks->first()->id;
             $reservation->quantity_reserved += $order_product->quantity;
-            $reservation->movement_id       = $stocks->first()->getLastMovement()->id;
             $reservation->save();
 
             // // tmp debug
@@ -613,8 +611,6 @@ class OrderCrudController extends CrudController
                         $reservation->user_id           = Auth::user()->id;
                         $reservation->stock_id          = $stock->id;
                         $reservation->quantity_reserved += $stock_quantity_reservable;
-                        // TODO: remove movement_id in reservation.
-                        $reservation->movement_id       = $stock->getLastMovement()->id;
                         $reservation->save();
                     } catch (\Exception $e) {
                         abort(500, $e->getMessage());
