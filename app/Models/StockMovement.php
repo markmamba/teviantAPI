@@ -34,6 +34,11 @@ class StockMovement extends Model
     | RELATIONS
     |--------------------------------------------------------------------------
     */
+   
+    public function productPickings()
+    {
+        return $this->hasMany('App\Models\OrderProductPicking', 'movement_id');
+    }
 
     /*
     |--------------------------------------------------------------------------

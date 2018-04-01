@@ -10,4 +10,14 @@ class OrderProductPicking extends Model
     {
     	return $this->belongsTo('App\Models\OrderProductReservation', 'reservation_id');
     }
+
+    public function picker()
+    {
+        return $this->belongsTo('App\User', 'picker_id');
+    }
+
+	public function movement()
+    {
+        return $this->belongsTo('App\Models\InventoryStockMovement', 'movement_id');
+    }    
 }

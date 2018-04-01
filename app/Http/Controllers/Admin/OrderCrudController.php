@@ -279,6 +279,9 @@ class OrderCrudController extends CrudController
         // Put back stock to the stock they where taken from.
         foreach ($order->products as $order_product) {
             foreach ($order_product->reservations as $reservation) {
+                foreach ($reservation->pickings as $picking) {
+                    $picking->movement->rollback();
+                }
                 $reservation->pickings()->delete();
                 $reservation->delete();
             }
@@ -405,19 +408,18 @@ class OrderCrudController extends CrudController
             $reservation->picked_by      = Auth::user()->id;
             $reservation->save();
 
-            // WIP, upong picking, use take() to deplete stock from the inventory
-
-            // Create a picking record. For now, we'lll do 1-1.
-            $picking = new OrderProductPicking;
-            $picking->reservation_id  = $reservation->id;
-            $picking->quantity_picked = $reservation->quantity_taken;
-            $picking->picker_id       = Auth::user()->id;
-            $picking->picked_at       = \Carbon\Carbon::now();
-            $picking->save();
-
-            // Deplete the stock record
             try {
-                $reservation->stock->take($picking->quantity_picked);
+                // Create a picking record. For now, we'lll do 1-1.
+                $picking = new OrderProductPicking;
+                $picking->reservation_id  = $reservation->id;
+                $picking->quantity_picked = $reservation->quantity_taken;
+                $picking->picker_id       = Auth::user()->id;
+                $picking->picked_at       = \Carbon\Carbon::now();
+                
+                $reservation->stock->take($picking->reservation->quantity_reserved);
+
+                $picking->movement_id     = $picking->reservation->order_product->product->stocks->first()->getLastMovement()->id;
+                $picking->save();
             } catch (\Stevebauman\Inventory\Exceptions\NotEnoughStockException $e) {
                 // This shouldn't happen, if so, something is wrong on the reservation.
                 \Alert::error($e->getMessage())->flash();

@@ -221,9 +221,9 @@
 									<td>{{ $reservation->stock->location->name }}</td>
 									<td>{{ $reservation->stock->aisle }}-{{ $reservation->stock->row }}-{{ $reservation->stock->bin }}</td>
 									<td>{{ $reservation->quantity_reserved }}/{{ $reservation->order_product->quantity }}</td>
-									<td>{{ $reservation->quantity_taken}}/{{$reservation->order_product->quantity }}</td>
-									<td>{{ $reservation->picker->name or null}}</td>
-									<td>{{ $reservation->picked_at or null}}</td>
+									<td>{{ $reservation->total_picked }}/{{ $reservation->order_product->quantity }}</td>
+									<td>{{ $reservation->pickings->first()->picker->name or null }}</td>
+									<td>{{ $reservation->picked_at or null }}</td>
 								</tr>
 							@endforeach
 								<tr>
