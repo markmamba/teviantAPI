@@ -126,7 +126,28 @@ class InventoryStockCrudController extends CrudController
            'tab'       => 'Primary',
         ]);
 
-        $this->crud->addColumns(['quantity', 'aisle', 'row', 'bin']); // add multiple columns, at the end of the 
+        $this->crud->addColumns([
+            [
+                'label' => 'Quantity',
+                'name'  => 'quantity',
+                'type'  => 'number',
+            ],
+            [
+                'label' => 'Aisle-Row-Bin',
+                'name'  => 'aisle_row_bin',
+                'type'  => 'text',
+            ],
+            [
+                'label' => 'Reservations',
+                'name'  => 'pending_reservations_count',
+                'type'  => 'number',
+            ],
+            [
+                'label' => 'Available',
+                'name'  => 'quantity_reservable',
+                'type'  => 'number',
+            ],
+        ]); // add multiple columns, at the end of the 
 
         $this->crud->addField([ // Text
             'name'  => 'aisle',
@@ -489,7 +510,7 @@ class InventoryStockCrudController extends CrudController
     }
 
     /**
-     * Execute the depletion of stocks submitted byt the form.
+     * Execute the depletion of stocks submitted by the form.
      * @return view
      */
     public function postRemoveStock(DepleteStockRequest $request, $stock_id)

@@ -24,14 +24,14 @@ class OrderProductReservation extends Model
     	return $this->belongsTo('App\Models\InventoryStock');
     }
 
-    public function movement()
-    {
-        return $this->belongsTo('App\Models\InventoryStockMovement', 'movement_id');
-    }
-
     public function picker()
     {
         return $this->belongsTo('App\User', 'picked_by');
+    }
+
+    public function pickings()
+    {
+        return $this->hasMany('App\Models\OrderProductPicking', 'reservation_id');
     }
 
     /**
@@ -41,5 +41,10 @@ class OrderProductReservation extends Model
     public function getDeficiencyAttribute()
     {
         return $this->order_product->quantity - $this->quantity_reserved;
+    }
+
+    public function getTotalPickedAttribute()
+    {
+        return $this->pickings->sum('quantity_picked');
     }
 }

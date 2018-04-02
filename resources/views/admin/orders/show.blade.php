@@ -176,7 +176,11 @@
 							<h3 class="box-title">Pick List</h3>
 							<br>
 							@if($order->isSufficient())
-								<p class="text-success">Ready for pick-up.</p>
+								@if($order->status->name == 'Packed')
+									<p class="text-success">Ready for shipping.</p>
+								@elseif($order->status->name == 'Shipped')
+									<p class="text-success">Awaiting delivery.</p>
+								@endif
 							@else
 								<p class="text-warning">Insufficient stocks. Replenish stocks!</p>
 							@endif
@@ -211,29 +215,40 @@
 							<th>Picked</th>
 							<th>Picker</th>
 							<th>Date Picked</th>
-							<th>Deficiency</th>
 						</thead>
-						<tbody>
-							@foreach($order->reservations as $reservation)
+						@foreach($order->reservations->groupBy('order_product_id') as $key => $item)
+							<tbody>
+							@foreach($item as $reservation)
 								<tr>
 									<td>{{ $reservation->stock->item->sku_code }}</td>
 									<td>{{ $reservation->order_product->quantity }}</td>
 									<td>{{ $reservation->stock->location->name }}</td>
 									<td>{{ $reservation->stock->aisle }}-{{ $reservation->stock->row }}-{{ $reservation->stock->bin }}</td>
 									<td>{{ $reservation->quantity_reserved }}/{{ $reservation->order_product->quantity }}</td>
-									<td>{{ $reservation->quantity_taken}}/{{$reservation->order_product->quantity }}</td>
-									<td>{{ $reservation->picker->name or null}}</td>
-									<td>{{ $reservation->picked_at or null}}</td>
-									<td>
-										@if(!$reservation->deficiency)
-											{{ $reservation->deficiency }}
+									<td>{{ $reservation->total_picked }}/{{ $reservation->order_product->quantity }}</td>
+									<td>{{ $reservation->pickings->first()->picker->name or null }}</td>
+									<td>{{ $reservation->picked_at or null }}</td>
+								</tr>
+							@endforeach
+								<tr>
+									<td class="text-right" colspan="8">
+										<strong>Total ordered:</strong> {{ $reservation->order_product->quantity }}
+										<br>
+										<strong>Total reserved:</strong> {{ $reservation->order_product->reservations->sum('quantity_reserved') }}
+										<br>
+										<strong>Total deficiency:</strong> 
+										@if($reservation->order_product->isFullyReserved())
+											<span class="label label-success">
+												{{ $reservation->order_product->quantity - $reservation->order_product->reservations->sum('quantity_reserved')}}
+											</span>
 										@else
-											<span class="label label-danger">{{ $reservation->deficiency }}</span>
+											<span class="label label-danger">{{ $reservation->order_product->quantity - $reservation->order_product->reservations->sum('quantity_reserved')}}</span>
 										@endif
 									</td>
 								</tr>
-							@endforeach
-						</tbody>
+								</tr>
+							</tbody>
+						@endforeach
 					</table>
 				</div>
 				<div class="box-footer">

@@ -43,9 +43,14 @@ class User extends Authenticatable
         $this->notify(new ResetPasswordNotification($token));
     }
 
-    public function picks()
+    public function reservationPickings()
     {
         return $this->hasMany('App\Models\OrderProductReservation', 'picked_by');
+    }
+
+    public function productPickings()
+    {
+        return $this->hasMany('App\Models\OrderProductPicking', 'picker_id');
     }
 
     public function packs()
