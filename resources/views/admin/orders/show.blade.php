@@ -176,7 +176,11 @@
 							<h3 class="box-title">Pick List</h3>
 							<br>
 							@if($order->isSufficient())
-								<p class="text-success">Ready for pick-up.</p>
+								@if($order->status->name == 'Packed')
+									<p class="text-success">Ready for shipping.</p>
+								@elseif($order->status->name == 'Shipped')
+									<p class="text-success">Awaiting delivery.</p>
+								@endif
 							@else
 								<p class="text-warning">Insufficient stocks. Replenish stocks!</p>
 							@endif
