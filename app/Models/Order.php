@@ -101,7 +101,7 @@ class Order extends Model
     public function scopeIncomplete($query)
     {
         return $query->whereHas('status', function ($query) {
-            $query->where('name', '!=', 'Done');
+            $query->whereNotIn('name', ['Done', 'Cancelled']);
         });
     }
 
