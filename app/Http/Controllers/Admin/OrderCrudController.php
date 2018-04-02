@@ -413,10 +413,10 @@ class OrderCrudController extends CrudController
                 $picking = new OrderProductPicking;
                 $picking->reservation_id  = $reservation->id;
                 $picking->quantity_picked = $reservation->quantity_taken;
-                $picking->picker_id       = Auth::user()->id;
+                $picking->picker_id       = isset($request->packer_id) ? $request->packer_id : Auth::user()->id;
                 $picking->picked_at       = \Carbon\Carbon::now();
                 
-                $reservation->stock->take($picking->reservation->quantity_reserved);
+                $reservation->stock->take($picking->reservation->quantity_reserved, 'Picked for order #' . $order->id);
 
                 $picking->movement_id     = $picking->reservation->order_product->product->stocks->first()->getLastMovement()->id;
                 $picking->save();
