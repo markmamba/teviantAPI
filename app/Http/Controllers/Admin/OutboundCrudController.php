@@ -15,7 +15,6 @@ use App\Models\OrderShippingAddress;
 use App\Models\OrderStatus;
 use App\Models\OrderBillingAddress;
 use App\Models\OrderProduct;
-use App\Models\OrderProductPicking;
 use App\Models\OrderProductReservation;
 
 // VALIDATION: change the requests to match your own file names if you need form validation
@@ -25,7 +24,7 @@ use App\Http\Requests\UpdateOrderRequest;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 
-class OrderCrudController extends CrudController
+class OutboundCrudController extends CrudController
 {
     /**
      * Auto-set the order status to "Pick Listed"
@@ -53,8 +52,9 @@ class OrderCrudController extends CrudController
         |--------------------------------------------------------------------------
         */
         $this->crud->setModel('App\Models\Order');
-        $this->crud->setRoute(config('backpack.base.route_prefix') . '/order');
-        $this->crud->setEntityNameStrings('order', 'orders');
+        $this->crud->setRoute(config('backpack.base.route_prefix') . '/outbound');
+        // $this->crud->setRoute("admin/outbound/pickings");
+        $this->crud->setEntityNameStrings('for picking', 'for pickings');
 
         /*
         |--------------------------------------------------------------------------
@@ -95,7 +95,7 @@ class OrderCrudController extends CrudController
         $this->crud->removeAllButtonsFromStack('top');
         $this->crud->removeAllButtonsFromStack('line');
 
-        $this->crud->addButtonFromView('top', 'sync_orders', 'sync_orders', 'top');
+        // $this->crud->addButtonFromView('top', 'sync_orders', 'sync_orders', 'top');
         $this->crud->addButtonFromView('line', 'order_view', 'order_view', 'beginning');
 
         // ------ CRUD ACCESS
@@ -112,21 +112,23 @@ class OrderCrudController extends CrudController
 
         // ------ ADVANCED QUERIES
         $this->crud->orderBy('created_at', 'desc');
-        
-        // Status filter
-        $order_status_options = collect(OrderStatus::orderBy('id', 'asc')->pluck('name', 'id'))->toArray();
-        $this->crud->addFilter([
-            'name' => 'status',
-            'type' => 'dropdown',
-            'label'=> 'Status'
-        ], $order_status_options, function ($value) { // if the filter is active
-            $this->crud->addClause('whereHas', 'status', function ($query) use ($value) {
-                $query->where('id', 'like', '%'.$value.'%');
-            });
-        });
 
         // Custom queries
         $this->applyCustomQueries();
+    }
+
+    /**
+     * Show orders list for picking.
+     * @return view
+     */
+    public function pickings()
+    {
+        // $this->crud->hasAccessOrFail('pickings.index');
+
+        $this->data['crud'] = $this->crud;
+        $this->data['title'] = 'For Pickings';
+
+        return view('admin.outbound.list', $this->data);
     }
 
     public function index()
@@ -164,7 +166,8 @@ class OrderCrudController extends CrudController
     {   
         $order = Order::findOrFail($id);
 
-        $this->handleStatusChange($request, $order);
+        // Handle cancellation if so.
+        $request = $this->handleCancellation($request, $id);
 
         $order->update($request->all());
 
@@ -263,9 +266,6 @@ class OrderCrudController extends CrudController
              // Handle product reservation
             $this->reserveOrder($new_order, $this->auto_pick_list);
         }
-
-        // // tmp debug
-        // die();
         
         \Alert::success('Synced orders.')->flash();
         
@@ -279,10 +279,7 @@ class OrderCrudController extends CrudController
         // Put back stock to the stock they where taken from.
         foreach ($order->products as $order_product) {
             foreach ($order_product->reservations as $reservation) {
-                foreach ($reservation->pickings as $picking) {
-                    $picking->movement->rollback();
-                }
-                $reservation->pickings()->delete();
+                $reservation->movement->rollback();
                 $reservation->delete();
             }
         }
@@ -407,24 +404,6 @@ class OrderCrudController extends CrudController
             $reservation->picked_at      = \Carbon\Carbon::now();
             $reservation->picked_by      = Auth::user()->id;
             $reservation->save();
-
-            try {
-                // Create a picking record. For now, we'lll do 1-1.
-                $picking = new OrderProductPicking;
-                $picking->reservation_id  = $reservation->id;
-                $picking->quantity_picked = $reservation->quantity_taken;
-                $picking->picker_id       = isset($request->packer_id) ? $request->packer_id : Auth::user()->id;
-                $picking->picked_at       = \Carbon\Carbon::now();
-                
-                $reservation->stock->take($picking->reservation->quantity_reserved, 'Picked for order #' . $order->id);
-
-                $picking->movement_id     = $picking->reservation->order_product->product->stocks->first()->getLastMovement()->id;
-                $picking->save();
-            } catch (\Stevebauman\Inventory\Exceptions\NotEnoughStockException $e) {
-                // This shouldn't happen, if so, something is wrong on the reservation.
-                \Alert::error($e->getMessage())->flash();
-                return back();
-            }
         }
 
         \Alert::success('Status updated.')->flash();
@@ -450,22 +429,6 @@ class OrderCrudController extends CrudController
         return $pdf->stream();
     }
 
-    public function printDeliveryReceipt($id)
-    {
-        $order = Order::findOrFail($id);
-
-        $pdf = \PDF::loadView('pdf.delivery_receipt', compact('order'));
-        return $pdf->stream();
-    }
-
-    public function printCarrierReceipt($id)
-    {
-        $order = Order::findOrFail($id);
-
-        $pdf = \PDF::loadView('pdf.carrier_receipt', compact('order'));
-        return $pdf->stream();
-    }
-
     public function printAll($id)
     {
         $order = Order::findOrFail($id);
@@ -474,20 +437,14 @@ class OrderCrudController extends CrudController
         return $pdf->stream();
     }
 
-    public function handleStatusChange($request, $order)
-    {
-        $this->handleCancellation($request, $order);
-        // $this->handlePicking($request, $order);
-    }
-
-    private function handleCancellation($request, $order)
+    private function handleCancellation($request, $id)
     {
         $cancelled_status = OrderStatus::where('name', 'cancelled')->first();
         $done_status = OrderStatus::where('name', 'done')->first();
         
         if ($request->status_id == $cancelled_status->id) {
             
-            $this->cancel($order->id, $request);
+            $this->cancel($id, $request);
             
             // Afterwards, change the status_id to the Id of the Done status
             // because the Ecommerce app does not have a cancelled status yet.
@@ -534,99 +491,39 @@ class OrderCrudController extends CrudController
         }
 
         // Check if we can reserve enough stock from the most abundant location.
-        if ($stocks->first()->hasEnoughStockForReservation($order_product->quantity)) {
-            // Reserve the available stock.
-            // $stocks->first()->take($order_product->quantity);
+        try {
+            if ($stocks->first()->hasEnoughStock($order_product->quantity)) {
+                // Reserve the available stock.
+                $stocks->first()->take($order_product->quantity);
 
-            // Save the product's reservation.
-            $reservation                    = new OrderProductReservation();
-            $reservation->order_product_id  = $order_product->id;
-            $reservation->user_id           = Auth::user()->id;
-            $reservation->stock_id          = $stocks->first()->id;
-            $reservation->quantity_reserved += $order_product->quantity;
-            $reservation->save();
+                // Save the product's reservation.
+                $reservation = new OrderProductReservation();
+                $reservation->order_product_id = $order_product->id;
+                $reservation->user_id = Auth::user()->id;
+                $reservation->stock_id = $stocks->first()->id;
+                $reservation->quantity_reserved += $order_product->quantity;
+                $reservation->movement_id = $stocks->first()->getLastMovement()->id;
+                $reservation->save();
+            }
+        } catch (\Stevebauman\Inventory\Exceptions\NotEnoughStockException $e) {
+            // Take what's available from each stock location until we reserve the ordered quantity.
+            foreach ($stocks as $stock) {
+                try {
+                    if ($stock->quantity > 0) {
+                        // Formula: (order - (order - stock)) - reserved
+                        $stock_quantity_takable = ($order_product->quantity - ($order_product->quantity - $stock->quantity)) - $order_product->quantity_reserved;
+                        $stock->take($stock_quantity_takable);
 
-            // // tmp debug
-            // echo '<hr>';
-            // echo 'Stock #: '.$stocks->first()->id;
-            // echo '<br>';
-            // echo 'Order quantity: '.$order_product->quantity;
-            // echo '<br>';
-            // echo 'Stock quantity: '.$stocks->first()->quantity;
-            // echo '<br>';
-            // echo 'Reservable: '.$stocks->first()->quantityReservable();
-            // echo '<br>';
-            // echo 'Total reserved: '.$order_product->quantity_reserved;
-            // echo '<br>';
-            // echo 'Reserved: '.$reservation->quantity_reserved;
-            // echo '<br>';
-            // echo 'Fully reserved?: '.$order_product->isFullyReserved();
-        } else {
-            
-            // // tmp debug
-            // echo '<br>';
-            // echo 'Order #: '.$order_product->order->id;
-
-            foreach ($stocks as $key => $stock) {
-                
-                if ($stock->hasEnoughStockForReservation() && !$order_product->isFullyReserved()) {
-
-                    // // tmp debug
-                    // echo '<hr>';
-                    // echo 'Stock #: '.$stock->id;
-                    // echo '<br>';
-                    // echo 'Order quantity: '.$order_product->quantity;
-                    // echo '<br>';
-                    // echo 'Stock quantity: '.$stock->quantity;
-                    // echo '<br>';
-                    // echo 'Reservable: '.$stock->quantityReservable();
-                    // echo '<br>';
-                    // echo 'Total reserved: '.$order_product->quantity_reserved;
-
-                    // Formula: (order - (order - stock)) - reserved
-                    // $stock_quantity_takable = ($order_product->quantity - ($order_product->quantity - $stock->quantity)) - $order_product->quantity_reserved;
-                    // $stock->take($stock_quantity_takable);
-
-                    $formula_result = $order_product->quantity - ($order_product->quantity - $stock->quantityReservable()) - $order_product->quantity_reserved;
-                    // if ($formula_result <= 0) {
-                    if ($formula_result <= $order_product->quantity && $formula_result >= 0) {
-                        $stock_quantity_reservable = $order_product->quantity - ($order_product->quantity - $stock->quantityReservable()) - $order_product->quantity_reserved;
-                        // // tmp debug
-                        // echo '<br>';
-                        // echo 'Reservable formula: '. $order_product->quantity .'-('.$order_product->quantity .'-'. $stock->quantityReservable().')-'. $order_product->quantity_reserved;
-                    }
-                    else {
-                        $stock_quantity_reservable = $order_product->quantity - $order_product->quantity_reserved;
-                        // // tmp debug
-                        // echo '<br>';
-                        // echo 'Reservable formula used: '. $order_product->quantity .'-'. $order_product->quantity_reserved;
-                    }
-
-                    // // tmp
-                    // echo '<br>';
-                    // echo '$stock_quantity_reservable: '.$stock_quantity_reservable;
-
-                    try {
                         // Save the product's reservation.
-                        $reservation                    = new OrderProductReservation();
-                        $reservation->order_product_id  = $order_product->id;
-                        $reservation->user_id           = Auth::user()->id;
-                        $reservation->stock_id          = $stock->id;
-                        $reservation->quantity_reserved += $stock_quantity_reservable;
+                        $reservation = new OrderProductReservation();
+                        $reservation->order_product_id = $order_product->id;
+                        $reservation->user_id = Auth::user()->id;
+                        $reservation->stock_id = $stocks->first()->id;
+                        $reservation->quantity_reserved += $stock_quantity_takable;
+                        $reservation->movement_id = $stock->getLastMovement()->id;
                         $reservation->save();
-                    } catch (\Exception $e) {
-                        abort(500, $e->getMessage());
-                        // // tmp debug
-                        // echo '<br>';
-                        // echo 'Error on iteration: '.$key;
                     }
-
-                    // // tmp debug
-                    // echo '<br>';
-                    // echo 'Reserved: '.$reservation->quantity_reserved;
-                    // echo '<br>';
-                    // echo 'Fully reserved?: '.$order_product->isFullyReserved();
-                } else {
+                } catch (\Stevebauman\Inventory\Exceptions\NotEnoughStockException $e) {
                     break;
                 }
             }
@@ -641,25 +538,20 @@ class OrderCrudController extends CrudController
      */
     private function applyCustomQueries()
     {
-        // Filter status based on tab
-        $tab = request()->tab;
+        // WIP
 
-        if (!in_array($tab, ['pending', 'for_picking', 'for_shipping', 'shipped', 'completed', 'cancelled']))
-            return redirect()->route('crud.order.index');
+        // This works
+        // $this->crud->addClause('forPicking');
         
-        if (isset($tab)) {
-            if ($tab == 'pending')
-                $this->crud->addClause('pending');
-            if ($tab == 'for_picking')
-                $this->crud->addClause('forPicking');
-            if ($tab == 'for_shipping')
-                $this->crud->addClause('forShipping');
-            if ($tab == 'shipped')
-                $this->crud->addClause('shipped');
-            if ($tab == 'completed')
-                $this->crud->addClause('completed');
-            if ($tab == 'cancelled')
-                $this->crud->addClause('cancelled');
+        // debug
+        // dd(\Route::currentRouteName(), (\Route::currentRouteName() == 'outbound.pickings'));
+        
+        // This does not work, but should
+        if (\Route::currentRouteName() == 'outbound.pickings') {
+            $this->crud->addClause('forPicking');
+        }
+        if (\Route::currentRouteName() == 'outbound.shippings') {
+            $this->crud->addClause('forShipping');
         }
     }
 }
