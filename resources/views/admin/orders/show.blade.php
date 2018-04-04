@@ -232,11 +232,7 @@
 							@endforeach
 								<tr>
 									<td class="text-right" colspan="8">
-										<strong>Total ordered:</strong> {{ $reservation->order_product->quantity }}
-										<br>
-										<strong>Total reserved:</strong> {{ $reservation->order_product->reservations->sum('quantity_reserved') }}
-										<br>
-										<strong>Total deficiency:</strong> 
+										<strong>Item deficiency:</strong> 
 										@if($reservation->order_product->isFullyReserved())
 											<span class="label label-success">
 												{{ $reservation->order_product->quantity - $reservation->order_product->reservations->sum('quantity_reserved')}}
