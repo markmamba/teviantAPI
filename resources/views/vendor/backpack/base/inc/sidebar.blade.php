@@ -42,7 +42,7 @@
             </a>
           </li>
           <li>
-            <a href="#">
+            <a href="{{ route('crud.purchase-order.index') }}">
               <i class="fa fa-clipboard"></i> <span>Purchase Orders</span>
             </a>
           </li>
