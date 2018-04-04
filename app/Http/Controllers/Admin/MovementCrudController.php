@@ -156,6 +156,8 @@ class MovementCrudController extends CrudController
         // $this->crud->groupBy();
         // $this->crud->limit();
         
+        $this->crud->orderBy('created_at', 'desc');
+        
         $this->crud->addFilter([ // select2_ajax filter
             'name' => 'stock_id',
             'type' => 'select2_ajax',
