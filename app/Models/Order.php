@@ -74,7 +74,7 @@ class Order extends Model
 
     public function reservations()
     {
-        return $this->hasManyThrough('App\Models\OrderProductReservation', 'App\Models\OrderProduct');
+        return $this->hasManyThrough('App\Models\OrderProductReservation', 'App\Models\OrderProduct', 'order_id', 'order_product_id');
     }
 
     public function carrier()
@@ -101,7 +101,7 @@ class Order extends Model
     public function scopeIncomplete($query)
     {
         return $query->whereHas('status', function ($query) {
-            $query->where('name', '!=', 'Done');
+            $query->whereNotIn('name', ['Done', 'Cancelled']);
         });
     }
 

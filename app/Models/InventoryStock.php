@@ -39,19 +39,6 @@ class InventoryStock extends Model
     | FUNCTIONS
     |--------------------------------------------------------------------------
     */
-    // public function addStock($crud = false)
-    // {
-    //     $route = route('crud.stock.add', $this->id);
-
-    //     return '<a class="btn btn-xs btn-default" href="' . $route . '" data-toggle="tooltip" title="Add stock"><i class="fa fa-plus"></i> Add</a>';
-    // }
-
-    // public function subtractStock($crud = false)
-    // {
-    //     $route = route('crud.stock.add', $this->id);
-
-    //     return '<a class="btn btn-xs btn-default" href="' . $route . '" data-toggle="tooltip" title="Subtract stock"><i class="fa fa-minus"></i> Subtract</a>';
-    // }
     
     /**
      * Get the last movement of the stock.
@@ -89,7 +76,12 @@ class InventoryStock extends Model
 
     public function reservations()
     {
-        return $this->hasMany('App\Models\OrderProductReservation');
+        return $this->hasMany('App\Models\OrderProductReservation', 'stock_id');
+    }
+
+    public function pickings()
+    {
+        return $this->hasManyThrough('App\Models\OrderProductPicking', 'App\Models\OrderProductReservation', 'order_product_id', 'reservation_id');
     }
 
     /*
@@ -123,4 +115,48 @@ class InventoryStock extends Model
     | MUTATORS
     |--------------------------------------------------------------------------
     */
+    
+    public function getAisleRowBinAttribute()
+    {
+        return $this->aisle . '-' . $this->row . '-' . $this->bin;
+    }
+
+    public function getPendingReservationsCountAttribute()
+    {
+        return $this->pendingReservationsCount();
+    }
+
+    public function getQuantityReservableAttribute()
+    {
+        return $this->quantityReservable();
+    }
+    
+    public function quantityReservable()
+    {
+        return abs($this->quantity - $this->pendingReservationsCount());
+    }
+
+    public function pendingReservationsCount()
+    {
+        return $this->reservations()->whereHas('order_product.order', function ($query) {
+            $query->whereHas('status', function ($query) {
+                $query->whereNotIn('name', ['Packed', 'Shipped', 'Delivered', 'Done', 'Cancelled']);
+            });
+        })->sum('quantity_reserved');
+    }
+
+    public function hasEnoughStockForReservation($quantity = null)
+    {
+        if (isset($quantity)) {
+            if ($quantity <= $this->quantityReservable())
+                return true;
+            else
+                return false;
+        } else {
+            if ($this->quantityReservable() > 0)
+                return true;
+            else
+                return false;
+        }
+    }
 }
