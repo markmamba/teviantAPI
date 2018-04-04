@@ -25,7 +25,17 @@ class SupplierRequest extends \Backpack\CRUD\app\Http\Requests\CrudRequest
     public function rules()
     {
         return [
-            // 'name' => 'required|min:5|max:255'
+            'name'          => 'required|unique:suppliers,name|min:2|max:255',
+            'address'       => 'nullable|min:2|max:255',
+            'postal_code'   => 'nullable|min:2|max:255|min:2|max:255',
+            'zip_code'      => 'nullable|min:2|max:255',
+            'region'        => 'nullable|min:2|max:255',
+            'city'          => 'nullable|min:2|max:255',
+            'contact_title' => 'nullable|min:2|max:255',
+            'contact_name'  => 'nullable|min:2|max:255',
+            'contact_phone' => 'nullable|min:2|max:255',
+            'contact_fax'   => 'nullable|min:2|max:255',
+            'contact_email' => 'nullable|email|max:255',
         ];
     }
 

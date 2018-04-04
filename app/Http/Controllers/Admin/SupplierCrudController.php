@@ -20,7 +20,7 @@ class SupplierCrudController extends CrudController
         */
         $this->crud->setModel('App\Models\Supplier');
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/supplier');
-        $this->crud->setEntityNameStrings('supplier', 'suppliers');
+        $this->crud->setEntityNameStrings('Supplier', 'Suppliers');
 
         /*
         |--------------------------------------------------------------------------
@@ -28,21 +28,99 @@ class SupplierCrudController extends CrudController
         |--------------------------------------------------------------------------
         */
 
-        $this->crud->setFromDb();
+        // $this->crud->setFromDb();
 
         // ------ CRUD FIELDS
-        // $this->crud->addField($options, 'update/create/both');
-        // $this->crud->addFields($array_of_arrays, 'update/create/both');
-        // $this->crud->removeField('name', 'update/create/both');
-        // $this->crud->removeFields($array_of_names, 'update/create/both');
+        $this->crud->addFields([
+            [
+               'label'     => 'Name',
+               'type'      => 'text',
+               'name'      => 'name',
+               'tab'       => 'Primary',
+            ],
+            [
+               'label'     => 'Address',
+               'type'      => 'text',
+               'name'      => 'address',
+               'tab'       => 'Address Details',
+            ],
+            [
+               'label'     => 'Postal Code',
+               'type'      => 'text',
+               'name'      => 'postal_code',
+               'tab'       => 'Address Details',
+            ],
+            [
+               'label'     => 'ZIP Code',
+               'type'      => 'text',
+               'name'      => 'zip_code',
+               'tab'       => 'Address Details',
+            ],
+            [
+               'label'     => 'Region',
+               'type'      => 'text',
+               'name'      => 'region',
+               'tab'       => 'Address Details',
+            ],
+            [
+               'label'     => 'City',
+               'type'      => 'text',
+               'name'      => 'city',
+               'tab'       => 'Address Details',
+            ],
+            [
+               'label'     => 'Country',
+               'type'      => 'text',
+               'name'      => 'country',
+               'tab'       => 'Address Details',
+            ],
+            [
+               'label'     => 'Contact Title',
+               'type'      => 'text',
+               'name'      => 'contact_title',
+               'tab'       => 'Contact Details',
+            ],
+            [
+               'label'     => 'Contact Name',
+               'type'      => 'text',
+               'name'      => 'contact_name',
+               'tab'       => 'Contact Details',
+            ],
+            [
+               'label'     => 'Contact Phone',
+               'type'      => 'text',
+               'name'      => 'contact_phone',
+               'tab'       => 'Contact Details',
+            ],
+            [
+               'label'     => 'Contact Fax',
+               'type'      => 'text',
+               'name'      => 'contact_fax',
+               'tab'       => 'Contact Details',
+            ],
+            [
+               'label'     => 'Contact Email',
+               'type'      => 'text',
+               'name'      => 'contact_email',
+               'tab'       => 'Contact Details',
+            ],
+        ]);
 
         // ------ CRUD COLUMNS
-        // $this->crud->addColumn(); // add a single column, at the end of the stack
-        // $this->crud->addColumns(); // add multiple columns, at the end of the stack
-        // $this->crud->removeColumn('column_name'); // remove a column from the stack
-        // $this->crud->removeColumns(['column_name_1', 'column_name_2']); // remove an array of columns from the stack
-        // $this->crud->setColumnDetails('column_name', ['attribute' => 'value']); // adjusts the properties of the passed in column (by name)
-        // $this->crud->setColumnsDetails(['column_1', 'column_2'], ['attribute' => 'value']);
+        $this->crud->addColumns([
+            'name',
+            'address',
+            'postal_code',
+            'zip_code',
+            'region',
+            'city',
+            'country',
+            'title',
+            'name',
+            'phone',
+            'fax',
+            'email',
+        ]);
 
         // ------ CRUD BUTTONS
         // possible positions: 'beginning' and 'end'; defaults to 'beginning' for the 'line' stack, 'end' for the others;
