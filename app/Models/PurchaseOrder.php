@@ -5,34 +5,21 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Backpack\CRUD\CrudTrait;
 
-class Supplier extends Model
+class PurchaseOrder extends Model
 {
     use CrudTrait;
 
-     /*
+    /*
     |--------------------------------------------------------------------------
     | GLOBAL VARIABLES
     |--------------------------------------------------------------------------
     */
 
-    //protected $table = 'suppliers';
-    //protected $primaryKey = 'id';
+    protected $table = 'purchase_orders';
+    // protected $primaryKey = 'id';
     // public $timestamps = false;
     // protected $guarded = ['id'];
-    protected $fillable = [
-        'name',   
-        'address',
-        'postal_code',
-        'zip_code',
-        'region',
-        'city',    
-        'country',
-        'title',
-        'name',
-        'phone',
-        'fax',
-        'email',
-    ];
+    protected $fillable = ['supplier_id', 'remark', 'sent_at'];
     // protected $hidden = [];
     // protected $dates = [];
 
@@ -47,9 +34,9 @@ class Supplier extends Model
     | RELATIONS
     |--------------------------------------------------------------------------
     */
-    public function purchase_orders()
+    public function supplier()
     {
-        return $this->hasMany('App\Models\PurchaseOrder');
+        return $this->belongsTo('App\Models\Supplier');
     }
 
     /*
