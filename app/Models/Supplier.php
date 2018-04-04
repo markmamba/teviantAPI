@@ -19,7 +19,20 @@ class Supplier extends Model
     //protected $primaryKey = 'id';
     // public $timestamps = false;
     // protected $guarded = ['id'];
-    // protected $fillable = [];
+    protected $fillable = [
+        'name',   
+        'address',
+        'postal_code',
+        'zip_code',
+        'region',
+        'city',    
+        'country',
+        'title',
+        'name',
+        'phone',
+        'fax',
+        'email',
+    ];
     // protected $hidden = [];
     // protected $dates = [];
 
