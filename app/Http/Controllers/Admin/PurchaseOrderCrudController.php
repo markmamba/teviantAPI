@@ -85,6 +85,15 @@ class PurchaseOrderCrudController extends CrudController
                 'min'             => 1, // minimum rows allowed in the table
             ],
             [
+                'label'      => 'Total',
+                'type'       => 'text',
+                'name'       => 'total',
+                'tab'        => 'Primary',
+                'attributes' => [
+                    'readonly' => 'readonly',
+                ],
+            ],
+            [
                 'label' => 'Remark',
                 'type'  => 'text',
                 'name'  => 'remark',
