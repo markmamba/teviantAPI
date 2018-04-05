@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Models\Supplier;
-use Backpack\CRUD\app\Http\Controllers\CrudController;
-
-// VALIDATION: change the requests to match your own file names if you need form validation
 use App\Http\Requests\PurchaseOrderRequest as StoreRequest;
 use App\Http\Requests\PurchaseOrderRequest as UpdateRequest;
+
+// VALIDATION: change the requests to match your own file names if you need form validation
+use App\Models\Supplier;
+use Backpack\CRUD\app\Http\Controllers\CrudController;
 
 class PurchaseOrderCrudController extends CrudController
 {
@@ -17,7 +17,7 @@ class PurchaseOrderCrudController extends CrudController
         |--------------------------------------------------------------------------
         | BASIC CRUD INFORMATION
         |--------------------------------------------------------------------------
-        */
+         */
         $this->crud->setModel('App\Models\PurchaseOrder');
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/purchase-order');
         $this->crud->setEntityNameStrings('Purchase Order', 'Purchase Orders');
@@ -26,35 +26,35 @@ class PurchaseOrderCrudController extends CrudController
         |--------------------------------------------------------------------------
         | BASIC CRUD INFORMATION
         |--------------------------------------------------------------------------
-        */
+         */
 
         // $this->crud->setFromDb();
 
         // ------ CRUD FIELDS
         $this->crud->addFields([
             [
-               'label'     => 'Supplier',
-               'type'      => 'select2',
-               'name'      => 'supplier_id',
-               'entity'    => 'supplier',
-               'attribute' => 'name',
-               'tab'       => 'Primary',
+                'label'     => 'Supplier',
+                'type'      => 'select2',
+                'name'      => 'supplier_id',
+                'entity'    => 'supplier',
+                'attribute' => 'name',
+                'tab'       => 'Primary',
             ],
             [
-               'label'     => 'Remark',
-               'type'      => 'text',
-               'name'      => 'remark',
-               'tab'       => 'Optionals',
+                'label' => 'Remark',
+                'type'  => 'text',
+                'name'  => 'remark',
+                'tab'   => 'Optionals',
             ],
             [
-                'label'     => 'Date Sent',
-                'type'      => 'datetime_picker',
-                'name'      => 'sent_at',
-                'tab'       => 'Optionals',
+                'label'                   => 'Date Sent',
+                'type'                    => 'datetime_picker',
+                'name'                    => 'sent_at',
+                'tab'                     => 'Optionals',
                 'datetime_picker_options' => [
                     'format' => 'YYYY/MM/DD HH:mm',
                 ],
-                'allows_null' => true,
+                'allows_null'             => true,
             ],
         ]);
 
@@ -65,11 +65,11 @@ class PurchaseOrderCrudController extends CrudController
                 'name'  => 'id',
             ],
             [
-               'label'     => 'Supplier',
-               'type'      => 'select',
-               'name'      => 'supplier_id',
-               'entity'    => 'supplier',
-               'attribute' => 'name',
+                'label'     => 'Supplier',
+                'type'      => 'select',
+                'name'      => 'supplier_id',
+                'entity'    => 'supplier',
+                'attribute' => 'name',
             ],
             [
                 'label' => 'Remark',
@@ -108,8 +108,7 @@ class PurchaseOrderCrudController extends CrudController
     {
         if (Supplier::count()) {
             return parent::create();
-        }
-        else {
+        } else {
             \Alert::warning('Cannot create a purchase order. Add a supplier record first.')->flash();
             return back();
         }
