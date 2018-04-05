@@ -65,7 +65,7 @@ class PurchaseOrderCrudController extends CrudController
                         'type'       => 'matrix_text',
                         'attributes' => [
                             'type'       => 'text',
-                            'readonly'   => false,
+                            // 'readonly'   => true,
                             'ng-pattern' => "/^[1-9][0-9]{0,2}(?:,?[0-9]{3}){0,3}(?:\.[0-9]{1,2})?$/",
                             'step'       => "0.01",
                         ],
