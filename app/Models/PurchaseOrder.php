@@ -39,6 +39,11 @@ class PurchaseOrder extends Model
         return $this->belongsTo('App\Models\Supplier');
     }
 
+    public function products()
+    {
+        return $this->hasMany('App\Models\PurchaseOrderProduct');
+    }
+
     /*
     |--------------------------------------------------------------------------
     | SCOPES

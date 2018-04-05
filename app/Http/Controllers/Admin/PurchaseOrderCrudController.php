@@ -4,8 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Requests\PurchaseOrderRequest as StoreRequest;
 use App\Http\Requests\PurchaseOrderRequest as UpdateRequest;
-
-// VALIDATION: change the requests to match your own file names if you need form validation
+use App\Models\Inventory;
 use App\Models\Supplier;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 
@@ -31,6 +30,7 @@ class PurchaseOrderCrudController extends CrudController
         // $this->crud->setFromDb();
 
         // ------ CRUD FIELDS
+        $this->crud->child_resource_included = ['select' => false, 'number' => false];
         $this->crud->addFields([
             [
                 'label'     => 'Supplier',
@@ -39,6 +39,50 @@ class PurchaseOrderCrudController extends CrudController
                 'entity'    => 'supplier',
                 'attribute' => 'name',
                 'tab'       => 'Primary',
+            ],
+            [ // Table products
+                'label'           => 'Products',
+                'name'            => 'products',
+                'type'            => 'matrix_table',
+                'entity_singular' => 'Inventory', // used on the "Add X" button
+                'tab'             => 'Primary',
+                'columns'         => [
+                    [
+                        'label'      => 'Product',
+                        'type'       => 'matrix_select',
+                        'name'       => 'product_id',
+                        'entity'     => 'products',
+                        'attribute'  => 'sku_code',
+                        'size'       => '4',
+                        'model'      => "App\Models\Inventory",
+                        'attributes' => [
+                            'required' => true,
+                        ],
+                    ],
+                    [
+                        'label'      => 'Price',
+                        'name'       => 'price',
+                        'type'       => 'matrix_text',
+                        'attributes' => [
+                            'type'       => 'text',
+                            'readonly'   => false,
+                            'ng-pattern' => "/^[1-9][0-9]{0,2}(?:,?[0-9]{3}){0,3}(?:\.[0-9]{1,2})?$/",
+                            'step'       => "0.01",
+                        ],
+                    ],
+                    [
+                        'name'       => 'quantity',
+                        'label'      => 'Quantity',
+                        'type'       => 'matrix_text',
+                        'attributes' => [
+                            'required' => true,
+                            'type'     => 'number',
+                            'min'      => 1,
+                        ],
+                    ],
+                ],
+                'max'             => Inventory::count(), // maximum rows allowed in the table
+                'min'             => 1, // minimum rows allowed in the table
             ],
             [
                 'label' => 'Remark',
@@ -116,6 +160,8 @@ class PurchaseOrderCrudController extends CrudController
 
     public function store(StoreRequest $request)
     {
+        dd($request->all());
+
         // your additional operations before save here
         $redirect_location = parent::storeCrud($request);
         // your additional operations after save here
