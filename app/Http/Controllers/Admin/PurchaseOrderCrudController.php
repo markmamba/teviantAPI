@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Requests\PurchaseOrderRequest as StoreRequest;
 use App\Http\Requests\PurchaseOrderRequest as UpdateRequest;
 use App\Models\Inventory;
+use App\Models\PurchaseOrder;
 use App\Models\Supplier;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 
@@ -125,6 +126,14 @@ class PurchaseOrderCrudController extends CrudController
                 'attribute' => 'name',
             ],
             [
+                'label' => 'Total Products',
+                'name'  => 'total_products_count',
+            ],
+            [
+                'label' => 'Total Price',
+                'name'  => 'total_price',
+            ],
+            [
                 'label' => 'Remark',
                 'name'  => 'remark',
             ],
@@ -169,12 +178,23 @@ class PurchaseOrderCrudController extends CrudController
 
     public function store(StoreRequest $request)
     {
-        dd($request->all());
+        // dd($request->all());
 
         // your additional operations before save here
         $redirect_location = parent::storeCrud($request);
         // your additional operations after save here
         // use $this->data['entry'] or $this->crud->entry
+
+        // Store the PO's products.
+        $products = json_decode($request->products);
+        foreach ($products as $product) {
+            $new_purchase_order_product = $this->crud->entry->products()->create(
+                collect((array) $product)
+                    ->merge($request->all())
+                    ->toArray()
+            );
+        }
+
         return $redirect_location;
     }
 
@@ -185,5 +205,15 @@ class PurchaseOrderCrudController extends CrudController
         // your additional operations after save here
         // use $this->data['entry'] or $this->crud->entry
         return $redirect_location;
+    }
+
+    public function destroy($id)
+    {
+        $this->crud->hasAccessOrFail('delete');
+
+        // Delete associated items
+        PurchaseOrder::findOrFail($id)->products()->delete();
+
+        return $this->crud->delete($id);
     }
 }
