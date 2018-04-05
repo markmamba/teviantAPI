@@ -69,7 +69,7 @@
                     @endforeach
                     <td>  
                         <div>
-                            <input ng-model="item.subtotal" readonly="1" ng-value="item.pivot ? (item.pivot.price * item.pivot.quantity) : item.quantity ? (item.price * item.quantity) : 0" type="text" readonly="1" ng-pattern="/^[1-9][0-9]{0,2}(?:,?[0-9]{3}){0,3}(?:\.[0-9]{1,2})?$/" step="0.01" class="form-control ng-pristine ng-valid ng-empty ng-valid-pattern ng-touched">
+                            <input ng-model="item.subtotal" readonly="1" ng-value="item.pivot ? (item.pivot.price * item.pivot.quantity) : item.quantity ? (item.price * item.quantity) : null" type="text" readonly="1" ng-pattern="/^[1-9][0-9]{0,2}(?:,?[0-9]{3}){0,3}(?:\.[0-9]{1,2})?$/" step="0.01" class="form-control ng-pristine ng-valid ng-empty ng-valid-pattern ng-touched">
                             
                         </div>
                      </td>
