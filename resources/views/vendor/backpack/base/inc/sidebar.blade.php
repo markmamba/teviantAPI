@@ -37,13 +37,13 @@
 
           <li class="header">INBOUND</li>
           <li>
-            <a href="#">
-              <i class="fa fa-download"></i> <span>Receivings</span>
+            <a href="{{ route('crud.purchase-order.index') }}">
+              <i class="fa fa-clipboard"></i> <span>Purchase Orders</span>
             </a>
           </li>
           <li>
-            <a href="{{ route('crud.purchase-order.index') }}">
-              <i class="fa fa-clipboard"></i> <span>Purchase Orders</span>
+            <a href="#">
+              <i class="fa fa-download"></i> <span>Receivings</span>
             </a>
           </li>
 
