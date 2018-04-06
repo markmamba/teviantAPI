@@ -55,12 +55,7 @@ class PurchaseOrder extends Model
     | ACCESORS
     |--------------------------------------------------------------------------
     */
-    public function getTotalProductsCountAttribute()
-    {
-        return $this->products()->count();
-    }
-
-    public function getTotalPriceAttribute()
+    public function GetProductsPriceSumAttribute()
     {
         return $this->products()->sum('price');
     }
