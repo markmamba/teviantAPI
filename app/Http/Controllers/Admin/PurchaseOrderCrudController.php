@@ -148,6 +148,7 @@ class PurchaseOrderCrudController extends CrudController
         ]);
 
         // ------ CRUD BUTTONS
+        $this->crud->addButtonFromView('line', 'purchase_order_view', 'purchase_order_view', 'beginning');
 
         // ------ CRUD ACCESS
 
@@ -197,6 +198,15 @@ class PurchaseOrderCrudController extends CrudController
         }
 
         return $redirect_location;
+    }
+
+    public function show($id)
+    {
+        $purchase_order = PurchaseOrder::findOrFail($id);
+
+        $crud = $this->crud;
+
+        return view('admin.purchase_orders.show', compact('purchase_order', 'crud'));
     }
 
     public function update(UpdateRequest $request)
