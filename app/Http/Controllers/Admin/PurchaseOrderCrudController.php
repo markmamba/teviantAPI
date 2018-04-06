@@ -127,11 +127,11 @@ class PurchaseOrderCrudController extends CrudController
             ],
             [
                 'label' => 'Total Products',
-                'name'  => 'total_products_count',
+                'name'  => 'products_count',
             ],
             [
                 'label' => 'Total Price',
-                'name'  => 'total_price',
+                'name'  => 'products_price_sum',
             ],
             [
                 'label' => 'Date Created',
@@ -163,6 +163,7 @@ class PurchaseOrderCrudController extends CrudController
 
         // ------ ADVANCED QUERIES
         $this->crud->with('supplier');
+        $this->crud->addClause('withCount', 'products');
         $this->crud->orderBy('created_at', 'desc');
     }
 
