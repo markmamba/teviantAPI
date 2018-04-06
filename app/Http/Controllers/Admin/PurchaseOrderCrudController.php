@@ -45,7 +45,7 @@ class PurchaseOrderCrudController extends CrudController
                 'label'           => 'Products',
                 'name'            => 'products',
                 'type'            => 'matrix_table',
-                'entity_singular' => 'Inventory', // used on the "Add X" button
+                'entity_singular' => 'product', // used on the "Add X" button
                 'tab'             => 'Primary',
                 'columns'         => [
                     [
