@@ -134,16 +134,16 @@ class PurchaseOrderCrudController extends CrudController
                 'name'  => 'total_price',
             ],
             [
-                'label' => 'Remark',
-                'name'  => 'remark',
-            ],
-            [
                 'label' => 'Date Created',
                 'name'  => 'created_at',
             ],
             [
                 'label' => 'Date Sent',
                 'name'  => 'sent_at',
+            ],
+            [
+                'label' => 'Remark',
+                'name'  => 'remark',
             ],
         ]);
 
