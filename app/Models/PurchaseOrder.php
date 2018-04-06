@@ -66,6 +66,11 @@ class PurchaseOrder extends Model
         return $this->products()->sum(DB::raw('price * quantity'));
     }
 
+    public function getCreatedAtForHumansAttribute()
+    {
+        return $this->created_at->diffForHumans();
+    }
+
     /*
     |--------------------------------------------------------------------------
     | MUTATORS
