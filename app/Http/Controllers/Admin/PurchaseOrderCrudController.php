@@ -202,7 +202,10 @@ class PurchaseOrderCrudController extends CrudController
 
     public function show($id)
     {
-        $purchase_order = PurchaseOrder::findOrFail($id);
+        $purchase_order = PurchaseOrder::with(['products', 'products.inventory', 'supplier'])->where('id', $id)->first();
+
+        if (!$purchase_order)
+            abort(404);
 
         $crud = $this->crud;
 
