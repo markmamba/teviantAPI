@@ -135,7 +135,7 @@ class PurchaseOrderCrudController extends CrudController
             ],
             [
                 'label' => 'Date Created',
-                'name'  => 'created_at',
+                'name'  => 'created_at_for_humans',
             ],
             [
                 'label' => 'Date Sent',
