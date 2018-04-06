@@ -15,10 +15,73 @@
 
 @section('content')
 
-	{{--  --}}
+	<div class="box box-default">
+		<div class="box-header with-border">
+			<h3 class="box-title">General</h3>
+		</div>
+		<div class="box-body">
+			<form class="form-horizontal">
+				<div class="form-group">
+					<label class="col-sm-2 control-label">Purchase Order #</label>
+					<div class="col-sm-10">
+						<p class="form-control-static">{{ $purchase_order->id }}</p>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="col-sm-2 control-label">Supplier</label>
+					<div class="col-sm-10">
+						<p class="form-control-static">{{ $purchase_order->supplier->name }}</p>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="col-sm-2 control-label">Remark</label>
+					<div class="col-sm-10">
+						<p class="form-control-static">{{ $purchase_order->remark }}</p>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="col-sm-2 control-label">Date Created</label>
+					<div class="col-sm-10">
+						<p class="form-control-static">{{ $purchase_order->created_at }}</p>
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
 
-	<a href="{{ route('crud.order.index') }}">
-		<i class="fa fa-angle-double-left"></i> Back to all orders
+	<div class="box">
+		<div class="box-header with-border">
+			<h3 class="box-title">Products</h3>
+		</div>
+		<div class="box-body">
+			<table class="table table-responsive">
+				<thead>
+					<th>SKU</th>
+					<th>Inventory</th>
+					<th>Price</th>
+					<th>Quantity</th>
+					<th class="text-right">Subtotal</th>
+				</thead>
+				<tbody>
+					@foreach($purchase_order->products as $product)
+						<tr>
+							<td>{{ $product->inventory->sku_code }}</td>
+							<td>{{ $product->inventory->name }}</td>
+							<td>{{ number_format($product->price) }}</td>
+							<td>{{ $product->quantity }}</td>
+							<td class="text-right">{{ number_format($product->price * $product->quantity) }}</td>
+						</tr>
+					@endforeach
+				</tbody>
+			</table>
+		</div>
+		<div class="box-footer">
+			<p class="text-right"><strong>Total: {{ number_format($purchase_order->price_total) }}</strong></p>
+		</div>
+	</div>
+
+	<a href="{{ route('crud.purchase-order.index') }}">
+		<i class="fa fa-angle-double-left"></i> Back to all {{ str_plural(title_case($crud->entity_name)) }}
 	</a>
 
 @endsection

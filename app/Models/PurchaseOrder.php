@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Backpack\CRUD\CrudTrait;
+use DB;
 
 class PurchaseOrder extends Model
 {
@@ -55,9 +56,14 @@ class PurchaseOrder extends Model
     | ACCESORS
     |--------------------------------------------------------------------------
     */
-    public function GetProductsPriceSumAttribute()
+    public function getProductsPriceSumAttribute()
     {
         return $this->products()->sum('price');
+    }
+
+    public function getPriceTotalAttribute()
+    {
+        return $this->products()->sum(DB::raw('price * quantity'));
     }
 
     /*
