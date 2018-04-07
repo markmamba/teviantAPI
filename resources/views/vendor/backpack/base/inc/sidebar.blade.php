@@ -35,6 +35,30 @@
             </ul>
           </li>
 
+          {{-- Users, Roles Permissions --}}
+          <li class="treeview">
+            <a href="#"><i class="fa fa-group"></i> <span>Users</span> <i class="fa fa-angle-left pull-right"></i></a>
+            <ul class="treeview-menu">
+              <li><a href="{{ url(config('backpack.base.route_prefix', 'admin') . '/user') }}"><i class="fa fa-user"></i> <span>Users</span></a></li>
+              <li><a href="{{ url(config('backpack.base.route_prefix', 'admin') . '/role') }}"><i class="fa fa-group"></i> <span>Roles</span></a></li>
+              <li><a href="{{ url(config('backpack.base.route_prefix', 'admin') . '/permission') }}"><i class="fa fa-key"></i> <span>Permissions</span></a></li>
+            </ul>
+          </li>
+
+          <li class="header">OUTBOUND</li>
+          
+          {{-- Orders --}}
+          <li>
+            <a href="{{ backpack_url('order') }}">
+              <i class="fa fa-shopping-bag"></i> <span>Orders</span>
+              @if($orders_incomplete_count)
+                <span class="pull-right-container">
+                  <span class="label label-primary pull-right">{{ $orders_incomplete_count }}</span>
+                </span>
+              @endif
+            </a>
+          </li>
+
           <li class="header">INBOUND</li>
           <li>
             <a href="{{ route('crud.purchase-order.index') }}">
@@ -51,33 +75,8 @@
               <i class="fa fa-share"></i> <span>Transfer Orders</span>
             </a>
           </li>
-          <li class="header">OUTBOUND</li>
-          
-          {{-- Orders --}}
-          <li>
-            <a href="{{ backpack_url('order') }}">
-              <i class="fa fa-shopping-bag"></i> <span>Orders</span>
-              @if($orders_incomplete_count)
-                <span class="pull-right-container">
-                  <span class="label label-primary pull-right">{{ $orders_incomplete_count }}</span>
-                </span>
-              @endif
-            </a>
-          </li>
 
           {{-- <li><a href="{{  backpack_url('elfinder') }}"><i class="fa fa-files-o"></i> <span>Files</span></a></li> --}}
-
-          <li class="header">SYSTEM</li>
-
-          {{-- Users, Roles Permissions --}}
-          <li class="treeview">
-            <a href="#"><i class="fa fa-group"></i> <span>Users</span> <i class="fa fa-angle-left pull-right"></i></a>
-            <ul class="treeview-menu">
-              <li><a href="{{ url(config('backpack.base.route_prefix', 'admin') . '/user') }}"><i class="fa fa-user"></i> <span>Users</span></a></li>
-              <li><a href="{{ url(config('backpack.base.route_prefix', 'admin') . '/role') }}"><i class="fa fa-group"></i> <span>Roles</span></a></li>
-              <li><a href="{{ url(config('backpack.base.route_prefix', 'admin') . '/permission') }}"><i class="fa fa-key"></i> <span>Permissions</span></a></li>
-            </ul>
-          </li>
 
           <!-- ======================================= -->
           {{-- <li class="header">Other menus</li> --}}
