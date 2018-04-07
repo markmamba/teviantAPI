@@ -46,7 +46,11 @@
               <i class="fa fa-download"></i> <span>Receivings</span>
             </a>
           </li>
-
+          <li>
+            <a href="#">
+              <i class="fa fa-share"></i> <span>Transfer Orders</span>
+            </a>
+          </li>
           <li class="header">OUTBOUND</li>
           
           {{-- Orders --}}
