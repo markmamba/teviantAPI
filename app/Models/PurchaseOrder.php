@@ -45,6 +45,11 @@ class PurchaseOrder extends Model
         return $this->hasMany('App\Models\PurchaseOrderProduct');
     }
 
+    public function receivings()
+    {
+        return $this->hasMany('App\Models\PurchaseOrderReceivings');
+    }
+
     /*
     |--------------------------------------------------------------------------
     | SCOPES

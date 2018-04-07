@@ -66,7 +66,7 @@
             </a>
           </li>
           <li>
-            <a href="#">
+            <a href="{{ route('crud.receiving.index') }}">
               <i class="fa fa-download"></i> <span>Receivings</span>
             </a>
           </li>
