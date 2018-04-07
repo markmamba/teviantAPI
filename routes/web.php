@@ -84,6 +84,7 @@ Route::group([
     // Route::patch('order/{order_id}', 'OrderCrudController@update')->name('order.update');
     
     // Purchase orders
+    Route::get('purchase-order/{purchase_order_id}/print-order', 'PurchaseOrderCrudController@printOrder')->name('purchase_order.print-order');
     CRUD::resource('purchase-order', 'PurchaseOrderCrudController')->name('purchase_order');
 
 });
