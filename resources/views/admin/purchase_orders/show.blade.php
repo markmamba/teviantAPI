@@ -17,7 +17,16 @@
 
 	<div class="box box-default">
 		<div class="box-header with-border">
-			<h3 class="box-title">General</h3>
+			<div class="row">
+				<div class="col-md-6">
+					<h3 class="box-title">General</h3>
+				</div>
+				<div class="col-md-6">
+					<div class="text-right">
+						<a href="{{ route('purchase_order.print-order', $purchase_order->id) }}" class="btn btn-default" target="_blank"><i class="fa fa-print"></i> Print Purchase Order</a>
+					</div>
+				</div>
+			</div>
 		</div>
 		<div class="box-body">
 			<form class="form-horizontal">

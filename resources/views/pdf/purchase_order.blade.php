@@ -2,24 +2,33 @@
 
 @section('content')
 
-<h1>Receipt</h1>
+<table>
+	<tr>
+		<td>
+			<h1>Teviant <small>Purchase Order</small></h1>
+		</td>
+		<td><h1>{{ $purchase_order->supplier->name }}</h1></td>
+	</tr>
+</table>
+
+<br>
 
 <table>
 	<tbody>
 		<tr>
-			<td>Order #{{ $order->id }}</td>
-			<td>Date Ordered: {{ $order->created_at }}</td>
+			<td>Purchase Order #{{ $purchase_order->id }}</td>
+			<td>Date: {{ $purchase_order->created_at }}</td>
 		</tr>
 		<tr>
 			<td>
 				<strong>Ship to:</strong>
 				<br>
-				{{ $order->full_shipping_address }}
+				Teviant Address
 			</td>
 			<td>
 				<strong>Bill to:</strong>
 				<br>
-				{{ $order->full_billing_address }}
+				Teviant Address
 			</td>
 		</tr>
 	</tbody>
@@ -36,17 +45,17 @@
 		</tr>
 	</thead>
 	<tbody>
-		@foreach($order->reservations as $reservation)
+		@foreach($purchase_order->products as $product)
 			<tr>
-				<td>{{ $reservation->stock->item->sku_code }}</td>
-				<td>{{ $reservation->stock->item->name }}</td>
-				<td>{{ $reservation->order_product->quantity }}</td>
-				<td class="text-right">{{ $reservation->order_product->price }}</td>
+				<td>{{ $product->inventory->sku_code }}</td>
+				<td>{{ $product->inventory->name }}</td>
+				<td>{{ number_format($product->quantity) }}</td>
+				<td class="text-right">{{ number_format($product->price) }}</td>
 			</tr>
 		@endforeach
 		<tr>
 			<td class="text-right" colspan="3">Total</td>
-			<td class="text-right">{{ $reservation->order_product->order->products->sum('price') }}</td>
+			<td class="text-right">{{ number_format($purchase_order->price_total) }}</td>
 		</tr>
 	</tbody>
 </table>

@@ -230,4 +230,16 @@ class PurchaseOrderCrudController extends CrudController
 
         return $this->crud->delete($id);
     }
+
+    /**
+     * Show the printable PDF of the given Purchase Order.
+     * @return pdf
+     */
+    public function printOrder($id)
+    {
+        $purchase_order = PurchaseOrder::findOrFail($id);
+
+        $pdf = \PDF::loadView('pdf.purchase_order', compact('purchase_order'));
+        return $pdf->stream();
+    }
 }
