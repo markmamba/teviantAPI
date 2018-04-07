@@ -86,5 +86,6 @@ Route::group([
     // Purchase orders
     Route::get('purchase-order/{purchase_order_id}/print-order', 'PurchaseOrderCrudController@printOrder')->name('purchase_order.print-order');
     CRUD::resource('purchase-order', 'PurchaseOrderCrudController')->name('purchase_order');
+    CRUD::resource('receiving', 'PurchaseOrderReceivingCrudController');
 
 });
