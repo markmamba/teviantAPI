@@ -11,7 +11,7 @@ class PurchaseOrderReceiving extends Model
 
     public function product()
     {
-        return $this->belongsTo('App\Models\PurchaseOrderProduct', 'product_id');
+        return $this->belongsTo('App\Models\PurchaseOrderProduct');
     }
 
     public function purchase_order()
