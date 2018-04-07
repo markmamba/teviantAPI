@@ -32,16 +32,16 @@ class PurchaseOrderReceivingCrudController extends CrudController
 
         // ------ CRUD FIELDS
         // $this->crud->child_resource_included = ['select' => false, 'number' => false];
-        // $this->crud->addFields([
-        //     [
-        //         'label'     => 'Purchase Order',
-        //         'type'      => 'select2',
-        //         'name'      => 'purchase_order_id',
-        //         // 'entity'    => 'purchase_order',
-        //         'attribute' => 'name',
-        //         'tab'       => 'Primary',
-        //     ],
-        // ]);
+        $this->crud->addFields([
+            [
+               'label'     => 'Purchase Order #',
+               'type'      => 'select2',
+               'name'      => 'purchase_order_id',
+               'entity'    => 'purchase_order',
+               'attribute' => 'id',
+               'model'     => 'App\Models\PurchaseOrder',
+            ]
+        ]);
 
         // ------ CRUD COLUMNS
 
