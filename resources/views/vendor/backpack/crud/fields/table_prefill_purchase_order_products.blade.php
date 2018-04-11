@@ -30,6 +30,9 @@
 ?>
 <div ng-app="backPackTableApp" ng-controller="PurchaseOrderController" @include('crud::inc.field_wrapper_attributes') >
 
+    {{-- hidden input for products to be formatted in JSON--}}
+    <input type="text" name="products" ng-model="products_json" class="form-control">
+
     <label>{!! $field['label'] !!}</label>
     @include('crud::inc.field_translatable_icon')
 
@@ -133,6 +136,7 @@
                     products: {}
                 };
                 $scope.purchase_order = $scope.purchase_orders.filter(filterPurchaseOrderProduct);
+                $scope.products_json = angular.toJson($scope.purchase_order[0].products);
 
                 // Handle purchase_order_id field changes
                 $scope.purchase_order_id_selection.change(function() {
@@ -140,6 +144,7 @@
                     $scope.$apply(function(){
                         $scope.purchase_order.id = $that.val();
                         $scope.purchase_order = $scope.purchase_orders.filter(filterPurchaseOrderProduct);
+                        $scope.products_json = angular.toJson($scope.purchase_order[0].products);
                         console.log($scope.purchase_order);
                     });
                 });
