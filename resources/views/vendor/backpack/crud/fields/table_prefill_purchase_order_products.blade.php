@@ -1,24 +1,6 @@
 <!-- array input -->
 
 <?php
-    $max = isset($field['max']) && (int) $field['max'] > 0 ? $field['max'] : -1;
-    $min = isset($field['min']) && (int) $field['min'] > 0 ? $field['min'] : -1;
-    $item_name = strtolower(isset($field['entity_singular']) && !empty($field['entity_singular']) ? $field['entity_singular'] : $field['label']);
-
-    $items = old($field['name']) ? (old($field['name'])) : (isset($field['value']) ? ($field['value']) : (isset($field['default']) ? ($field['default']) : '' ));
-
-    // make sure not matter the attribute casting
-    // the $items variable contains a properly defined JSON
-    if (is_array($items)) {
-        if (count($items)) {
-            $items = json_encode($items);
-        } else {
-            $items = '[]';
-        }
-    } elseif (is_string($items) && !is_array(json_decode($items))) {
-        $items = '[]';
-    }
-
     $parent_model_items = $field['parent_model']::with(['products', 'products.inventory'])->get();
     $parent_model_items_plucked = $parent_model_items->map(function($purchase_order){
         return collect($purchase_order->only([
@@ -45,9 +27,8 @@
     //     $parent_model_items_plucked->toArray()
     // );
     // die();
-
 ?>
-<div ng-app="backPackTableApp" ng-controller="tableController" @include('crud::inc.field_wrapper_attributes') >
+<div ng-app="backPackTableApp" ng-controller="PurchaseOrderController" @include('crud::inc.field_wrapper_attributes') >
 
     <label>{!! $field['label'] !!}</label>
     @include('crud::inc.field_translatable_icon')
@@ -56,9 +37,11 @@
 
     <div class="array-container form-group">
 
-        <table class="table table-bordered table-striped m-b-0" ng-init="field = '#{{ $field['name'] }}'; max = {{$max}}; min = {{$min}}; maxErrorTitle = '{{trans('backpack::crud.table_cant_add', ['entity' => $item_name])}}'; maxErrorMessage = '{{trans('backpack::crud.table_max_reached', ['max' => $max])}}'">
+        <table class="table table-bordered table-striped m-b-0">
 
-            <p>Order #<% purchase_order.id %></p>
+            {{-- debug --}}
+            <p>Purchase Order:</p>
+            <p><% purchase_order %></p>
             <ul ng-repeat="purchase_order in purchase_orders">
                 <li>
                     Order #<% purchase_order.id %>
@@ -85,39 +68,26 @@
                 </tr>
             </thead>
 
-            <tbody ui-sortable="sortableOptions" ng-model="items" class="table-striped">
+            <tbody ui-sortable="sortableOptions" class="table-striped">
 
-                <tr ng-repeat="product in purchase_order.products" class="array-row">
-
-                    {{-- @foreach( $field['columns'] as $prop => $label)
-                        <td>
-                            <input class="form-control input-sm" type="text" ng-model="item.{{ $prop }}">
-                        </td>
-                    @endforeach --}}
+                <tr ng-repeat="product in purchase_order[0].products" class="array-row">
                     <td>
-                        <input class="form-control input-sm" type="text" ng-model="item.sku">
+                        <input class="form-control input-sm" type="text" ng-model="product.sku">
                     </td>
                     <td>
-                        <input class="form-control input-sm" type="text" ng-model="item.name">
+                        <input class="form-control input-sm" type="text" ng-model="product.name">
                     </td>
                     <td>
-                        <input class="form-control input-sm" type="text" ng-model="item.quantity">
+                        <input class="form-control input-sm" type="text" ng-model="product.quantity">
                     </td>
                     <td ng-if="max == -1 || max > 1">
                         <span class="btn btn-sm btn-default sort-handle"><span class="sr-only">sort item</span><i class="fa fa-sort" role="presentation" aria-hidden="true"></i></span>
                     </td>
-                    {{-- <td ng-if="max == -1 || max > 1">
-                        <button ng-hide="min > -1 && $index < min" class="btn btn-sm btn-default" type="button" ng-click="removeItem(item);"><span class="sr-only">delete item</span><i class="fa fa-trash" role="presentation" aria-hidden="true"></i></button>
-                    </td> --}}
                 </tr>
 
             </tbody>
 
         </table>
-
-        <div class="array-controls btn-group m-t-10">
-            <button ng-if="max == -1 || items.length < max" class="btn btn-sm btn-default" type="button" ng-click="addItem()"><i class="fa fa-plus"></i> {{trans('backpack::crud.add')}} {{ $item_name }}</button>
-        </div>
 
     </div>
 
@@ -142,128 +112,40 @@
     @push('crud_fields_scripts')
         {{-- YOUR JS HERE --}}
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.5.8/angular.min.js"></script>
-        {{-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.5.8/angular-cookies.min.js"></script> --}}
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
-        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-sortable/0.14.3/sortable.min.js"></script>
         <script>
 
             console.log('Hello');
           
-            window.angularApp = window.angularApp || angular.module('backPackTableApp', ['ui.sortable'], function($interpolateProvider){
+            window.angularApp = window.angularApp || angular.module('backPackTableApp', [], function($interpolateProvider){
                 $interpolateProvider.startSymbol('<%');
                 $interpolateProvider.endSymbol('%>');
             });
 
-            window.angularApp.controller('tableController', function($scope, $document){
-            // window.angularApp.controller('tableController', function($scope, $http, $cookies){
-
-                // $http.get("/api/test")
-                //     .then(function(response) {
-                //         console.log(response.data);
-                //         // $scope.myWelcome = response.data;
-                //     });
-
-                // console.log($cookies.get('laravel_token'));
+            window.angularApp.controller('PurchaseOrderController', function($scope, $document){
                 
-                this.purchase_order_id_selection = $document.find("select[name='purchase_order_id']");
-
+                // TODO: use controllerAs with vm style later.
+                var vm = this;
+                $scope.purchase_order_id_selection = $document.find("select[name='purchase_order_id']");
                 $scope.purchase_orders = JSON.parse(JSON.stringify({!! $parent_model_items_plucked->toJson() !!}));
                 $scope.purchase_order  = {
-                    id: this.purchase_order_id_selection.val(),
-                    products: $scope.purchase_orders.find(findPurchaseOrderProducts, this)
+                    id: $scope.purchase_order_id_selection.val(),
+                    products: {}
                 };
+                $scope.purchase_order = $scope.purchase_orders.filter(filterPurchaseOrderProduct);
 
                 // Handle purchase_order_id field changes
-                this.purchase_order_id_selection.change(function() {
+                $scope.purchase_order_id_selection.change(function() {
                     $that = $(this);
                     $scope.$apply(function(){
                         $scope.purchase_order.id = $that.val();
-                        // $scope.purchase_order.products = $scope.purchase_orders.find(findPurchaseOrderProducts, $scope);
-                        $scope.purchase_order.products = $scope.purchase_orders.filter(function(purchase_order){
-                            console.log(purchase_order);
-                            if (purchase_order.id == $scope.purchase_order.id) {
-                                // console.log('found' . purchase_order.products);
-                                $scope.purchase_order.products = purchase_order.products;
-                                return purchase_order.id == $scope.purchase_order.id
-                            }
-                        });
+                        $scope.purchase_order = $scope.purchase_orders.filter(filterPurchaseOrderProduct);
+                        console.log($scope.purchase_order);
                     });
-
-                    // console.log('purchase_order.products' . $scope.purchase_order.products);
                 });
-
-                // var item73 = myArray.filter(function(item) {
-                //     return item.id === '73';
-                // })[0];
-
-                function findPurchaseOrderProducts(purchase_order, index, array){
-                    // console.log(this);
-                    // console.log($scope.purchase_order.id);
-                    // console.log('$purchase_order.id: ' . $scope.purchase_order.id);
-                    // console.log(this);
-                    // if($scope.purchase_order.id == this.purchase_order_id_selection.val())
-                    //     return purchase_order.products;
-                }
-
-                $scope.sortableOptions = {
-                    handle: '.sort-handle',
-                    axis: 'y',
-                    helper: function(e, ui) {
-                        ui.children().each(function() {
-                            $(this).width($(this).width());
-                        });
-                        return ui;
-                    },
-                };
-
-                $scope.addItem = function(){
-
-                    if( $scope.max > -1 ){
-                        if( $scope.items.length < $scope.max ){
-                            var item = {};
-                            $scope.items.push(item);
-                        } else {
-                            new PNotify({
-                                title: $scope.maxErrorTitle,
-                                text: $scope.maxErrorMessage,
-                                type: 'error'
-                            });
-                        }
-                    }
-                    else {
-                        var item = {};
-                        $scope.items.push(item);
-                    }
-                }
-
-                $scope.removeItem = function(item){
-                    var index = $scope.items.indexOf(item);
-                    $scope.items.splice(index, 1);
-                }
-
-                $scope.$watch('items', function(a, b){
-
-                    if( $scope.min > -1 ){
-                        while($scope.items.length < $scope.min){
-                            $scope.addItem();
-                        }
-                    }
-
-                    if( typeof $scope.items != 'undefined' ){
-
-                        if( typeof $scope.field != 'undefined'){
-                            if( typeof $scope.field == 'string' ){
-                                $scope.field = $($scope.field);
-                            }
-                            $scope.field.val( $scope.items.length ? angular.toJson($scope.items) : null );
-                        }
-                    }
-                }, true);
-
-                if( $scope.min > -1 ){
-                    for(var i = 0; i < $scope.min; i++){
-                        $scope.addItem();
-                    }
+                
+                function filterPurchaseOrderProduct(purchase_order) {
+                    return purchase_order.id == $scope.purchase_order.id
                 }
             });
 

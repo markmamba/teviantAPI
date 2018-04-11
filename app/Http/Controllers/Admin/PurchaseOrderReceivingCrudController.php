@@ -27,18 +27,38 @@ class PurchaseOrderReceivingCrudController extends CrudController
         |--------------------------------------------------------------------------
          */
 
-        $this->crud->setFromDb();
-
         // ------ CRUD FIELDS
         // $this->crud->child_resource_included = ['select' => false, 'number' => false];
         $this->crud->addFields([
             [
                 'label'     => 'Purchase Order #',
+                // 'type'      => 'select2_table_purchase_order_products',
                 'type'      => 'select2',
                 'name'      => 'purchase_order_id',
                 'entity'    => 'purchase_order',
                 'attribute' => 'id',
                 'model'     => 'App\Models\PurchaseOrder',
+                'tab'       => 'Primary',
+            ],
+            [
+                'label'        => 'Products',
+                'name'         => 'purchase_order_product_id',
+                'type'         => 'table_prefill_purchase_order_products',
+                'entity'       => 'product',
+                'attribute'    => 'id',
+                'parent_model' => 'App\Models\PurchaseOrder',
+                'tab'          => 'Primary',
+                'columns'      => [
+                    'sku'      => 'SKU',
+                    'name'     => 'Name',
+                    'quantity' => 'Quantity',
+                ],
+            ],
+            [
+                'label' => 'Remark',
+                'name'  => 'remark',
+                'type'  => 'text',
+                'tab'   => 'Optionals',
             ],
         ]);
 
@@ -64,6 +84,8 @@ class PurchaseOrderReceivingCrudController extends CrudController
 
     public function store(StoreRequest $request)
     {
+        dd($request->all());
+
         // your additional operations before save here
         $redirect_location = parent::storeCrud($request);
         // your additional operations after save here
