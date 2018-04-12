@@ -30,13 +30,10 @@
 ?>
 <div ng-app="backPackTableApp" ng-controller="PurchaseOrderController" @include('crud::inc.field_wrapper_attributes') >
 
-    {{-- hidden input for products to be formatted in JSON--}}
-    <input type="text" name="products" ng-model="products_json" class="form-control">
-
     <label>{!! $field['label'] !!}</label>
     @include('crud::inc.field_translatable_icon')
 
-    <input class="array-json" type="hidden" id="{{ $field['name'] }}" name="{{ $field['name'] }}">
+    <input class="array-json form-control" id="{{ $field['name'] }}" name="{{ $field['name'] }}" ng-model="{{ $field['name'] }}">
 
     <div class="array-container form-group">
 
@@ -117,8 +114,6 @@
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.5.8/angular.min.js"></script>
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
         <script>
-
-            console.log('Hello');
           
             window.angularApp = window.angularApp || angular.module('backPackTableApp', [], function($interpolateProvider){
                 $interpolateProvider.startSymbol('<%');
@@ -136,7 +131,7 @@
                     products: {}
                 };
                 $scope.purchase_order = $scope.purchase_orders.filter(filterPurchaseOrderProduct);
-                $scope.products_json = angular.toJson($scope.purchase_order[0].products);
+                $scope.{{ $field['name'] }} = angular.toJson($scope.purchase_order[0].products);
 
                 // Handle purchase_order_id field changes
                 $scope.purchase_order_id_selection.change(function() {
@@ -144,7 +139,7 @@
                     $scope.$apply(function(){
                         $scope.purchase_order.id = $that.val();
                         $scope.purchase_order = $scope.purchase_orders.filter(filterPurchaseOrderProduct);
-                        $scope.products_json = angular.toJson($scope.purchase_order[0].products);
+                        $scope.{{ $field['name'] }} = angular.toJson($scope.purchase_order[0].products);
                         console.log($scope.purchase_order);
                     });
                 });

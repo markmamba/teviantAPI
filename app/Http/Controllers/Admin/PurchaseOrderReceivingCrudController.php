@@ -42,7 +42,7 @@ class PurchaseOrderReceivingCrudController extends CrudController
             ],
             [
                 'label'        => 'Products',
-                'name'         => 'products',
+                'name'         => 'products_json',
                 'type'         => 'table_prefill_purchase_order_products',
                 'entity'       => 'product',
                 'attribute'    => 'id',
