@@ -26,4 +26,9 @@ class PurchaseOrderReceiving extends Model
     {
         return $this->belongsTo('App\Models\PurchaseOrder');
     }
+
+    public function products()
+    {
+    	return $this->hasMany('App\Models\PurchaseOrderReceivingProduct', 'purchase_order_receiving_id');
+    }
 }

@@ -47,7 +47,7 @@ class PurchaseOrder extends Model
 
     public function receivings()
     {
-        return $this->hasMany('App\Models\PurchaseOrderReceivings', 'purchase_order_id');
+        return $this->hasMany('App\Models\PurchaseOrderReceiving', 'purchase_order_id');
     }
 
     /*

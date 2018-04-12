@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderReceiving;
+use App\Models\PurchaseOrderReceivingProduct;
 use App\Http\Requests\ReceivingRequest as StoreRequest;
 use App\Http\Requests\ReceivingRequest as UpdateRequest;
 
@@ -90,22 +91,39 @@ class PurchaseOrderReceivingCrudController extends CrudController
 
         $purchase_order = PurchaseOrder::findOrFail($request->purchase_order_id);
 
+        $receiving = $purchase_order->receivings()->create(
+            collect($request->only(['purchase_order_id', 'remark']))
+            ->merge(['receiver_id' => \Auth::user()->id])
+            ->toArray()
+        );
+
         $products = json_decode($request->products_json);
-        // dd($products);
+
+        // dd($request->all(), $products);
 
         foreach ($products as $product) {
 
             // TODO: validate receiving
-
-            $receiving = PurchaseOrderReceiving::create(
-                collect($request->only(['purchase_order_id', 'receiving', 'remark']))
-                ->merge($product)
+            
+            $receiving->products()->create(
+                collect($request->only(['purchase_order_receiving_id']))
                 ->merge([
                     'purchase_order_product_id' => $product->id,
+                    'quantity' => $product->quantity,
                     'receiver_id' => \Auth::user()->id
                 ])
                 ->toArray()
             );
+
+            // $receiving = PurchaseOrderReceiving::create(
+            //     collect($request->only(['purchase_order_id', 'receiving', 'remark']))
+            //     ->merge($product)
+            //     ->merge([
+            //         'purchase_order_product_id' => $product->id,
+            //         'receiver_id' => \Auth::user()->id
+            //     ])
+            //     ->toArray()
+            // );
         }
 
         dd($receiving);
