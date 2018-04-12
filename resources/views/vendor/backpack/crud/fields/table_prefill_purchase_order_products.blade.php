@@ -33,14 +33,15 @@
     <label>{!! $field['label'] !!}</label>
     @include('crud::inc.field_translatable_icon')
 
-    <input class="array-json form-control" id="{{ $field['name'] }}" name="{{ $field['name'] }}" ng-model="{{ $field['name'] }}">
+    {{-- <input type="text" class="form-control" ng-model="purchase_order[0].products | json"> --}}
+    <input class="array-json hidden" id="{{ $field['name'] }}" name="{{ $field['name'] }}" ng-model="purchase_order[0].products | json">
 
     <div class="array-container form-group">
 
         <table class="table table-bordered table-striped m-b-0">
 
             {{-- debug --}}
-            <p>Purchase Order:</p>
+            {{-- <p>Purchase Order:</p>
             <p><% purchase_order %></p>
             <ul ng-repeat="purchase_order in purchase_orders">
                 <li>
@@ -53,8 +54,7 @@
                         </li>
                     </ul>
                 </li>
-            </ul>
-
+            </ul> --}}
             <thead>
                 <tr>
 
@@ -72,13 +72,15 @@
 
                 <tr ng-repeat="product in purchase_order[0].products" class="array-row">
                     <td>
-                        <input class="form-control input-sm" type="text" ng-model="product.sku">
+                        <p><% product.sku %></p>
+                        {{-- <input class="form-control input-sm" type="text" ng-model="product.sku" disabled> --}}
                     </td>
                     <td>
-                        <input class="form-control input-sm" type="text" ng-model="product.name">
+                        <p><% product.name %></p>
+                        {{-- <input class="form-control input-sm" type="text" ng-model="product.name" disabled> --}}
                     </td>
                     <td>
-                        <input class="form-control input-sm" type="text" ng-model="product.quantity">
+                        <input class="form-control input-sm" type="number" ng-model="product.quantity">
                     </td>
                     <td ng-if="max == -1 || max > 1">
                         <span class="btn btn-sm btn-default sort-handle"><span class="sr-only">sort item</span><i class="fa fa-sort" role="presentation" aria-hidden="true"></i></span>
@@ -128,7 +130,8 @@
                 $scope.purchase_orders = JSON.parse(JSON.stringify({!! $parent_model_items_plucked->toJson() !!}));
                 $scope.purchase_order  = {
                     id: $scope.purchase_order_id_selection.val(),
-                    products: {}
+                    products: [{}],
+                    quantity: null
                 };
                 $scope.purchase_order = $scope.purchase_orders.filter(filterPurchaseOrderProduct);
                 $scope.{{ $field['name'] }} = angular.toJson($scope.purchase_order[0].products);
