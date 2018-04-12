@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Models\PurchaseOrder;
+use App\Models\PurchaseOrderReceiving;
 use App\Http\Requests\ReceivingRequest as StoreRequest;
 use App\Http\Requests\ReceivingRequest as UpdateRequest;
 
@@ -84,13 +86,32 @@ class PurchaseOrderReceivingCrudController extends CrudController
 
     public function store(StoreRequest $request)
     {
-        dd($request->all());
+        // dd($request->all());
 
-        // your additional operations before save here
-        $redirect_location = parent::storeCrud($request);
-        // your additional operations after save here
-        // use $this->data['entry'] or $this->crud->entry
-        return $redirect_location;
+        $purchase_order = PurchaseOrder::findOrFail($request->purchase_order_id);
+
+        $products = json_decode($request->products_json);
+        // dd($products);
+
+        foreach ($products as $product) {
+            $receiving = PurchaseOrderReceiving::create(
+                collect($request->only(['purchase_order_id', 'receiving']))
+                ->merge($product)
+                ->merge([
+                    'purchase_order_product_id' => $product->id,
+                    'receiver_id' => \Auth::user()->id
+                ])
+                ->toArray()
+            );
+        }
+
+        dd($receiving);
+
+        // // your additional operations before save here
+        // $redirect_location = parent::storeCrud($request);
+        // // your additional operations after save here
+        // // use $this->data['entry'] or $this->crud->entry
+        // return $redirect_location;
     }
 
     public function update(UpdateRequest $request)
