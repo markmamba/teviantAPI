@@ -94,6 +94,9 @@ class PurchaseOrderReceivingCrudController extends CrudController
         // dd($products);
 
         foreach ($products as $product) {
+
+            // TODO: validate receiving
+
             $receiving = PurchaseOrderReceiving::create(
                 collect($request->only(['purchase_order_id', 'receiving']))
                 ->merge($product)

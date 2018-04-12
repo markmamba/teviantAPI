@@ -10,7 +10,6 @@ class PurchaseOrderReceiving extends Model
     use CrudTrait;
 
     protected $fillable = [
-    	'id',
     	'purchase_order_id',
     	'purchase_order_product_id',
     	'quantity',
