@@ -66,6 +66,27 @@ class PurchaseOrderReceivingCrudController extends CrudController
         ]);
 
         // ------ CRUD COLUMNS
+        $this->crud->addColumns([
+            [
+                'label'     => 'Purchase Order #',
+                'type'      => 'select',
+                'name'      => 'purchase_order_id',
+                'entity'    => 'purchase_order',
+                'attribute' => 'id',
+           ],
+           [
+                'label'     => 'Receiver',
+                'type'      => 'select',
+                'name'      => 'receiver_id',
+                'entity'    => 'receiver',
+                'attribute' => 'name',
+           ],
+           [
+                'label'     => 'Remark',
+                'type'      => 'text',
+                'name'      => 'remark',
+           ],
+        ]);
 
         // ------ CRUD BUTTONS
 
@@ -126,7 +147,9 @@ class PurchaseOrderReceivingCrudController extends CrudController
             // );
         }
 
-        dd($receiving);
+        // dd($receiving);
+        
+        return redirect()->route('crud.receiving.index');
 
         // // your additional operations before save here
         // $redirect_location = parent::storeCrud($request);
