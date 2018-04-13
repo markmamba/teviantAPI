@@ -80,7 +80,7 @@
                         {{-- <input class="form-control input-sm" type="text" ng-model="product.name" disabled> --}}
                     </td>
                     <td>
-                        <input class="form-control input-sm" type="number" ng-model="product.quantity">
+                        <input class="form-control input-sm" type="number" ng-model="product.quantity" required>
                     </td>
                     <td ng-if="max == -1 || max > 1">
                         <span class="btn btn-sm btn-default sort-handle"><span class="sr-only">sort item</span><i class="fa fa-sort" role="presentation" aria-hidden="true"></i></span>

@@ -63,6 +63,14 @@ class PurchaseOrderReceivingCrudController extends CrudController
                 'type'  => 'text',
                 'tab'   => 'Optionals',
             ],
+            [
+                'label'     => 'Receiver',
+                'type'      => 'select2',
+                'name'      => 'receiver_id',
+                'entity'    => 'receiver',
+                'attribute' => 'name',
+                'tab'       => 'Primary',
+            ],
         ]);
 
         // ------ CRUD COLUMNS
