@@ -1,27 +1,53 @@
 <!-- array input -->
 
 <?php
-    $parent_model_items = $field['parent_model']::with(['products', 'products.inventory'])->get();
-    $parent_model_items_plucked = $parent_model_items->map(function($purchase_order){
-        return collect($purchase_order->only([
-            'id',
-        ]))
-        ->merge([
-            'products' => $purchase_order->products->map(function($product){
-                return collect($product->only([
-                    'id'
-                ]))
-                ->merge([
-                    'name' => $product->inventory->name,
-                    'sku' => $product->inventory->sku_code
-                ]);
-            })
-        ]);
-    });
+    // Check if an entry is being created or edited.
+    if (!isset($entry)) {
+        // Creating
+        
+        $parent_model_items = $field['parent_model']::with(['products', 'products.inventory'])->get();
+        $parent_model_items_plucked = $parent_model_items->map(function($purchase_order){
+            return collect($purchase_order->only([
+                'id',
+            ]))
+            ->merge([
+                'products' => $purchase_order->products->map(function($product){
+                    return collect($product->only([
+                        'id'
+                    ]))
+                    ->merge([
+                        'name' => $product->inventory->name,
+                        'sku' => $product->inventory->sku_code
+                    ]);
+                })
+            ]);
+        });
 
-    // echo 'Debugging<hr>';
+    } else {
+        // Editing
+
+        $parent_model_items = $entry->purchase_order()->get();
+        $parent_model_items_plucked = $parent_model_items->map(function($purchase_order) use ($entry){
+            return collect($purchase_order->only([
+                'id',
+            ]))
+            ->merge([
+                'products' => $entry->products->map(function($receiving_product){
+                    return collect($receiving_product->only([
+                        'id'
+                    ]))
+                    ->merge([
+                        'name' => $receiving_product->product->inventory->name,
+                        'sku' => $receiving_product->product->inventory->sku_code,
+                        'quantity' => $receiving_product->quantity,
+                    ]);
+                })
+            ]);
+        });
+    }
+
+    // // echo 'Debugging<hr>';
     // dd(
-    //     $items,
     //     $field['parent_model']::all(),
     //     $parent_model_items,
     //     $parent_model_items_plucked->toArray()

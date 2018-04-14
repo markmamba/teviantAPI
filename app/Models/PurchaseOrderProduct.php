@@ -27,4 +27,9 @@ class PurchaseOrderProduct extends Model
     {
     	return $this->hasMany('App\Models\PurchaseOrderProductReceiving', 'product_id');
     }
+
+    public function receiving_products()
+    {
+    	return $this->hasMany('App\Models\PurchaseOrderReceivingProduct');
+    }
 }
