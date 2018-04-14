@@ -33,6 +33,7 @@ class PurchaseOrderReceivingCrudController extends CrudController
         // ------ CRUD FIELDS
         // $this->crud->child_resource_included = ['select' => false, 'number' => false];
         $this->crud->addFields([
+            // TODO: merge Product order number and products fields into single custom field.
             [
                 'label'     => 'Purchase Order #',
                 // 'type'      => 'select2_table_purchase_order_products',
@@ -76,6 +77,11 @@ class PurchaseOrderReceivingCrudController extends CrudController
         // ------ CRUD COLUMNS
         $this->crud->addColumns([
             [
+                'label' => 'Receiving #',
+                'name' => 'id',
+                'type' => 'text',
+            ],
+            [
                 'label'     => 'Purchase Order #',
                 'type'      => 'select',
                 'name'      => 'purchase_order_id',
@@ -97,8 +103,13 @@ class PurchaseOrderReceivingCrudController extends CrudController
         ]);
 
         // ------ CRUD BUTTONS
+        
+        // Custom View button instead of Preview for consistency among previosly added list views.
+        $this->crud->addButtonFromView('line', 'purchase_order_receiving_view', 'purchase_order_receiving_view', 'beginning');
+        $this->crud->removeButton('preview');
 
         // ------ CRUD ACCESS
+        $this->crud->allowAccess('show');
 
         // ------ CRUD REORDER
 
@@ -166,12 +177,21 @@ class PurchaseOrderReceivingCrudController extends CrudController
         // return $redirect_location;
     }
 
-    public function update(UpdateRequest $request)
+    public function update(UpdateRequest $request, $receiving_id)
     {
-        // your additional operations before save here
-        $redirect_location = parent::updateCrud($request);
-        // your additional operations after save here
-        // use $this->data['entry'] or $this->crud->entry
-        return $redirect_location;
+        $purchase_order = PurchaseOrder::findOrFail($request->purchase_order_id);
+        $receiving = PurchaseOrderReceiving::findOrFail($receiving_id);
+        $products = json_decode($request->products_json);
+
+        foreach ($products as $product) {
+
+            // TODO: validate receiving
+            
+            PurchaseOrderReceivingProduct::findOrFail($product->id)->update([
+                'quantity' => $product->quantity,
+            ]);
+        }
+        
+        return redirect()->route('crud.receiving.index');
     }
 }
