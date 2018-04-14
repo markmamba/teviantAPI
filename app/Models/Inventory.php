@@ -88,6 +88,11 @@ class Inventory extends Model
         return $this->hasMany('App\Models\OrderProduct', 'product_id');
     }
 
+    public function purchase_order_products()
+    {
+        return $this->hasMany('App\Models\PurchaseOrderProduct', 'product_id');
+    }
+
     /*
     |--------------------------------------------------------------------------
     | SCOPES

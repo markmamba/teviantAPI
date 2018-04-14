@@ -82,5 +82,10 @@ Route::group([
     Route::get('order/{order_id}/ship', 'OrderCrudController@shipForm')->name('order.ship.form');
     Route::patch('order/{order_id}/ship', 'OrderCrudController@ship')->name('order.ship');
     // Route::patch('order/{order_id}', 'OrderCrudController@update')->name('order.update');
+    
+    // Purchase orders
+    Route::get('purchase-order/{purchase_order_id}/print-order', 'PurchaseOrderCrudController@printOrder')->name('purchase_order.print-order');
+    CRUD::resource('purchase-order', 'PurchaseOrderCrudController')->name('purchase_order');
+    CRUD::resource('receiving', 'PurchaseOrderReceivingCrudController');
 
 });

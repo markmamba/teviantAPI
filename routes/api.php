@@ -27,3 +27,7 @@ Route::group(['namespace' => 'Api', 'middleware' => ['client'], 'as' => 'api.'],
 	Route::apiResource('orders', 'OrdersController');
 
 });
+
+Route::get('test', function (Request $request) {
+    return 'Welcome to our API!';
+})->middleware('client');

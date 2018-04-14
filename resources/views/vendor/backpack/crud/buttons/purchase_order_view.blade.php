@@ -1,0 +1,1 @@
+<a href="{{ route('crud.purchase-order.show', $entry->getKey()) }}" class="btn btn-xs btn-default" title="View Purchase Order" data-toggle="tooltip"><i class="fa fa-eye"></i> View</a>
