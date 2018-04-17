@@ -32,4 +32,22 @@ class PurchaseOrderProduct extends Model
     {
     	return $this->hasMany('App\Models\PurchaseOrderReceivingProduct');
     }
+
+    /**
+     * Return quantity_received as the sum of received quantities.
+     * @return int
+     */
+    public function getQuantityReceivedAttribute()
+    {
+        return $this->receiving_products()->sum('quantity');
+    }
+
+    /**
+     * Return quantity_pending as the sum of pending quantities to be received.
+     * @return [type] [description]
+     */
+    public function getQuantityPendingAttribute()
+    {
+        return $this->quantity - $this->quantity_received;
+    }
 }
