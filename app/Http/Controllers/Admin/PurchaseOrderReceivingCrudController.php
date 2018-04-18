@@ -59,18 +59,18 @@ class PurchaseOrderReceivingCrudController extends CrudController
                 ],
             ],
             [
-                'label' => 'Remark',
-                'name'  => 'remark',
-                'type'  => 'text',
-                'tab'   => 'Optionals',
-            ],
-            [
                 'label'     => 'Receiver',
                 'type'      => 'select2',
                 'name'      => 'receiver_id',
                 'entity'    => 'receiver',
                 'attribute' => 'name',
                 'tab'       => 'Primary',
+            ],
+            [
+                'label' => 'Remark',
+                'name'  => 'remark',
+                'type'  => 'text',
+                'tab'   => 'Optionals',
             ],
         ]);
 
