@@ -17,7 +17,8 @@
                     ]))
                     ->merge([
                         'name' => $product->inventory->name,
-                        'sku' => $product->inventory->sku_code
+                        'sku' => $product->inventory->sku_code,
+                        'quantity_pending' => $product->quantity_pending,
                     ]);
                 })
             ]);
@@ -40,6 +41,8 @@
                         'name' => $receiving_product->product->inventory->name,
                         'sku' => $receiving_product->product->inventory->sku_code,
                         'quantity' => $receiving_product->quantity,
+                        'quantity_received' => $receiving_product->product->quantity_received,
+                        'quantity_pending' => $receiving_product->product->quantity_pending,
                     ]);
                 })
             ]);
@@ -106,7 +109,7 @@
                         {{-- <input class="form-control input-sm" type="text" ng-model="product.name" disabled> --}}
                     </td>
                     <td>
-                        <input class="form-control input-sm" type="number" ng-model="product.quantity" required>
+                        <input class="form-control input-sm" type="number" ng-model="product.quantity" max="<% product.quantity_pending %>" required>
                     </td>
                     <td ng-if="max == -1 || max > 1">
                         <span class="btn btn-sm btn-default sort-handle"><span class="sr-only">sort item</span><i class="fa fa-sort" role="presentation" aria-hidden="true"></i></span>

@@ -71,6 +71,7 @@
 					<th>Quantity</th>
 					<th>Quantity Received</th>
 					<th>Quantity Pending</th>
+					<th>Date Completed</th>
 					<th class="text-right">Subtotal</th>
 				</thead>
 				<tbody>
@@ -82,6 +83,7 @@
 							<td>{{ $product->quantity }}</td>
 							<td>{{ $product->quantity_received }}</td>
 							<td>{{ $product->quantity_pending }}</td>
+							<td>{{ $product->completed_at ? $product->completed_at : 'N/A' }}</td>
 							<td class="text-right">{{ number_format($product->price * $product->quantity) }}</td>
 						</tr>
 					@endforeach

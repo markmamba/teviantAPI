@@ -50,4 +50,26 @@ class PurchaseOrderProduct extends Model
     {
         return $this->quantity - $this->quantity_received;
     }
+
+    /**
+     * Return is_completed if the product quantity order has been fully received or not.
+     * @return boolean
+     */
+    public function getIsCompletedAttribute()
+    {
+        if ($this->quantity == $this->quantity_received)
+            return true;
+        else
+            return false;
+    }
+
+    /**
+     * Return completed_at as the datetime at which the lastreceiving has fullfilled the quantity ordered.
+     * @return datetime
+     */
+    public function getCompletedAtAttribute()
+    {
+        if ($this->receiving_products()->exists())
+            return $this->receiving_products()->orderBy('created_at', 'desc')->first()->created_at;
+    }
 }

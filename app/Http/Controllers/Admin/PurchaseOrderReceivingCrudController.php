@@ -100,6 +100,11 @@ class PurchaseOrderReceivingCrudController extends CrudController
                 'type'      => 'text',
                 'name'      => 'remark',
            ],
+           [
+                'label'     => 'Date Received',
+                'type'      => 'text',
+                'name'      => 'created_at',
+           ],
         ]);
 
         // ------ CRUD BUTTONS
