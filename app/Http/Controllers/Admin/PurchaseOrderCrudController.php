@@ -126,7 +126,7 @@ class PurchaseOrderCrudController extends CrudController
                 'attribute' => 'name',
             ],
             [
-                'label' => 'Total Products',
+                'label' => 'Products',
                 'name'  => 'products_count',
             ],
             [
