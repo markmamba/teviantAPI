@@ -145,6 +145,10 @@ class PurchaseOrderCrudController extends CrudController
                 'label' => 'Remark',
                 'name'  => 'remark',
             ],
+            [
+                'label' => 'Date Completed',
+                'name'  => 'completed_at',
+            ],
         ]);
 
         // ------ CRUD BUTTONS
