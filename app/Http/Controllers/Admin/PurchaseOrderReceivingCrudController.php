@@ -23,6 +23,11 @@ class PurchaseOrderReceivingCrudController extends CrudController
         $this->crud->setModel('App\Models\PurchaseOrderReceiving');
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/receiving');
         $this->crud->setEntityNameStrings('Receiving', 'Receivings');
+        
+        // Nested pruchase order receiving
+        $purchase_order_id = \Route::current()->parameter('purchase_order_id');
+        $this->crud->setRoute("admin/purchase-order/".$purchase_order_id."/receiving");
+        $purchase_order = PurchaseOrder::findOrFail($purchase_order_id);
 
         /*
         |--------------------------------------------------------------------------
@@ -36,11 +41,17 @@ class PurchaseOrderReceivingCrudController extends CrudController
             // TODO: merge Product order number and products fields into single custom field.
             [
                 'label'     => 'Purchase Order #',
-                // 'type'      => 'select2_table_purchase_order_products',
-                'type'      => 'select2',
+                'type'      => 'select2_from_array',
                 'name'      => 'purchase_order_id',
                 'entity'    => 'purchase_order',
                 'attribute' => 'id',
+                'options' => [
+                    $purchase_order->id => $purchase_order->id
+                ],
+                'default'   => $purchase_order_id,
+                'attributes' => [
+                    'disabled' => 'disabled'
+                ],
                 'model'     => 'App\Models\PurchaseOrder',
                 'tab'       => 'Primary',
             ],
@@ -127,6 +138,10 @@ class PurchaseOrderReceivingCrudController extends CrudController
         // ------ DATATABLE EXPORT BUTTONS
 
         // ------ ADVANCED QUERIES
+        
+        // For the nested resource
+        $this->crud->addClause('where', 'purchase_order_id', '=', $purchase_order_id);
+
         $this->crud->orderBy('created_at', 'desc');
     }
 
