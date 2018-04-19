@@ -27,7 +27,7 @@ class PurchaseOrderReceivingCrudController extends CrudController
         // Nested pruchase order receiving
         $purchase_order_id = \Route::current()->parameter('purchase_order_id');
         $this->crud->setRoute("admin/purchase-order/".$purchase_order_id."/receiving");
-        $purchase_order = PurchaseOrder::findOrFail($purchase_order_id);
+        $this->purchase_order = PurchaseOrder::findOrFail($purchase_order_id);
 
         /*
         |--------------------------------------------------------------------------
@@ -46,7 +46,7 @@ class PurchaseOrderReceivingCrudController extends CrudController
                 'entity'    => 'purchase_order',
                 'attribute' => 'id',
                 'options' => [
-                    $purchase_order->id => $purchase_order->id
+                    $this->purchase_order->id => $this->purchase_order->id
                 ],
                 'default'   => $purchase_order_id,
                 'attributes' => [
@@ -143,6 +143,17 @@ class PurchaseOrderReceivingCrudController extends CrudController
         $this->crud->addClause('where', 'purchase_order_id', '=', $purchase_order_id);
 
         $this->crud->orderBy('created_at', 'desc');
+    }
+
+    public function create()
+    {
+        // Check if the Purchase Order is already complete.
+        if ($this->purchase_order->isCompleted()) {
+            \Alert::warning('The Purchase Order is already completed.')->flash();
+            return back();
+        }
+
+        return parent::create();
     }
 
     public function store(StoreRequest $request)
