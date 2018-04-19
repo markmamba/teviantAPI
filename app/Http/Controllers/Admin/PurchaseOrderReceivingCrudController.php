@@ -181,7 +181,7 @@ class PurchaseOrderReceivingCrudController extends CrudController
             );
         }
         
-        return redirect()->route('crud.receiving.index');
+        return redirect()->route('crud.purchase-order.index');
     }
 
     public function update(UpdateRequest $request, $receiving_id)
