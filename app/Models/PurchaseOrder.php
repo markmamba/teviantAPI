@@ -81,6 +81,11 @@ class PurchaseOrder extends Model
         return $this->created_at->diffForHumans();
     }
 
+    public function isCompleted()
+    {
+        return $this->products()->sum('quantity') === $this->receiving_products()->sum('purchase_order_receiving_products.quantity');
+    }
+
     /*
     |--------------------------------------------------------------------------
     | MUTATORS
