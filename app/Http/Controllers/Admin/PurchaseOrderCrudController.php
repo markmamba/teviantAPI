@@ -154,6 +154,7 @@ class PurchaseOrderCrudController extends CrudController
         // ------ CRUD BUTTONS
         $this->crud->addButtonFromView('line', 'purchase_order_view', 'purchase_order_view', 'beginning');
         $this->crud->addButtonFromView('line', 'purchase_order_receiving_create', 'purchase_order_receiving_create', 'beginning');
+        $this->crud->removeButton('update');
 
         // ------ CRUD ACCESS
 
@@ -217,13 +218,16 @@ class PurchaseOrderCrudController extends CrudController
         return view('admin.purchase_orders.show', compact('purchase_order', 'crud'));
     }
 
+    public function edit($id)
+    {
+        // Disable the edit form.
+        abort(404);
+    }
+
     public function update(UpdateRequest $request)
     {
-        // your additional operations before save here
-        $redirect_location = parent::updateCrud($request);
-        // your additional operations after save here
-        // use $this->data['entry'] or $this->crud->entry
-        return $redirect_location;
+        // Disable the edit form submission.
+        abort(404);
     }
 
     public function destroy($id)
