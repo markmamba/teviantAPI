@@ -153,9 +153,6 @@ class PurchaseOrderReceivingCrudController extends CrudController
             return back();
         }
 
-        // Custom view
-        // $this->crud->setCreateView('admin.purchase_orders.receivings.create');
-
         return parent::create();
     }
 
