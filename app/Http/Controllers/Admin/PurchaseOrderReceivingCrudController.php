@@ -158,8 +158,6 @@ class PurchaseOrderReceivingCrudController extends CrudController
 
     public function store(StoreRequest $request)
     {
-        // dd($request->all());
-
         $purchase_order = PurchaseOrder::findOrFail($request->purchase_order_id);
 
         $receiving = $purchase_order->receivings()->create(
@@ -169,8 +167,6 @@ class PurchaseOrderReceivingCrudController extends CrudController
         );
 
         $products = json_decode($request->products_json);
-
-        // dd($request->all(), $products);
 
         foreach ($products as $product) {
 
@@ -185,27 +181,9 @@ class PurchaseOrderReceivingCrudController extends CrudController
                 ])
                 ->toArray()
             );
-
-            // $receiving = PurchaseOrderReceiving::create(
-            //     collect($request->only(['purchase_order_id', 'receiving', 'remark']))
-            //     ->merge($product)
-            //     ->merge([
-            //         'purchase_order_product_id' => $product->id,
-            //         'receiver_id' => \Auth::user()->id
-            //     ])
-            //     ->toArray()
-            // );
         }
-
-        // dd($receiving);
         
         return redirect()->route('crud.receiving.index');
-
-        // // your additional operations before save here
-        // $redirect_location = parent::storeCrud($request);
-        // // your additional operations after save here
-        // // use $this->data['entry'] or $this->crud->entry
-        // return $redirect_location;
     }
 
     public function update(UpdateRequest $request, $receiving_id)
