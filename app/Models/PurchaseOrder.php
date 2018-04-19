@@ -20,7 +20,7 @@ class PurchaseOrder extends Model
     // protected $primaryKey = 'id';
     // public $timestamps = false;
     // protected $guarded = ['id'];
-    protected $fillable = ['supplier_id', 'remark', 'sent_at'];
+    protected $fillable = ['supplier_id', 'remark', 'sent_at', 'completed_at'];
     // protected $hidden = [];
     // protected $dates = [];
 
@@ -48,6 +48,11 @@ class PurchaseOrder extends Model
     public function receivings()
     {
         return $this->hasMany('App\Models\PurchaseOrderReceiving', 'purchase_order_id');
+    }
+
+    public function receiving_products()
+    {
+        return $this->hasManyThrough('App\Models\PurchaseOrderReceivingProduct', 'App\Models\PurchaseOrderProduct');
     }
 
     /*
