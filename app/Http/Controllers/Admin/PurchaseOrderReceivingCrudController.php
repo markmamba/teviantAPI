@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Models\PurchaseOrder;
+use App\Models\PurchaseOrderProduct;
 use App\Models\PurchaseOrderReceiving;
 use App\Models\PurchaseOrderReceivingProduct;
 use App\Http\Requests\ReceivingRequest as StoreRequest;
@@ -166,10 +167,21 @@ class PurchaseOrderReceivingCrudController extends CrudController
 
         $products = json_decode($request->products_json);
 
+        // Validate product receivings
+        $errors = collect([]);
         foreach ($products as $product) {
+            $purchase_order_product = PurchaseOrderProduct::findOrFail($product->id);
+            if (!isset($product->quantity)) {
+                $errors->push('The quantity for '.$purchase_order_product->inventory->sku_code.' is invalid.');
+            } else if (!($product->quantity > 0) || !($product->quantity <= $purchase_order_product->quantity_pending)) {
+                $errors->push('The quantity for '.$purchase_order_product->inventory->sku_code.' must be between 1 and '.$purchase_order_product->quantity_pending);
+            }
+        }
+        if ($errors->count())
+            return back()->withErrors($errors);
 
-            // TODO: validate receiving
-            
+        // Store the product receivings
+        foreach ($products as $product) {            
             $receiving->products()->create(
                 collect($request->only(['purchase_order_receiving_id']))
                 ->merge([
