@@ -131,7 +131,7 @@ class PurchaseOrderCrudController extends CrudController
             ],
             [
                 'label' => 'Total Price',
-                'name'  => 'products_price_sum',
+                'name'  => 'price_total',
             ],
             [
                 'label' => 'Date Created',
