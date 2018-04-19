@@ -69,7 +69,7 @@ class PurchaseOrderProduct extends Model
      */
     public function getCompletedAtAttribute()
     {
-        if ($this->receiving_products()->exists())
+        if ($this->is_completed)
             return $this->receiving_products()->orderBy('created_at', 'desc')->first()->created_at;
     }
 }
