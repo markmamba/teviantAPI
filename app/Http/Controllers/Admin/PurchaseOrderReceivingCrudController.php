@@ -22,11 +22,11 @@ class PurchaseOrderReceivingCrudController extends CrudController
          */
         $this->crud->setModel('App\Models\PurchaseOrderReceiving');
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/receiving');
-        $this->crud->setEntityNameStrings('Receiving', 'Receivings');
+        $this->crud->setEntityNameStrings('Receiving', 'Purchase Orders');
         
         // Nested pruchase order receiving
         $purchase_order_id = \Route::current()->parameter('purchase_order_id');
-        $this->crud->setRoute("admin/purchase-order/".$purchase_order_id."/receiving");
+        $this->crud->setRoute(route('crud.purchase-order.index'));
         $this->purchase_order = PurchaseOrder::findOrFail($purchase_order_id);
 
         /*
@@ -152,6 +152,9 @@ class PurchaseOrderReceivingCrudController extends CrudController
             \Alert::warning('The Purchase Order is already completed.')->flash();
             return back();
         }
+
+        // Custom view
+        // $this->crud->setCreateView('admin.purchase_orders.receivings.create');
 
         return parent::create();
     }
