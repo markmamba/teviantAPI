@@ -26,7 +26,7 @@ class PurchaseOrderReceivingCrudController extends CrudController
         
         // Nested pruchase order receiving
         $purchase_order_id = \Route::current()->parameter('purchase_order_id');
-        $this->crud->setRoute(route('crud.purchase-order.index'));
+        $this->crud->setRoute(route('purchase_order.crud.receiving.index', $purchase_order_id));
         $this->purchase_order = PurchaseOrder::findOrFail($purchase_order_id);
 
         /*
@@ -49,9 +49,6 @@ class PurchaseOrderReceivingCrudController extends CrudController
                     $this->purchase_order->id => $this->purchase_order->id
                 ],
                 'default'   => $purchase_order_id,
-                'attributes' => [
-                    'disabled' => 'disabled'
-                ],
                 'model'     => 'App\Models\PurchaseOrder',
                 'tab'       => 'Primary',
             ],
@@ -158,6 +155,7 @@ class PurchaseOrderReceivingCrudController extends CrudController
 
     public function store(StoreRequest $request)
     {
+        // dd($request->all());
         $purchase_order = PurchaseOrder::findOrFail($request->purchase_order_id);
 
         $receiving = $purchase_order->receivings()->create(
