@@ -11,7 +11,12 @@
                 'id',
             ]))
             ->merge([
-                'products' => $purchase_order->products->map(function($product){
+                'products' => $purchase_order->products
+                // Get only incomplete products
+                ->filter(function($product, $key) {
+                    return !$product->is_completed;
+                })
+                ->map(function($product){
                     return collect($product->only([
                         'id'
                     ]))
@@ -33,7 +38,12 @@
                 'id',
             ]))
             ->merge([
-                'products' => $entry->products->map(function($receiving_product){
+                'products' => $entry->products
+                // Get only incomplete products
+                ->filter(function($product, $key) {
+                    return !$product->is_completed;
+                })
+                ->map(function($receiving_product){
                     return collect($receiving_product->only([
                         'id'
                     ]))
@@ -109,7 +119,7 @@
                         {{-- <input class="form-control input-sm" type="text" ng-model="product.name" disabled> --}}
                     </td>
                     <td>
-                        <input class="form-control input-sm" type="number" ng-model="product.quantity" max="<% product.quantity_pending %>" required>
+                        <input class="form-control input-sm" type="number" ng-model="product.quantity" min="1" max="<% product.quantity_pending %>" placeholder="Max <% product.quantity_pending %>">
                     </td>
                     <td ng-if="max == -1 || max > 1">
                         <span class="btn btn-sm btn-default sort-handle"><span class="sr-only">sort item</span><i class="fa fa-sort" role="presentation" aria-hidden="true"></i></span>

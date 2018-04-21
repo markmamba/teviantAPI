@@ -23,6 +23,9 @@
 				</div>
 				<div class="col-md-6">
 					<div class="text-right">
+						@if(!$purchase_order->completed_at)
+							<a href="{{ route('purchase_order.crud.receiving.create', $purchase_order->id) }}" class="btn btn-default"><i class="fa fa-download"></i> Receive</a>
+						@endif
 						<a href="{{ route('purchase_order.print-order', $purchase_order->id) }}" class="btn btn-default" target="_blank"><i class="fa fa-print"></i> Print Purchase Order</a>
 					</div>
 				</div>
@@ -52,6 +55,12 @@
 					<label class="col-sm-2 control-label">Date Created</label>
 					<div class="col-sm-10">
 						<p class="form-control-static">{{ $purchase_order->created_at }} ({{ $purchase_order->created_at->diffForHumans() }})</p>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="col-sm-2 control-label">Date Completed</label>
+					<div class="col-sm-10">
+						<p class="form-control-static">{{ $purchase_order->completed_at or 'N/A' }}</p>
 					</div>
 				</div>
 			</form>
