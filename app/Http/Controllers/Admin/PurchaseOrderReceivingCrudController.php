@@ -165,18 +165,24 @@ class PurchaseOrderReceivingCrudController extends CrudController
             ->toArray()
         );
 
-        $products = json_decode($request->products_json);
+        $products = collect(json_decode($request->products_json))->where('quantity', '!=', null);
 
         // Validate product receivings
         $errors = collect([]);
-        foreach ($products as $product) {
-            $purchase_order_product = PurchaseOrderProduct::findOrFail($product->id);
-            if (!isset($product->quantity)) {
-                $errors->push('The quantity for '.$purchase_order_product->inventory->sku_code.' is invalid.');
-            } else if (!($product->quantity > 0) || !($product->quantity <= $purchase_order_product->quantity_pending)) {
-                $errors->push('The quantity for '.$purchase_order_product->inventory->sku_code.' must be between 1 and '.$purchase_order_product->quantity_pending);
+
+        if ($products->count()) {
+            foreach ($products as $product) {
+                $purchase_order_product = PurchaseOrderProduct::findOrFail($product->id);
+                if (!isset($product->quantity)) {
+                    $errors->push('The quantity for '.$purchase_order_product->inventory->sku_code.' is invalid.');
+                } else if (!($product->quantity > 0) || !($product->quantity <= $purchase_order_product->quantity_pending)) {
+                    $errors->push('The quantity for '.$purchase_order_product->inventory->sku_code.' must be between 1 and '.$purchase_order_product->quantity_pending);
+                }
             }
+        } else {
+            $errors->push('There must be at least 1 product to receive.');
         }
+
         if ($errors->count())
             return back()->withErrors($errors);
 
