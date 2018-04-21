@@ -26,7 +26,8 @@ class ReceivingRequest extends FormRequest
     public function rules()
     {
         return [
-            // 'name' => 'required|min:5|max:255'
+            'purchase_order_id' => 'required|exists:purchase_orders,id',
+            'receiver_id'       => 'nullable|exists:users,id',
         ];
     }
 

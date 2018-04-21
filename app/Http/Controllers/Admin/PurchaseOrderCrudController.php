@@ -126,12 +126,12 @@ class PurchaseOrderCrudController extends CrudController
                 'attribute' => 'name',
             ],
             [
-                'label' => 'Total Products',
+                'label' => 'Products',
                 'name'  => 'products_count',
             ],
             [
                 'label' => 'Total Price',
-                'name'  => 'products_price_sum',
+                'name'  => 'price_total',
             ],
             [
                 'label' => 'Date Created',
@@ -145,10 +145,17 @@ class PurchaseOrderCrudController extends CrudController
                 'label' => 'Remark',
                 'name'  => 'remark',
             ],
+            [
+                'label' => 'Date Completed',
+                'name'  => 'completed_at',
+            ],
         ]);
 
         // ------ CRUD BUTTONS
         $this->crud->addButtonFromView('line', 'purchase_order_view', 'purchase_order_view', 'beginning');
+        $this->crud->addButtonFromView('line', 'purchase_order_receiving_create', 'purchase_order_receiving_create', 'beginning');
+        $this->crud->removeButton('update');
+        $this->crud->removeButton('delete');
 
         // ------ CRUD ACCESS
 
@@ -212,23 +219,29 @@ class PurchaseOrderCrudController extends CrudController
         return view('admin.purchase_orders.show', compact('purchase_order', 'crud'));
     }
 
+    public function edit($id)
+    {
+        // Disable the edit form.
+        abort(404);
+    }
+
     public function update(UpdateRequest $request)
     {
-        // your additional operations before save here
-        $redirect_location = parent::updateCrud($request);
-        // your additional operations after save here
-        // use $this->data['entry'] or $this->crud->entry
-        return $redirect_location;
+        // Disable the edit form submission.
+        abort(404);
     }
 
     public function destroy($id)
     {
-        $this->crud->hasAccessOrFail('delete');
+        // Disable deleting of purchase orders.
+        abort(404);
 
-        // Delete associated items
-        PurchaseOrder::findOrFail($id)->products()->delete();
+        // $this->crud->hasAccessOrFail('delete');
 
-        return $this->crud->delete($id);
+        // // Delete associated items
+        // PurchaseOrder::findOrFail($id)->products()->delete();
+
+        // return $this->crud->delete($id);
     }
 
     /**

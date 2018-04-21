@@ -23,6 +23,9 @@
 				</div>
 				<div class="col-md-6">
 					<div class="text-right">
+						@if(!$purchase_order->completed_at)
+							<a href="{{ route('purchase_order.crud.receiving.create', $purchase_order->id) }}" class="btn btn-default"><i class="fa fa-download"></i> Receive</a>
+						@endif
 						<a href="{{ route('purchase_order.print-order', $purchase_order->id) }}" class="btn btn-default" target="_blank"><i class="fa fa-print"></i> Print Purchase Order</a>
 					</div>
 				</div>
@@ -54,6 +57,12 @@
 						<p class="form-control-static">{{ $purchase_order->created_at }} ({{ $purchase_order->created_at->diffForHumans() }})</p>
 					</div>
 				</div>
+				<div class="form-group">
+					<label class="col-sm-2 control-label">Date Completed</label>
+					<div class="col-sm-10">
+						<p class="form-control-static">{{ $purchase_order->completed_at or 'N/A' }}</p>
+					</div>
+				</div>
 			</form>
 		</div>
 	</div>
@@ -69,6 +78,9 @@
 					<th>Inventory</th>
 					<th>Price</th>
 					<th>Quantity</th>
+					<th>Quantity Received</th>
+					<th>Quantity Pending</th>
+					<th>Date Completed</th>
 					<th class="text-right">Subtotal</th>
 				</thead>
 				<tbody>
@@ -78,6 +90,9 @@
 							<td>{{ $product->inventory->name }}</td>
 							<td>{{ number_format($product->price) }}</td>
 							<td>{{ $product->quantity }}</td>
+							<td>{{ $product->quantity_received }}</td>
+							<td>{{ $product->quantity_pending }}</td>
+							<td>{{ $product->completed_at ? $product->completed_at : 'N/A' }}</td>
 							<td class="text-right">{{ number_format($product->price * $product->quantity) }}</td>
 						</tr>
 					@endforeach

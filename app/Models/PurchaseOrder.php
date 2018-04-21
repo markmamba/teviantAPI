@@ -20,7 +20,7 @@ class PurchaseOrder extends Model
     // protected $primaryKey = 'id';
     // public $timestamps = false;
     // protected $guarded = ['id'];
-    protected $fillable = ['supplier_id', 'remark', 'sent_at'];
+    protected $fillable = ['supplier_id', 'remark', 'sent_at', 'completed_at'];
     // protected $hidden = [];
     // protected $dates = [];
 
@@ -50,6 +50,11 @@ class PurchaseOrder extends Model
         return $this->hasMany('App\Models\PurchaseOrderReceiving', 'purchase_order_id');
     }
 
+    public function receiving_products()
+    {
+        return $this->hasManyThrough('App\Models\PurchaseOrderReceivingProduct', 'App\Models\PurchaseOrderProduct');
+    }
+
     /*
     |--------------------------------------------------------------------------
     | SCOPES
@@ -74,6 +79,11 @@ class PurchaseOrder extends Model
     public function getCreatedAtForHumansAttribute()
     {
         return $this->created_at->diffForHumans();
+    }
+
+    public function isCompleted()
+    {
+        return $this->products()->sum('quantity') === $this->receiving_products()->sum('purchase_order_receiving_products.quantity');
     }
 
     /*
