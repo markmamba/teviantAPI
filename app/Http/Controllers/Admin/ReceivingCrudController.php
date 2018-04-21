@@ -37,7 +37,7 @@ class ReceivingCrudController extends CrudController
             [
                 'label'     => 'Purchase Order #',
                 // 'type'      => 'select2_table_purchase_order_products',
-                'type'      => 'select2',
+                'type'      => 'select2_scoped',
                 'name'      => 'purchase_order_id',
                 'entity'    => 'purchase_order',
                 'attribute' => 'id',
