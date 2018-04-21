@@ -145,6 +145,7 @@ class PurchaseOrderReceivingCrudController extends CrudController
 
     public function create()
     {
+        $this->crud->setRoute(route('crud.purchase-order.index'));
         $this->crud->setCreateView('admin.purchase_orders.receivings.create');
 
         // Check if the Purchase Order is already complete.
