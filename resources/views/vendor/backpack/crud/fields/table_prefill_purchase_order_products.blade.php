@@ -11,7 +11,12 @@
                 'id',
             ]))
             ->merge([
-                'products' => $purchase_order->products->map(function($product){
+                'products' => $purchase_order->products
+                // Get only incomplete products
+                ->filter(function($product, $key) {
+                    return !$product->is_completed;
+                })
+                ->map(function($product){
                     return collect($product->only([
                         'id'
                     ]))
@@ -33,7 +38,12 @@
                 'id',
             ]))
             ->merge([
-                'products' => $entry->products->map(function($receiving_product){
+                'products' => $entry->products
+                // Get only incomplete products
+                ->filter(function($product, $key) {
+                    return !$product->is_completed;
+                })
+                ->map(function($receiving_product){
                     return collect($receiving_product->only([
                         'id'
                     ]))
