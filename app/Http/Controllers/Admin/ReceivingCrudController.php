@@ -112,6 +112,8 @@ class ReceivingCrudController extends CrudController
         // Custom View button instead of Preview for consistency among previosly added list views.
         $this->crud->addButtonFromView('line', 'purchase_order_receiving_view', 'purchase_order_receiving_view', 'beginning');
         $this->crud->removeButton('preview');
+        $this->crud->removeButton('update');
+        $this->crud->removeButton('delete');
 
         // ------ CRUD ACCESS
         $this->crud->allowAccess('show');
@@ -182,21 +184,43 @@ class ReceivingCrudController extends CrudController
         // return $redirect_location;
     }
 
+    public function edit($id)
+    {
+        // Disable the edit form.
+        abort(404);
+    }
+
     public function update(UpdateRequest $request, $receiving_id)
     {
-        $purchase_order = PurchaseOrder::findOrFail($request->purchase_order_id);
-        $receiving = PurchaseOrderReceiving::findOrFail($receiving_id);
-        $products = json_decode($request->products_json);
+        // Disable the edit form submission.
+        abort(404);
 
-        foreach ($products as $product) {
+        // $purchase_order = PurchaseOrder::findOrFail($request->purchase_order_id);
+        // $receiving = PurchaseOrderReceiving::findOrFail($receiving_id);
+        // $products = json_decode($request->products_json);
 
-            // TODO: validate receiving
+        // foreach ($products as $product) {
+
+        //     // TODO: validate receiving
             
-            PurchaseOrderReceivingProduct::findOrFail($product->id)->update([
-                'quantity' => $product->quantity,
-            ]);
-        }
+        //     PurchaseOrderReceivingProduct::findOrFail($product->id)->update([
+        //         'quantity' => $product->quantity,
+        //     ]);
+        // }
         
-        return redirect()->route('crud.receiving.index');
+        // return redirect()->route('crud.receiving.index');
+    }
+
+    public function destroy($id)
+    {
+        // Disable deleting of purchase orders.
+        abort(404);
+
+        // $this->crud->hasAccessOrFail('delete');
+
+        // // Delete associated items
+        // PurchaseOrder::findOrFail($id)->products()->delete();
+
+        // return $this->crud->delete($id);
     }
 }
