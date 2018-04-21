@@ -23,6 +23,9 @@
 				</div>
 				<div class="col-md-6">
 					<div class="text-right">
+						@if(!$purchase_order->completed_at)
+							<a href="{{ route('purchase_order.crud.receiving.create', $purchase_order->id) }}" class="btn btn-default"><i class="fa fa-download"></i> Receive</a>
+						@endif
 						<a href="{{ route('purchase_order.print-order', $purchase_order->id) }}" class="btn btn-default" target="_blank"><i class="fa fa-print"></i> Print Purchase Order</a>
 					</div>
 				</div>
