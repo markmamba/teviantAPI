@@ -54,6 +54,12 @@
 						<p class="form-control-static">{{ $purchase_order->created_at }} ({{ $purchase_order->created_at->diffForHumans() }})</p>
 					</div>
 				</div>
+				<div class="form-group">
+					<label class="col-sm-2 control-label">Date Completed</label>
+					<div class="col-sm-10">
+						<p class="form-control-static">{{ $purchase_order->completed_at or 'N/A' }}</p>
+					</div>
+				</div>
 			</form>
 		</div>
 	</div>
