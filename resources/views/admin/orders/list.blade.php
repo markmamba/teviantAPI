@@ -32,22 +32,22 @@
               <a href="{{ route('crud.order.index') }}">All</a>
             </li>
             <li class="{{ isset($tab) && $tab == 'pending' ? 'active' : null }}">
-              <a href="{{ route('crud.order.index', ['tab' => 'pending']) }}">Pending <span class="label label-default">{{ $orders_on_statuses_count['pending'] }}</span></a>
+              <a href="{{ route('crud.order.index', ['tab' => 'pending']) }}">Pending <span class="label {{ $orders_on_statuses_count['pending'] > 0 ? 'label-warning' : 'label-default' }}">{{ $orders_on_statuses_count['pending'] }}</span></a>
             </li>
             <li class="{{ isset($tab) && $tab == 'for_picking' ? 'active' : null }}">
-              <a href="{{ route('crud.order.index', ['tab' => 'for_picking']) }}">For Picking <span class="label label-default">{{ $orders_on_statuses_count['for_picking'] }}</span></a>
+              <a href="{{ route('crud.order.index', ['tab' => 'for_picking']) }}">For Picking <span class="label label {{ $orders_on_statuses_count['for_picking'] > 0 ? 'label-warning' : 'label-default' }}">{{ $orders_on_statuses_count['for_picking'] }}</span></a>
             </li>
             <li class="{{ isset($tab) && $tab == 'for_shipping' ? 'active' : null }}">
-              <a href="{{ route('crud.order.index', ['tab' => 'for_shipping']) }}">For Shipping <span class="label label-default">{{ $orders_on_statuses_count['for_shipping'] }}</span></a>
+              <a href="{{ route('crud.order.index', ['tab' => 'for_shipping']) }}">For Shipping <span class="label {{ $orders_on_statuses_count['for_shipping'] > 0 ? 'label-warning' : 'label-default' }}">{{ $orders_on_statuses_count['for_shipping'] }}</span></a>
             </li>
             <li class="{{ isset($tab) && $tab == 'shipped' ? 'active' : null }}">
-              <a href="{{ route('crud.order.index', ['tab' => 'shipped']) }}">Shipping <span class="label label-default">{{ $orders_on_statuses_count['shipped'] }}</span></a>
+              <a href="{{ route('crud.order.index', ['tab' => 'shipped']) }}">Shipping <span class="label {{ $orders_on_statuses_count['shipped'] > 0 ? 'label-primary' : 'label-default' }}">{{ $orders_on_statuses_count['shipped'] }}</span></a>
             </li>
             <li class="{{ isset($tab) && $tab == 'completed' ? 'active' : null }}">
-              <a href="{{ route('crud.order.index', ['tab' => 'completed']) }}">Completed <span class="label label-default">{{ $orders_on_statuses_count['completed'] }}</span></a>
+              <a href="{{ route('crud.order.index', ['tab' => 'completed']) }}">Completed <span class="label {{ $orders_on_statuses_count['completed'] > 0 ? 'label-success' : 'label-default' }}">{{ $orders_on_statuses_count['completed'] }}</span></a>
             </li>
             <li class="{{ isset($tab) && $tab == 'cancelled' ? 'active' : null }}">
-              <a href="{{ route('crud.order.index', ['tab' => 'cancelled']) }}">Cancelled <span class="label label-default">{{ $orders_on_statuses_count['cancelled'] }}</span></a>
+              <a href="{{ route('crud.order.index', ['tab' => 'cancelled']) }}">Cancelled <span class="label {{ $orders_on_statuses_count['cancelled'] > 0 ? 'label-danger' : 'label-default' }}">{{ $orders_on_statuses_count['cancelled'] }}</span></a>
             </li>
           </ul>
 
