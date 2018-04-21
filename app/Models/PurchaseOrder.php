@@ -60,6 +60,15 @@ class PurchaseOrder extends Model
     | SCOPES
     |--------------------------------------------------------------------------
     */
+    public function scopeCompleted($query)
+    {
+        return $query->whereNotNull('completed_at');
+    }
+
+    public function scopeNotCompleted($query)
+    {
+        return $query->whereNull('completed_at');
+    }
 
     /*
     |--------------------------------------------------------------------------
