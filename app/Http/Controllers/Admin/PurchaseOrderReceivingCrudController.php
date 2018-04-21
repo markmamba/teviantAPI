@@ -145,6 +145,8 @@ class PurchaseOrderReceivingCrudController extends CrudController
 
     public function create()
     {
+        $this->crud->setCreateView('admin.purchase_orders.receivings.create');
+
         // Check if the Purchase Order is already complete.
         if ($this->purchase_order->isCompleted()) {
             \Alert::warning('The Purchase Order is already completed.')->flash();
