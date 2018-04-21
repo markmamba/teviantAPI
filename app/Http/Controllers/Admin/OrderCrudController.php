@@ -143,6 +143,18 @@ class OrderCrudController extends CrudController
         ];
 
         $this->data['tab'] = request()->tab;
+
+        // Remove columns and filters according to current tab.
+        if (isset(request()->tab) || (isset(request()->tab) && request()->tab != 'all')) {
+            $this->crud->removeColumn('status_id');
+            $this->crud->removeFilter('status');
+            $this->crud->removeAllFilters();
+            
+            if ($this->crud->filters()->count() == 0) {
+                $this->crud->disableFilters();
+            }
+        }
+
         $this->data['orders_on_statuses_count'] = $orders_on_statuses_count;
         $this->data['crud'] = $this->crud;
         $this->data['title'] = ucfirst($this->crud->entity_name_plural);

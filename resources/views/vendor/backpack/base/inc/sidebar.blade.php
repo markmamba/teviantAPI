@@ -53,7 +53,7 @@
               <i class="fa fa-shopping-bag"></i> <span>Orders</span>
               @if($orders_incomplete_count)
                 <span class="pull-right-container">
-                  <span class="label label-primary pull-right">{{ $orders_incomplete_count }}</span>
+                  <span class="label label-warning pull-right">{{ $orders_incomplete_count }}</span>
                 </span>
               @endif
             </a>
