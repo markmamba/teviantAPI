@@ -63,6 +63,11 @@
           <li>
             <a href="{{ route('crud.purchase-order.index') }}">
               <i class="fa fa-clipboard"></i> <span>Purchase Orders</span>
+              @if($purchase_orders_incomplete_count)
+                <span class="pull-right-container">
+                  <span class="label label-warning pull-right">{{ $purchase_orders_incomplete_count }}</span>
+                </span>
+              @endif
             </a>
           </li>
           <li>
