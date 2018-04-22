@@ -37,7 +37,7 @@ class ReceivingCrudController extends CrudController
             [
                 'label'     => 'Purchase Order #',
                 // 'type'      => 'select2_table_purchase_order_products',
-                'type'      => 'select2',
+                'type'      => 'select2_scoped',
                 'name'      => 'purchase_order_id',
                 'entity'    => 'purchase_order',
                 'attribute' => 'id',
@@ -132,6 +132,26 @@ class ReceivingCrudController extends CrudController
         $this->crud->orderBy('created_at', 'desc');
     }
 
+    public function index()
+    {
+        // Remove and disable receiving when there is nothing to receive.
+        if (PurchaseOrder::notCompleted()->count() == 0)
+            $this->crud->removeButton('create');
+
+        return parent::index();
+    }
+
+    public function create()
+    {
+        // Disable create when there is nothing to receive.
+        if (PurchaseOrder::notCompleted()->count() == 0) {
+            \Alert::warning('There are no Purchase Orders to receive.')->flash();
+            return back();
+        }
+        
+        return parent::create();
+    }
+
     public function store(StoreRequest $request)
     {
         // dd($request->all());
@@ -144,13 +164,28 @@ class ReceivingCrudController extends CrudController
             ->toArray()
         );
 
-        $products = json_decode($request->products_json);
+        $products = collect(json_decode($request->products_json))->where('quantity', '!=', null);
 
-        // dd($request->all(), $products);
+        // Validate product receivings
+        $errors = collect([]);
+
+        if ($products->count()) {
+            foreach ($products as $product) {
+                $purchase_order_product = PurchaseOrderProduct::findOrFail($product->id);
+                if (!isset($product->quantity)) {
+                    $errors->push('The quantity for '.$purchase_order_product->inventory->sku_code.' is invalid.');
+                } else if (!($product->quantity > 0) || !($product->quantity <= $purchase_order_product->quantity_pending)) {
+                    $errors->push('The quantity for '.$purchase_order_product->inventory->sku_code.' must be between 1 and '.$purchase_order_product->quantity_pending);
+                }
+            }
+        } else {
+            $errors->push('There must be at least 1 product to receive.');
+        }
+
+        if ($errors->count())
+            return back()->withErrors($errors);
 
         foreach ($products as $product) {
-
-            // TODO: validate receiving
             
             $receiving->products()->create(
                 collect($request->only(['purchase_order_receiving_id']))
