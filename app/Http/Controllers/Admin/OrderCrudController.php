@@ -83,11 +83,10 @@ class OrderCrudController extends CrudController
             'name'  => 'created_at'
         ]);
         $this->crud->addColumn([
-           'label'     => 'Status',
-           'type'      => 'select',
-           'name'      => 'status_id',
-           'entity'    => 'status',
-           'attribute' => 'name',
+           'label' => "Status",
+           'name' => 'name',
+           'type' => 'view',
+           'view' => 'admin.orders.columns.status_view', // or path to blade file
         ]);
 
         // ------ CRUD BUTTONS
@@ -111,6 +110,7 @@ class OrderCrudController extends CrudController
         // ------ DATATABLE EXPORT BUTTONS
 
         // ------ ADVANCED QUERIES
+        $this->crud->with('status');
         $this->crud->orderBy('created_at', 'desc');
         
         // Status filter
