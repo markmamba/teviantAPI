@@ -119,7 +119,7 @@
                         {{-- <input class="form-control input-sm" type="text" ng-model="product.name" disabled> --}}
                     </td>
                     <td>
-                        <input class="form-control input-sm" type="number" ng-model="product.quantity" min="1" max="<% product.quantity_pending %>" placeholder="Max <% product.quantity_pending %>">
+                        <input class="form-control input-sm" type="number" ng-model="product.quantity" min="1" max="<% product.quantity_pending %>" placeholder="1..<% product.quantity_pending %>">
                     </td>
                     <td ng-if="max == -1 || max > 1">
                         <span class="btn btn-sm btn-default sort-handle"><span class="sr-only">sort item</span><i class="fa fa-sort" role="presentation" aria-hidden="true"></i></span>
