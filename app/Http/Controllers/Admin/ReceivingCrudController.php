@@ -219,6 +219,13 @@ class ReceivingCrudController extends CrudController
         // return $redirect_location;
     }
 
+    public function show($id)
+    {
+        $this->crud->setShowView('admin.receivings.show');
+
+        return parent::show($id);
+    }
+
     public function edit($id)
     {
         // Disable the edit form.
