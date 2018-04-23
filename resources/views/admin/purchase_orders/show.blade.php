@@ -60,7 +60,11 @@
 				<div class="form-group">
 					<label class="col-sm-2 control-label">Date Completed</label>
 					<div class="col-sm-10">
-						<p class="form-control-static">{{ $purchase_order->completed_at or 'N/A' }}</p>
+						@if(isset($purchase_order->completed_at))
+							<p class="form-control-static"><span class="label label-success">{{ $purchase_order->completed_at }}</span></p>
+						@else
+							<p class="form-control-static"><span class="label label-warning">N/A</span></p>
+						@endif
 					</div>
 				</div>
 			</form>
