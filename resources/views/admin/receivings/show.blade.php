@@ -20,7 +20,7 @@
 	@endif
 
 	<!-- Default box -->
-	  <div class="box">
+	<div class="box">
 	    <div class="box-header with-border">
 	      <h3 class="box-title">
             {{ trans('backpack::crud.preview') }}
@@ -50,18 +50,47 @@
 		                    @endif
 		            </tr>
 		        @endforeach
-				@if ($crud->buttons->where('stack', 'line')->count())
+				{{-- @if ($crud->buttons->where('stack', 'line')->count())
 					<tr>
 						<td><strong>{{ trans('backpack::crud.actions') }}</strong></td>
 						<td>
 							@include('crud::inc.button_stack', ['stack' => 'line'])
 						</td>
 					</tr>
-				@endif
+				@endif --}}
 		        </tbody>
 			</table>
 	    </div><!-- /.box-body -->
-	  </div><!-- /.box -->
+	</div><!-- /.box -->
+
+	<div class="box box-default">
+		<div class="box-header with-border">
+			<h3 class="box-title">Receiving Products</h3>
+		</div>
+		<div class="box-body">
+			<div class="table-responsive">
+				<table class="table table-bordered">
+					<thead>
+						<th>SKU</th>
+						<th>Name</th>
+						<th>Quantity Ordered</th>
+						<th>Quantity Received</th>
+						<th></th>
+					</thead>
+					<tbody>
+						@foreach($entry->products as $product)
+						<tr>
+							<td>{{ $product->product->inventory->name }}</td>
+							<td>{{ $product->product->inventory->sku_code }}</td>
+							<td>{{ $product->product->quantity }}</td>
+							<td>{{ $product->quantity }}</td>
+						</tr>
+						@endforeach
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
 
 @endsection
 
