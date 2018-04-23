@@ -84,7 +84,7 @@ class OrderCrudController extends CrudController
         ]);
         $this->crud->addColumn([
            'label' => "Status",
-           'name' => 'name',
+           'name' => 'status',
            'type' => 'view',
            'view' => 'admin.orders.columns.status_view', // or path to blade file
         ]);
@@ -130,7 +130,7 @@ class OrderCrudController extends CrudController
 
         // Remove columns and filters according to current tab.
         if (isset(request()->tab) && request()->tab != 'all') {
-            $this->crud->removeColumn('status_id');
+            $this->crud->removeColumn('status');
             $this->crud->removeFilter('status');
             
             if ($this->crud->filters()->count() == 0) {
