@@ -146,8 +146,10 @@ class PurchaseOrderCrudController extends CrudController
                 'name'  => 'remark',
             ],
             [
-                'label' => 'Date Completed',
-                'name'  => 'completed_at',
+                'label' => "Status",
+                'name' => 'status',
+                'type' => 'view',
+                'view' => 'admin.purchase_orders.columns.status_view', // or path to blade file
             ],
         ]);
 
