@@ -18,7 +18,7 @@ class DatabaseSeeder extends Seeder
         $this->call(PermissionsTableSeeder::class);
         $this->call(RolesTableSeeder::class);
         $this->call(PermissionRolesTableSeeder::class);
-        // $this->call(RoleUsersTableSeeder::class);
+        $this->call(RoleUsersTableSeeder::class);
 
         // Temporarily login a user needed for the seeds.
         Auth::login(User::first());
