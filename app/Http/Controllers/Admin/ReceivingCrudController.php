@@ -116,7 +116,7 @@ class ReceivingCrudController extends CrudController
         $this->crud->removeButton('delete');
 
         // ------ CRUD ACCESS
-        $this->crud->allowAccess('show');
+        $this->setPermissions();
 
         // ------ CRUD REORDER
 
@@ -143,6 +143,8 @@ class ReceivingCrudController extends CrudController
 
     public function create()
     {
+        $this->crud->hasAccessOrFail('create');
+
         // Disable create when there is nothing to receive.
         if (PurchaseOrder::notCompleted()->count() == 0) {
             \Alert::warning('There are no Purchase Orders to receive.')->flash();
@@ -264,5 +266,29 @@ class ReceivingCrudController extends CrudController
         // PurchaseOrder::findOrFail($id)->products()->delete();
 
         // return $this->crud->delete($id);
+    }
+
+    public function setPermissions()
+    {
+        // Get authenticated user
+        $user = auth()->user();
+
+        // Deny all accesses
+        $this->crud->denyAccess(['list', 'create', 'update', 'delete']);
+
+        // Allow list access
+        if ($user->can('receivings.index')) {
+            $this->crud->allowAccess('list');
+        }
+
+        // Allow create access
+        if ($user->can('receivings.create')) {
+            $this->crud->allowAccess('create');
+        }
+
+        // Allow show access
+        if ($user->can('receivings.show')) {
+            $this->crud->allowAccess('show');
+        }
     }
 }
