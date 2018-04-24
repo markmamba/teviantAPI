@@ -150,9 +150,12 @@ class InventoryCrudController extends CrudController
         $this->crud->addButtonFromView('line', 'inventory_stock_decrease', 'inventory_stock_decrease', 'beginning');
         $this->crud->addButtonFromView('line', 'inventory_stock_increase', 'inventory_stock_increase', 'beginning');
 
-        // ------ CRUD ACCESS
-        // $this->crud->allowAccess(['list', 'create', 'update', 'reorder', 'delete']);
-        // $this->crud->denyAccess(['list', 'create', 'update', 'reorder', 'delete']);
+        /*
+        |--------------------------------------------------------------------------
+        | PERMISSIONS
+        |-------------------------------------------------------------------------
+        */
+        $this->setPermissions();
 
         // ------ CRUD REORDER
         // $this->crud->enableReorder('label_name', MAX_TREE_LEVEL);
@@ -443,5 +446,34 @@ class InventoryCrudController extends CrudController
         $this->crud->setModel('App\Models\Inventory');
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/inventory');
         $this->crud->setEntityNameStrings('inventory', 'inventories');
+    }
+
+    public function setPermissions()
+    {
+        // Get authenticated user
+        $user = auth()->user();
+
+        // Deny all accesses
+        $this->crud->denyAccess(['list', 'create', 'update', 'delete']);
+
+        // Allow list access
+        if ($user->can('inventories.index')) {
+            $this->crud->allowAccess('list');
+        }
+
+        // Allow create access
+        if ($user->can('inventories.create')) {
+            $this->crud->allowAccess('create');
+        }
+
+        // Allow update access
+        if ($user->can('inventories.update')) {
+            $this->crud->allowAccess('update');
+        }
+
+        // Allow delete access
+        if ($user->can('inventories.delete')) {
+            $this->crud->allowAccess('delete');
+        }
     }
 }
