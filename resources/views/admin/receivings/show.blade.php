@@ -75,7 +75,6 @@
 						<th>Name</th>
 						<th>Quantity Ordered</th>
 						<th>Quantity Received</th>
-						<th></th>
 					</thead>
 					<tbody>
 						@foreach($entry->products as $product)
