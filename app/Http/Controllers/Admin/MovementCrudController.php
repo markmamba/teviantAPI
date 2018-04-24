@@ -112,9 +112,12 @@ class MovementCrudController extends CrudController
         $this->crud->removeButton('update');
         $this->crud->removeButton('delete');
 
-        // ------ CRUD ACCESS
-        // $this->crud->allowAccess(['list', 'create', 'update', 'reorder', 'delete']);
-        // $this->crud->denyAccess(['list', 'create', 'update', 'reorder', 'delete']);
+        /*
+        |--------------------------------------------------------------------------
+        | PERMISSIONS
+        |-------------------------------------------------------------------------
+        */
+        $this->setPermissions();
 
         // ------ CRUD REORDER
         // $this->crud->enableReorder('label_name', MAX_TREE_LEVEL);
@@ -227,7 +230,7 @@ class MovementCrudController extends CrudController
      */
     public function rollback(Request $request, $movement_id)
     {
-        // dd($request, $movement_id);
+        $this->crud->hasAccessOrFail('movements.rollback');
 
         $movement = InventoryStockMovement::find($movement_id);
 
@@ -245,4 +248,27 @@ class MovementCrudController extends CrudController
         }
     }
 
+    public function setPermissions()
+    {
+        // Get authenticated user
+        $user = auth()->user();
+
+        // Deny all accesses
+        $this->crud->denyAccess(['list', 'create', 'store', 'show', 'rollback']);
+
+        // Allow list access
+        if ($user->can('movements.index')) {
+            $this->crud->allowAccess('list');
+        }
+
+        // Allow show access
+        if ($user->can('movements.show')) {
+            $this->crud->allowAccess('show');
+        }
+
+        // Allow rollback access
+        if ($user->can('movements.rollback')) {
+            $this->crud->allowAccess('rollback');
+        }
+    }
 }

@@ -146,8 +146,10 @@ class PurchaseOrderCrudController extends CrudController
                 'name'  => 'remark',
             ],
             [
-                'label' => 'Date Completed',
-                'name'  => 'completed_at',
+                'label' => "Status",
+                'name' => 'status',
+                'type' => 'view',
+                'view' => 'admin.purchase_orders.columns.status_view', // or path to blade file
             ],
         ]);
 
@@ -158,6 +160,7 @@ class PurchaseOrderCrudController extends CrudController
         $this->crud->removeButton('delete');
 
         // ------ CRUD ACCESS
+        $this->setPermissions();
 
         // ------ CRUD REORDER
 
@@ -254,5 +257,29 @@ class PurchaseOrderCrudController extends CrudController
 
         $pdf = \PDF::loadView('pdf.purchase_order', compact('purchase_order'));
         return $pdf->stream();
+    }
+
+    public function setPermissions()
+    {
+        // Get authenticated user
+        $user = auth()->user();
+
+        // Deny all accesses
+        $this->crud->denyAccess(['list', 'create', 'update', 'delete']);
+
+        // Allow list access
+        if ($user->can('purchase_orders.index')) {
+            $this->crud->allowAccess('list');
+        }
+
+        // Allow create access
+        if ($user->can('purchase_orders.create')) {
+            $this->crud->allowAccess('create');
+        }
+
+        // Allow show access
+        if ($user->can('purchase_orders.show')) {
+            $this->crud->allowAccess('show');
+        }
     }
 }
