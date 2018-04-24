@@ -28,33 +28,33 @@
             <a href="#"><i class="fa fa-archive"></i> <span>Inventory</span> <i class="fa fa-angle-left pull-right"></i></a>
             <ul class="treeview-menu">
               {{-- Metrics --}}
-              @if(auth()->user()->can('metrics.index'))
+              @can('metrics.index')
                 <li><a href="{{ backpack_url('metric') }}"><i class="fa fa-balance-scale"></i> <span>Metrics</span></a></li>
-              @endif
+              @endcan
               {{-- Category --}}
-              @if(auth()->user()->can('categories.index'))
+              @can('categories.index')
                 <li><a href="{{ backpack_url('category') }}"><i class="fa fa-tags"></i> <span>Categories</span></a></li>
-              @endif
+              @endcan
               {{-- Locations --}}
-              @if(auth()->user()->can('locations.index'))
+              @can('locations.index')
                 <li><a href="{{ backpack_url('location') }}"><i class="fa fa-map-pin"></i> <span>Locations</span></a></li>
-              @endif
+              @endcan
               {{-- Inventories --}}
-              @if(auth()->user()->can('inventories.index'))
+              @can('inventories.index')
                 <li><a href="{{ backpack_url('inventory') }}"><i class="fa fa-star"></i> <span>Items</span></a></li>
-              @endif
+              @endcan
               {{-- Stock --}}
-              @if(auth()->user()->can('stocks.index'))
+              @can('stocks.index')
                 <li><a href="{{ backpack_url('stock') }}"><i class="fa fa-th"></i> <span>Stocks</span></a></li>
-              @endif
+              @endcan
               {{-- Movements --}}
-              @if(auth()->user()->can('movements.index'))
+              @can('movements.index')
                 <li><a href="{{ backpack_url('movement') }}"><i class="fa fa-exchange"></i> <span>Movements</span></a></li>
-              @endif
+              @endcan
               {{-- Suppliers --}}
-              @if(auth()->user()->can('suppliers.index'))
+              @can('suppliers.index')
                 <li><a href="{{ backpack_url('supplier') }}"><i class="fa fa-truck"></i> <span>Suppliers</span></a></li>
-              @endif
+              @endcan
             </ul>
           </li>
           @endif
@@ -68,22 +68,20 @@
           <li class="treeview">
             <a href="#"><i class="fa fa-group"></i> <span>Users</span> <i class="fa fa-angle-left pull-right"></i></a>
             <ul class="treeview-menu">
-              @if(auth()->user()->can('users.index'))
+              @can('users.index')
                 <li><a href="{{ url(config('backpack.base.route_prefix', 'admin') . '/user') }}"><i class="fa fa-user"></i> <span>Users</span></a></li>
-              @endif
-              @if(auth()->user()->can('roles.index'))
+              @endcan
+              @can('roles.index')
                 <li><a href="{{ url(config('backpack.base.route_prefix', 'admin') . '/role') }}"><i class="fa fa-group"></i> <span>Roles</span></a></li>
-              @endif
-              @if(auth()->user()->can('permissions.index'))
+              @endcan
+              @can('permissions.index')
                 <li><a href="{{ url(config('backpack.base.route_prefix', 'admin') . '/permission') }}"><i class="fa fa-key"></i> <span>Permissions</span></a></li>
-              @endif
+              @endcan
             </ul>
           </li>
           @endif
 
-          @if(
-            auth()->user()->can('orders.index')
-          )
+          @can('orders.index')
           <li class="header">OUTBOUND</li>
           {{-- Orders --}}
           <li>
@@ -96,33 +94,37 @@
               @endif
             </a>
           </li>
-          @endif
+          @endcan
 
           @if(
             auth()->user()->can('purchase_orders.index') ||
             auth()->user()->can('receivings.orders.index')
           )
-          <li class="header">INBOUND</li>
-          <li>
-            <a href="{{ route('crud.purchase-order.index') }}">
-              <i class="fa fa-clipboard"></i> <span>Purchase Orders</span>
-              @if($purchase_orders_incomplete_count)
-                <span class="pull-right-container">
-                  <span class="label label-warning pull-right">{{ $purchase_orders_incomplete_count }}</span>
-                </span>
-              @endif
-            </a>
-          </li>
-          <li>
-            <a href="{{ route('crud.receiving.index') }}">
-              <i class="fa fa-download"></i> <span>Receivings</span>
-            </a>
-          </li>
-          <li>
-            <a href="#">
-              <i class="fa fa-share"></i> <span>Transfer Orders</span>
-            </a>
-          </li>
+            <li class="header">INBOUND</li>
+            @can('purchase_orders.index')
+            <li>
+              <a href="{{ route('crud.purchase-order.index') }}">
+                <i class="fa fa-clipboard"></i> <span>Purchase Orders</span>
+                @if($purchase_orders_incomplete_count)
+                  <span class="pull-right-container">
+                    <span class="label label-warning pull-right">{{ $purchase_orders_incomplete_count }}</span>
+                  </span>
+                @endif
+              </a>
+            </li>
+            @endcan
+            @can('receivings.index')
+            <li>
+              <a href="{{ route('crud.receiving.index') }}">
+                <i class="fa fa-download"></i> <span>Receivings</span>
+              </a>
+            </li>
+            <li>
+              <a href="#">
+                <i class="fa fa-share"></i> <span>Transfer Orders</span>
+              </a>
+            </li>
+            @endcan
           @endif
 
           {{-- <li><a href="{{  backpack_url('elfinder') }}"><i class="fa fa-files-o"></i> <span>Files</span></a></li> --}}
