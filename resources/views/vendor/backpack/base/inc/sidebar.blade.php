@@ -60,17 +60,31 @@
           @endif
 
           {{-- Users, Roles Permissions --}}
+          @if(
+            auth()->user()->can('users.index') ||
+            auth()->user()->can('roles.index') ||
+            auth()->user()->can('permissions.index')
+          )
           <li class="treeview">
             <a href="#"><i class="fa fa-group"></i> <span>Users</span> <i class="fa fa-angle-left pull-right"></i></a>
             <ul class="treeview-menu">
-              <li><a href="{{ url(config('backpack.base.route_prefix', 'admin') . '/user') }}"><i class="fa fa-user"></i> <span>Users</span></a></li>
-              <li><a href="{{ url(config('backpack.base.route_prefix', 'admin') . '/role') }}"><i class="fa fa-group"></i> <span>Roles</span></a></li>
-              <li><a href="{{ url(config('backpack.base.route_prefix', 'admin') . '/permission') }}"><i class="fa fa-key"></i> <span>Permissions</span></a></li>
+              @if(auth()->user()->can('users.index'))
+                <li><a href="{{ url(config('backpack.base.route_prefix', 'admin') . '/user') }}"><i class="fa fa-user"></i> <span>Users</span></a></li>
+              @endif
+              @if(auth()->user()->can('roles.index'))
+                <li><a href="{{ url(config('backpack.base.route_prefix', 'admin') . '/role') }}"><i class="fa fa-group"></i> <span>Roles</span></a></li>
+              @endif
+              @if(auth()->user()->can('permissions.index'))
+                <li><a href="{{ url(config('backpack.base.route_prefix', 'admin') . '/permission') }}"><i class="fa fa-key"></i> <span>Permissions</span></a></li>
+              @endif
             </ul>
           </li>
+          @endif
 
+          @if(
+            auth()->user()->can('orders.index')
+          )
           <li class="header">OUTBOUND</li>
-          
           {{-- Orders --}}
           <li>
             <a href="{{ backpack_url('order') }}">
@@ -82,7 +96,12 @@
               @endif
             </a>
           </li>
+          @endif
 
+          @if(
+            auth()->user()->can('purchase_orders.index') ||
+            auth()->user()->can('receivings.orders.index')
+          )
           <li class="header">INBOUND</li>
           <li>
             <a href="{{ route('crud.purchase-order.index') }}">
@@ -104,6 +123,7 @@
               <i class="fa fa-share"></i> <span>Transfer Orders</span>
             </a>
           </li>
+          @endif
 
           {{-- <li><a href="{{  backpack_url('elfinder') }}"><i class="fa fa-files-o"></i> <span>Files</span></a></li> --}}
 
