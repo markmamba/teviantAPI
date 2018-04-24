@@ -123,7 +123,7 @@ class PurchaseOrderReceivingCrudController extends CrudController
         $this->crud->removeButton('preview');
 
         // ------ CRUD ACCESS
-        $this->crud->allowAccess('show');
+        $this->setPermissions();
 
         // ------ CRUD REORDER
 
@@ -145,6 +145,8 @@ class PurchaseOrderReceivingCrudController extends CrudController
 
     public function create()
     {
+        $this->crud->hasAccessOrFail('create');
+        
         $this->crud->setCreateView('admin.purchase_orders.receivings.create');
 
         // Check if the Purchase Order is already complete.
@@ -220,5 +222,29 @@ class PurchaseOrderReceivingCrudController extends CrudController
         }
         
         return redirect()->route('crud.receiving.index');
+    }
+
+    public function setPermissions()
+    {
+        // Get authenticated user
+        $user = auth()->user();
+
+        // Deny all accesses
+        $this->crud->denyAccess(['list', 'create', 'update', 'delete']);
+
+        // Allow list access
+        if ($user->can('receivings.index')) {
+            $this->crud->allowAccess('list');
+        }
+
+        // Allow create access
+        if ($user->can('receivings.create')) {
+            $this->crud->allowAccess('create');
+        }
+
+        // Allow show access
+        if ($user->can('receivings.show')) {
+            $this->crud->allowAccess('show');
+        }
     }
 }
