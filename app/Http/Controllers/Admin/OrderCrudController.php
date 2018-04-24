@@ -61,6 +61,8 @@ class OrderCrudController extends CrudController
         | BASIC CRUD INFORMATION
         |--------------------------------------------------------------------------
         */
+       
+        $this->setPermissions();
 
         // ------ CRUD FIELDS
 
@@ -186,7 +188,7 @@ class OrderCrudController extends CrudController
 
     public function show($id)
     {
-        // $this->crud->hasAccessOrFail('show');
+        $this->crud->hasAccessOrFail('show');
 
         $crud = $this->crud;
 
@@ -202,6 +204,8 @@ class OrderCrudController extends CrudController
      */
     public function sync()
     {
+        $this->crud->hasAccessOrFail('sync');
+
         $response = $this->ecommerce_client->get('api/orders');
         
         $orders = json_decode($response->getBody());
@@ -285,6 +289,8 @@ class OrderCrudController extends CrudController
 
     public function cancel($id, $request = null)
     {
+        $this->crud->hasAccessOrFail('cancel');
+
         $order = Order::find($id);
         
         // Put back stock to the stock they where taken from.
@@ -317,6 +323,8 @@ class OrderCrudController extends CrudController
      */
     public function reopen(Request $request, $id)
     {
+        $this->crud->hasAccessOrFail('reopen');
+
         $order = Order::findOrFail($id);
 
         // Delete order's shipment record.
@@ -339,6 +347,8 @@ class OrderCrudController extends CrudController
 
     public function shipForm($id)
     {
+        $this->crud->hasAccessOrFail('ship');
+
         // $this->crud->hasAccessOrFail('show');
         
         $crud = $this->crud;
@@ -350,6 +360,8 @@ class OrderCrudController extends CrudController
 
     public function ship(ShipOrderRequest $request, $id)
     {
+        $this->crud->hasAccessOrFail('ship');
+
         $order = Order::findOrFail($id);
 
         $order->update($request->all());
@@ -371,6 +383,8 @@ class OrderCrudController extends CrudController
      */
     public function packForm(Request $request, $id)
     {
+        $this->crud->hasAccessOrFail('pack');
+
         // $this->crud->hasAccessOrFail('resource.action');
 
         $this->crud->model = Order::findOrFail($id);
@@ -402,6 +416,8 @@ class OrderCrudController extends CrudController
 
     public function pack(PackOrderRequest $request, $id)
     {
+        $this->crud->hasAccessOrFail('pack');
+
         // dd($request->all());
         $order = Order::findOrFail($id);
         $order->update(
@@ -445,6 +461,8 @@ class OrderCrudController extends CrudController
 
     public function printPickList($id)
     {
+        $this->crud->hasAccessOrFail('show');
+
         $order = Order::findOrFail($id);
 
         // return view('pdf.pick_list', compact('order'));
@@ -455,6 +473,8 @@ class OrderCrudController extends CrudController
 
     public function printReceipt($id)
     {
+        $this->crud->hasAccessOrFail('show');
+
         $order = Order::findOrFail($id);
 
         $pdf = \PDF::loadView('pdf.receipt', compact('order'));
@@ -463,6 +483,8 @@ class OrderCrudController extends CrudController
 
     public function printDeliveryReceipt($id)
     {
+        $this->crud->hasAccessOrFail('show');
+
         $order = Order::findOrFail($id);
 
         $pdf = \PDF::loadView('pdf.delivery_receipt', compact('order'));
@@ -471,6 +493,8 @@ class OrderCrudController extends CrudController
 
     public function printCarrierReceipt($id)
     {
+        $this->crud->hasAccessOrFail('show');
+
         $order = Order::findOrFail($id);
 
         $pdf = \PDF::loadView('pdf.carrier_receipt', compact('order'));
@@ -479,6 +503,8 @@ class OrderCrudController extends CrudController
 
     public function printAll($id)
     {
+        $this->crud->hasAccessOrFail('show');
+
         $order = Order::findOrFail($id);
 
         $pdf = \PDF::loadView('pdf.all', compact('order'));
@@ -489,6 +515,60 @@ class OrderCrudController extends CrudController
     {
         $this->handleCancellation($request, $order);
         // $this->handlePicking($request, $order);
+    }
+
+    public function setPermissions()
+    {
+        // Get authenticated user
+        $user = auth()->user();
+
+        // Deny all accesses
+        $this->crud->denyAccess(['list', 'create', 'show', 'update', 'delete', 'sync', 'reopen', 'pack', 'ship', 'cancel']);
+
+        // Allow list access
+        if ($user->can('orders.index')) {
+            $this->crud->allowAccess('list');
+        }
+
+        // Allow create access
+        if ($user->can('orders.create')) {
+            $this->crud->allowAccess('create');
+        }
+
+        // Allow show access
+        if ($user->can('orders.show')) {
+            $this->crud->allowAccess('show');
+        }
+
+        // Allow update access
+        if ($user->can('orders.update')) {
+            $this->crud->allowAccess('update');
+        }
+
+        // Allow sync access
+        if ($user->can('orders.sync')) {
+            $this->crud->allowAccess('sync');
+        }
+
+        // Allow reopen access
+        if ($user->can('orders.reopen')) {
+            $this->crud->allowAccess('reopen');
+        }
+
+        // Allow pack access
+        if ($user->can('orders.pack')) {
+            $this->crud->allowAccess('pack');
+        }
+
+        // Allow ship access
+        if ($user->can('orders.ship')) {
+            $this->crud->allowAccess('ship');
+        }
+
+        // Allow cancel access
+        if ($user->can('orders.cancel')) {
+            $this->crud->allowAccess('cancel');
+        }
     }
 
     private function handleCancellation($request, $order)
