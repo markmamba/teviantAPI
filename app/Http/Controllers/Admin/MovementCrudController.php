@@ -230,7 +230,7 @@ class MovementCrudController extends CrudController
      */
     public function rollback(Request $request, $movement_id)
     {
-        $this->crud->hasAccessOrFail('movements.rollback');
+        $this->crud->hasAccessOrFail('rollback');
 
         $movement = InventoryStockMovement::find($movement_id);
 
@@ -269,6 +269,7 @@ class MovementCrudController extends CrudController
         // Allow rollback access
         if ($user->can('movements.rollback')) {
             $this->crud->allowAccess('rollback');
+        } else {
         }
     }
 }
