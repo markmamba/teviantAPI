@@ -344,6 +344,9 @@ class InventoryStockCrudController extends CrudController
      */
     public function getAddStock(Request $request, $stock_id)
     {
+        // Temporary issue fix where setup() is not called when calling this method from the route.
+        $this->setPermissions();
+
         $this->crud->hasAccessOrFail('add');
 
         // WIP setup permissions
@@ -441,6 +444,9 @@ class InventoryStockCrudController extends CrudController
      */
     public function postAddStock(ReplenishStockRequest $request, $stock_id)
     {
+        // Temporary issue fix where setup() is not called when calling this method from the route.
+        $this->setPermissions();
+
         $this->crud->hasAccessOrFail('add');
 
         $location = Location::find($request->location_id);
@@ -458,6 +464,9 @@ class InventoryStockCrudController extends CrudController
      */
     public function getRemoveStock(Request $request, $stock_id)
     {
+        // Temporary issue fix where setup() is not called when calling this method from the route.
+        $this->setPermissions();
+
         $this->crud->hasAccessOrFail('subtract');
 
         // WIP setup permissions
@@ -532,6 +541,9 @@ class InventoryStockCrudController extends CrudController
      */
     public function postRemoveStock(DepleteStockRequest $request, $stock_id)
     {
+        // Temporary issue fix where setup() is not called when calling this method from the route.
+        $this->setPermissions();
+        
         $this->crud->hasAccessOrFail('subtract');
 
         $stock = InventoryStock::find($stock_id);
