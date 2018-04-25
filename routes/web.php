@@ -61,7 +61,8 @@ Route::group([
 
     Route::group(['prefix' => 'movement/{movement_id}', 'as' => 'movement.'], function()
     {
-        Route::post('rollback', 'MovementCrudController@rollback')->name('rollback');
+        Route::get('rollback', 'MovementCrudController@rollbackForm')->name('rollback.form');
+        Route::patch('rollback', 'MovementCrudController@rollback')->name('rollback');
     });
 
     CRUD::resource('supplier', 'SupplierCrudController');
