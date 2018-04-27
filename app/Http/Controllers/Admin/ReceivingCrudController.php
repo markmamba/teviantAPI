@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Models\PurchaseOrder;
+use App\Models\PurchaseOrderProduct;
 use App\Models\PurchaseOrderReceiving;
 use App\Models\PurchaseOrderReceivingProduct;
 use App\Http\Requests\ReceivingRequest as StoreRequest;

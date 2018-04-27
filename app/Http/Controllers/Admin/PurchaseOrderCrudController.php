@@ -158,6 +158,7 @@ class PurchaseOrderCrudController extends CrudController
         $this->crud->addButtonFromView('line', 'purchase_order_receiving_create', 'purchase_order_receiving_create', 'beginning');
         $this->crud->removeButton('update');
         $this->crud->removeButton('delete');
+        $this->crud->removeButton('preview');
 
         // ------ CRUD ACCESS
         $this->setPermissions();
