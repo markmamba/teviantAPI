@@ -37,7 +37,7 @@
               @endcan
               {{-- Locations --}}
               @can('locations.index')
-                <li><a href="{{ backpack_url('location') }}"><i class="fa fa-map-pin"></i> <span>Locations</span></a></li>
+                <li><a href="{{ backpack_url('location') }}"><i class="fa fa-map-marker"></i> <span>Locations</span></a></li>
               @endcan
               {{-- Inventories --}}
               @can('inventories.index')
