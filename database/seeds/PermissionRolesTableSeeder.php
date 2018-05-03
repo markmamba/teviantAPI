@@ -24,10 +24,7 @@ class PermissionRolesTableSeeder extends Seeder
         }
 
         // Set permissions for the Adminitrator role
-        $administrator_permissions = DB::table('permissions')
-            ->where('name', 'not like', 'roles%')
-            ->where('name', 'not like', 'permissions%')
-            ->get();
+        $administrator_permissions = DB::table('permissions')->get();
         $administrator_role = DB::table('roles')->where('name', 'Administrator')->first();
         foreach ($administrator_permissions as $permission) {
             $administrator_permissionRoles[] = [
