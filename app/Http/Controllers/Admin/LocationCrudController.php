@@ -123,6 +123,9 @@ class LocationCrudController extends CrudController
         // $this->crud->orderBy();
         // $this->crud->groupBy();
         // $this->crud->limit();
+        
+        $this->crud->enableReorder('name', 4);
+        $this->crud->allowAccess('reorder');
     }
 
     public function store(StoreRequest $request)
