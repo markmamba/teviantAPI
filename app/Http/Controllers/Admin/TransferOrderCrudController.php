@@ -31,6 +31,7 @@ class TransferOrderCrudController extends CrudController
         */
 
         // $this->crud->setFromDb();
+        $this->setPermissions();
 
         // ------ CRUD FIELDS
         $this->crud->addFields([
@@ -130,6 +131,15 @@ class TransferOrderCrudController extends CrudController
         // ------ ADVANCED QUERIES
     }
 
+    public function index()
+    {
+        // Remove and disable receiving when there is nothing to receive.
+        if (PurchaseOrderReceivingProduct::count() == 0)
+            $this->crud->removeButton('create');
+
+        return parent::index();
+    }
+
     public function store(StoreRequest $request)
     {
         // your additional operations before save here
@@ -155,5 +165,29 @@ class TransferOrderCrudController extends CrudController
     {
         return PurchaseOrderReceivingProduct::with('product.inventory')->get()
             ->pluck('product.inventory.name', 'product.inventory.id');
+    }
+
+    public function setPermissions()
+    {
+        // Get authenticated user
+        $user = auth()->user();
+
+        // Deny all accesses
+        $this->crud->denyAccess(['list', 'create', 'delete']);
+
+        // Allow list access
+        if ($user->can('transfer_orders.index')) {
+            $this->crud->allowAccess('list');
+        }
+
+        // Allow create access
+        if ($user->can('transfer_orders.create')) {
+            $this->crud->allowAccess('create');
+        }
+
+        // Allow delete access
+        if ($user->can('transfer_orders.delete')) {
+            $this->crud->allowAccess('delete');
+        }
     }
 }

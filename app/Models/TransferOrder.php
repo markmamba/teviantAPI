@@ -28,4 +28,14 @@ class TransferOrder extends Model
     {
     	return $this->belongsTo('App\Models\Location');	
     }
+
+    public function scopeNotCompleted()
+    {
+    	return $this->whereNull('transferred_at');
+    }
+
+    public function scopeCompleted()
+    {
+    	return $this->whereNotNull('transferred_at');
+    }
 }
