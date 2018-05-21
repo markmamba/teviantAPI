@@ -113,6 +113,7 @@ class TransferOrderCrudController extends CrudController
         ]);
 
         // ------ CRUD BUTTONS
+        $this->crud->removeButton('update');
 
         // ------ CRUD ACCESS
 
@@ -138,13 +139,16 @@ class TransferOrderCrudController extends CrudController
         return $redirect_location;
     }
 
+    public function edit($id)
+    {
+        // Disable edit operation
+        abort(404);
+    }
+
     public function update(UpdateRequest $request)
     {
-        // your additional operations before save here
-        $redirect_location = parent::updateCrud($request);
-        // your additional operations after save here
-        // use $this->data['entry'] or $this->crud->entry
-        return $redirect_location;
+        // Disable update operation
+        abort(404);
     }
 
     private function getReceivingsProductOptions()
