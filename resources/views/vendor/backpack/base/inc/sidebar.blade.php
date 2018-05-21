@@ -120,7 +120,7 @@
               </a>
             </li>
             <li>
-              <a href="#">
+              <a href="{{ route('crud.transfer-order.index') }}">
                 <i class="fa fa-share"></i> <span>Transfer Orders</span>
               </a>
             </li>

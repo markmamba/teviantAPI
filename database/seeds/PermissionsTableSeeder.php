@@ -104,6 +104,10 @@ class PermissionsTableSeeder extends Seeder
             ['name' => 'receivings.create'],
             ['name' => 'receivings.show'],
 
+            // Transfer Orders
+            ['name' => 'transfer_orders.index'],
+            ['name' => 'transfer_orders.create'],
+            ['name' => 'transfer_orders.delete'],
     	];
 
     	DB::table('permissions')->insert($permissions);

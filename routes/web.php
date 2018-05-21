@@ -93,5 +93,6 @@ Route::group([
     });
 
     CRUD::resource('receiving', 'ReceivingCrudController');
+    CRUD::resource('transfer-order', 'TransferOrderCrudController');
 
 });

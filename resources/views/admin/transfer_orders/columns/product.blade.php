@@ -1,0 +1,1 @@
+{{ $entry->purchase_order_receiving_product->product->inventory->name }}

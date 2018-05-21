@@ -22,4 +22,9 @@ class PurchaseOrderReceivingProduct extends Model
     {
         return $this->belongsTo('App\Models\PurchaseOrderProduct', 'purchase_order_product_id');
     }
+
+    public function transfer_orders()
+    {
+        return $this->hasMany('App\Models\TransferOrder');
+    }
 }
