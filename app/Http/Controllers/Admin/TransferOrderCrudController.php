@@ -111,6 +111,11 @@ class TransferOrderCrudController extends CrudController
                 'attribute' => "name", // foreign key attribute that is shown to user
                 'model' => "App\Models\Location", // foreign key model
             ],
+            [
+                'label' => 'Quantity',
+                'name'  => 'quantity',
+                'type'  => 'number',
+            ],
         ]);
 
         // ------ CRUD BUTTONS
