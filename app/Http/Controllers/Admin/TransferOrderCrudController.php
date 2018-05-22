@@ -46,6 +46,12 @@ class TransferOrderCrudController extends CrudController
                 'tab'   => 'Primary',
             ],
             [
+                'label' => 'Quantity',
+                'type'  => 'transfer_orders_quantity',
+                'name'  => 'quantity',
+                'tab'   => 'Primary',
+            ],
+            [
                 'label'     => 'Location',
                 'type'      => 'select2',
                 'name'      => 'location_id',
@@ -69,12 +75,6 @@ class TransferOrderCrudController extends CrudController
                 'label' => 'Bin',
                 'type'  => 'text',
                 'name'  => 'bin',
-                'tab'   => 'Primary',
-            ],
-            [
-                'label' => 'Quantity',
-                'type'  => 'number',
-                'name'  => 'quantity',
                 'tab'   => 'Primary',
             ],
             [

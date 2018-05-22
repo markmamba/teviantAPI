@@ -24,7 +24,12 @@ class TransferOrderRequest extends \Backpack\CRUD\app\Http\Requests\CrudRequest
      */
     public function rules()
     {
-        $purchase_order_receiving_product = \App\Models\PurchaseOrderReceivingProduct::findOrFail($this->purchase_order_receiving_product_id)->product;
+        // Set the maximum transferable product quantity.
+        $purchase_order_receiving_product = null;
+        if (isset($this->purchase_order_receiving_product_id))
+            $purchase_order_receiving_product = \App\Models\PurchaseOrderReceivingProduct::findOrFail($this->purchase_order_receiving_product_id)->product;
+        // 2147483647 is just the maximum value INT in MYSQL.
+        $max_quantity = isset($purchase_order_receiving_product->quantity_pending) ? $purchase_order_receiving_product->quantity_pending : 2147483647;
 
         return [
             // 'name' => 'required|min:5|max:255'
@@ -33,7 +38,7 @@ class TransferOrderRequest extends \Backpack\CRUD\app\Http\Requests\CrudRequest
             'ailse'                               => 'nullable|max:255',
             'row'                                 => 'nullable|max:255',
             'bin'                                 => 'nullable|max:255',
-            'quantity'                            => 'required|numeric|max:'.$purchase_order_receiving_product->quantity_pending.'|min:0',
+            'quantity'                            => 'required|numeric|max:'.$max_quantity.'|min:0',
             'remark'                              => 'nullable|max:255',
         ];
     }
