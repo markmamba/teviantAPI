@@ -93,6 +93,8 @@ Route::group([
     });
 
     CRUD::resource('receiving', 'ReceivingCrudController');
+    
+    Route::get('transfer-order/{id}/print', 'TransferOrderCrudController@printTransferOrder')->name('transfer_order.print');
     CRUD::resource('transfer-order', 'TransferOrderCrudController');
 
     Route::group(['prefix' => 'ajax'], function() {

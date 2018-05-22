@@ -135,6 +135,7 @@ class TransferOrderCrudController extends CrudController
 
         // ------ CRUD BUTTONS
         $this->crud->removeButton('update');
+        $this->crud->addButtonFromView('line', 'print_transfer_order_button', 'print_transfer_order_button', 'beginning');
 
         // ------ CRUD ACCESS
 
@@ -190,6 +191,18 @@ class TransferOrderCrudController extends CrudController
         })->pluck('product.inventory.name', 'product.inventory.id');
 
         return $receiving_products_options;
+    }
+
+    /**
+     * Show the printable PDF of the given Transfer Order.
+     * @return pdf
+     */
+    public function printTransferOrder($id)
+    {
+        $transfer_order = \App\Models\TransferOrder::findOrFail($id);
+
+        $pdf = \PDF::loadView('pdf.transfer_order', compact('transfer_order'));
+        return $pdf->stream();
     }
 
     public function setPermissions()
