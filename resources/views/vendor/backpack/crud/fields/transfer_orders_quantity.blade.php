@@ -59,7 +59,7 @@
 
           // Get the selected product's maximum quantity transferable
           // console.log(vm.quantity_max);
-          vm.quantity_max = $filter('filter')(vm.receivings_products, {'purchase_order_product_id': vm.purchase_order_receiving_product_id})[0].quantity_pending;
+          vm.quantity_max = $filter('filter')(vm.receivings_products, {'purchase_order_product_id': vm.purchase_order_receiving_product_id})[0].quantity_transferrable;
 
           // Force-apply changes to the vm variables
           $that = $(this);

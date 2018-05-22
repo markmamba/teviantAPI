@@ -27,4 +27,9 @@ class PurchaseOrderReceivingProduct extends Model
     {
         return $this->hasMany('App\Models\TransferOrder');
     }
+
+    public function getQuantityTransferrableAttribute()
+    {
+        return $this->product->quantity_pending - $this->transfer_orders()->sum('quantity');
+    }
 }

@@ -168,8 +168,13 @@ class TransferOrderCrudController extends CrudController
 
     private function getReceivingsProductOptions()
     {
-        return PurchaseOrderReceivingProduct::with('product.inventory')->get()
-            ->pluck('product.inventory.name', 'product.inventory.id');
+        $receiving_products = PurchaseOrderReceivingProduct::with('product.inventory')->get();
+        
+        $receiving_products_options = $receiving_products->filter(function ($value, $key) {
+            return $value->quantity_transferrable > 0;
+        })->pluck('product.inventory.name', 'product.inventory.id');
+
+        return $receiving_products_options;
     }
 
     public function setPermissions()

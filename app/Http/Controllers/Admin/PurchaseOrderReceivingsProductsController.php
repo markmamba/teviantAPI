@@ -15,9 +15,10 @@ class PurchaseOrderReceivingsProductsController extends Controller
     {
         $receivings_products = PurchaseOrderReceivingProduct::all();
         $receivings_products->map(function($receivings_product) {
-            $receivings_product->quantity_pending = $receivings_product->product->quantity_pending;
+            $receivings_product->quantity_transferrable = $receivings_product->quantity_transferrable;
             return $receivings_product;
         });
+
         return response()->json($receivings_products);
     }
 
@@ -28,7 +29,7 @@ class PurchaseOrderReceivingsProductsController extends Controller
     public function ajaxShow($id)
     {
         $receivings_product = PurchaseOrderReceivingProduct::findOrFail($id);
-        $receivings_product->quantity_pending = $receivings_product->product->quantity_pending;
+        $receivings_product->quantity_transferrable = $receivings_product->quantity_transferrable;
 
         return response()->json($receivings_product);
     }
