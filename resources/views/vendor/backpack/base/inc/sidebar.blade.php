@@ -122,6 +122,11 @@
             <li>
               <a href="{{ route('crud.transfer-order.index') }}">
                 <i class="fa fa-share"></i> <span>Transfer Orders</span>
+                @if($transfer_orders_incomplete_count)
+                  <span class="pull-right-container">
+                    <span class="label label-warning pull-right">{{ $transfer_orders_incomplete_count }}</span>
+                  </span>
+                @endif
               </a>
             </li>
             @endcan
