@@ -24,6 +24,8 @@ class TransferOrderRequest extends \Backpack\CRUD\app\Http\Requests\CrudRequest
      */
     public function rules()
     {
+        $purchase_order_receiving_product = \App\Models\PurchaseOrderReceivingProduct::findOrFail($this->purchase_order_receiving_product_id)->product;
+
         return [
             // 'name' => 'required|min:5|max:255'
             'purchase_order_receiving_product_id' => 'required|exists:purchase_order_products,id',
@@ -31,7 +33,7 @@ class TransferOrderRequest extends \Backpack\CRUD\app\Http\Requests\CrudRequest
             'ailse'                               => 'nullable|max:255',
             'row'                                 => 'nullable|max:255',
             'bin'                                 => 'nullable|max:255',
-            'quantity'                            => 'required|numeric',
+            'quantity'                            => 'required|numeric|max:'.$purchase_order_receiving_product->quantity_pending.'|min:0',
             'remark'                              => 'nullable|max:255',
         ];
     }
