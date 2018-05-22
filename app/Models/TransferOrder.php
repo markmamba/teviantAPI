@@ -38,4 +38,9 @@ class TransferOrder extends Model
     {
     	return $this->whereNotNull('transferred_at');
     }
+
+    public function getAisleRowBinAttribute()
+    {
+        return $this->aisle . '-' . $this->row . '-' . $this->bin;
+    }
 }

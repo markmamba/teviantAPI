@@ -104,6 +104,11 @@ class TransferOrderCrudController extends CrudController
                 'view'     => "admin.transfer_orders.columns.product",
             ],
             [
+                'label' => 'Quantity',
+                'name'  => 'quantity',
+                'type'  => 'number',
+            ],
+            [
                 'label' => "Location", // Table column heading
                 'type' => "select",
                 'name' => 'location_id', // the column that contains the ID of that connected entity;
@@ -112,9 +117,19 @@ class TransferOrderCrudController extends CrudController
                 'model' => "App\Models\Location", // foreign key model
             ],
             [
-                'label' => 'Quantity',
-                'name'  => 'quantity',
-                'type'  => 'number',
+                'label' => 'Aisle-Row-Bin',
+                'name'  => 'aisle_row_bin',
+                'type'  => 'text',
+            ],
+            [
+                'label' => 'Date Transferred',
+                'name'  => 'transferred_at',
+                'type'  => 'date',
+            ],
+            [
+                'label' => 'Remark',
+                'name'  => 'remark',
+                'type'  => 'text',
             ],
         ]);
 
