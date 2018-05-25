@@ -11,6 +11,7 @@
             id="{{ $field['name'] }}"
             value="{{ old($field['name']) ? old($field['name']) : (isset($field['value']) ? $field['value'] : (isset($field['default']) ? $field['default'] : '' )) }}"
             @include('crud::inc.field_attributes')
+            min="1"
             max="<% controller.quantity_max %>"
           >
         @if(isset($field['suffix'])) <div class="input-group-addon">{!! $field['suffix'] !!}</div> @endif
