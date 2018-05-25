@@ -94,6 +94,8 @@ Route::group([
 
     CRUD::resource('receiving', 'ReceivingCrudController');
     
+    Route::get('transfer-order/{id}/complete', 'TransferOrderCrudController@completeForm')->name('transfer_order.complete_form');
+    Route::patch('transfer-order/{id}/complete', 'TransferOrderCrudController@complete')->name('transfer_order.complete');
     Route::get('transfer-order/{id}/print', 'TransferOrderCrudController@printTransferOrder')->name('transfer_order.print');
     CRUD::resource('transfer-order', 'TransferOrderCrudController');
 

@@ -6,6 +6,7 @@ use Backpack\CRUD\app\Http\Controllers\CrudController;
 
 // VALIDATION: change the requests to match your own file names if you need form validation
 use App\Models\PurchaseOrderReceivingProduct;
+use App\Models\TransferOrder;
 use App\Http\Requests\TransferOrderRequest as StoreRequest;
 use App\Http\Requests\TransferOrderRequest as UpdateRequest;
 use Illuminate\Http\Request;
@@ -135,6 +136,7 @@ class TransferOrderCrudController extends CrudController
 
         // ------ CRUD BUTTONS
         $this->crud->removeButton('update');
+        $this->crud->addButtonFromView('line', 'complete_transfer_order_button', 'complete_transfer_order_button', 'beginning');
         $this->crud->addButtonFromView('line', 'print_transfer_order_button', 'print_transfer_order_button', 'beginning');
 
         // ------ CRUD ACCESS
@@ -227,5 +229,54 @@ class TransferOrderCrudController extends CrudController
         if ($user->can('transfer_orders.delete')) {
             $this->crud->allowAccess('delete');
         }
+    }
+
+    /**
+     * Show the form for completing the Transfer Order.
+     * @return view
+     */
+    public function completeForm($id)
+    {
+        // $this->crud->hasAccessOrFail('complete');
+
+        $this->crud->model = TransferOrder::findOrFail($id);
+        $this->crud->route = route('transfer_order.complete', $this->crud->model->id);
+
+        // prepare the fields you need to show
+        $this->data['crud'] = $this->crud;
+        $this->data['saveAction'] = $this->getSaveAction();
+        $this->data['fields'] = $this->crud->getCreateFields();
+        $this->data['title'] = 'Complete Transfer Order';
+
+        $this->crud->removeFields([
+            'purchase_order_receiving_product_id',
+            'transfer_orders_quantity',
+            'quantity',
+            'location_id',
+            'ailse',
+            'row',
+            'bin',
+            'remark',
+        ]);
+
+        // $this->crud->addField([
+        //     'label' => 'Reason',
+        //     'name' => 'reason',
+        //     'type' => 'text',
+        //     'attributes' => [
+        //         'placeholder' => 'Enter an optional reason.'
+        //     ]
+        // ]);
+        
+        return view('admin.transfer_orders.complete_form', $this->data);
+    }
+
+    /**
+     * Complete the Transfer Order from the submitted form.
+     * @return redirect
+     */
+    public function complete(Request $request)
+    {
+        die('WIP');
     }
 }
