@@ -275,8 +275,18 @@ class TransferOrderCrudController extends CrudController
      * Complete the Transfer Order from the submitted form.
      * @return redirect
      */
-    public function complete(Request $request)
+    public function complete(Request $request, $id)
     {
-        die('WIP');
+        /**
+         * Pseudo:
+         * 1 - Add stocks to specified stock and location.
+         * 2 - Reserver stocks for pending orders.
+         * 3 - Mark transfer order as complete.
+         */
+        // dd($id, $request->all());
+        
+        $transfer_order = TransferOrder::findOrFail($id);
+
+        dd($transfer_order);
     }
 }
