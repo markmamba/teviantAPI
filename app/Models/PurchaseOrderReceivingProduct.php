@@ -30,6 +30,6 @@ class PurchaseOrderReceivingProduct extends Model
 
     public function getQuantityTransferrableAttribute()
     {
-        return $this->product->quantity_pending - $this->transfer_orders()->sum('quantity');
+        return $this->product->quantity_received - $this->transfer_orders()->sum('quantity');
     }
 }
