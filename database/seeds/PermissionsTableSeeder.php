@@ -45,6 +45,7 @@ class PermissionsTableSeeder extends Seeder
             // Stocks
     		['name' => 'stocks.index'],
             ['name' => 'stocks.create'],
+            ['name' => 'stocks.store'],
             ['name' => 'stocks.show'],
             ['name' => 'stocks.update'],
             ['name' => 'stocks.delete'],
