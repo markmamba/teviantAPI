@@ -35,9 +35,9 @@ class TransferOrderRequest extends \Backpack\CRUD\app\Http\Requests\CrudRequest
             // 'name' => 'required|min:5|max:255'
             'purchase_order_receiving_product_id' => 'required|exists:purchase_order_products,id',
             'location_id'                         => 'required|exists:locations,id',
-            'ailse'                               => 'nullable|max:255',
-            'row'                                 => 'nullable|max:255',
-            'bin'                                 => 'nullable|max:255',
+            'ailse'                               => 'required_with:row,bin|max:255',
+            'row'                                 => 'required_with:ailse,bin|max:255',
+            'bin'                                 => 'required_with:ailse,row|max:255',
             'quantity'                            => 'required|numeric|max:'.$max_quantity.'|min:1',
             'remark'                              => 'nullable|max:255',
         ];
