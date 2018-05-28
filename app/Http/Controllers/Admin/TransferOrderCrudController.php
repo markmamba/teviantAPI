@@ -61,9 +61,9 @@ class TransferOrderCrudController extends CrudController
                 'tab'   => 'Primary',
             ],
             [
-                'label' => 'Ailse',
+                'label' => 'aisle',
                 'type'  => 'text',
-                'name'  => 'ailse',
+                'name'  => 'aisle',
                 'tab'   => 'Optionals',
             ],
             [
@@ -253,7 +253,7 @@ class TransferOrderCrudController extends CrudController
             'transfer_orders_quantity',
             'quantity',
             'location_id',
-            'ailse',
+            'aisle',
             'row',
             'bin',
             'remark',

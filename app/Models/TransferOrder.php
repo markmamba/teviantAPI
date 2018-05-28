@@ -12,7 +12,7 @@ class TransferOrder extends Model
 	protected $fillable = [
 		'purchase_order_receiving_product_id',
 		'location_id',
-		'ailse',
+		'aisle',
 		'row',
 		'bin',
 		'quantity',
