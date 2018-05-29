@@ -64,7 +64,7 @@ class TransferOrderCrudController extends CrudController
                 'tab'   => 'Primary',
             ],
             [
-                'label' => 'aisle',
+                'label' => 'Aisle',
                 'type'  => 'text',
                 'name'  => 'aisle',
                 'tab'   => 'Optionals',
