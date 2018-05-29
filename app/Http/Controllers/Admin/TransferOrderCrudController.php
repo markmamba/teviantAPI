@@ -249,6 +249,7 @@ class TransferOrderCrudController extends CrudController
         $this->crud->hasAccessOrFail('complete');
 
         $this->crud->model = TransferOrder::findOrFail($id);
+        $this->guardCompleted($this->crud->model);
         $this->crud->route = route('transfer_order.complete', $this->crud->model->id);
 
         // prepare the fields you need to show
@@ -286,6 +287,8 @@ class TransferOrderCrudController extends CrudController
         // dd($id, $request->all());
         
         $transfer_order = TransferOrder::findOrFail($id);
+
+        $this->guardCompleted($transfer_order);
 
         // 1
         $this->transferOrderStock($transfer_order);
@@ -339,6 +342,17 @@ class TransferOrderCrudController extends CrudController
         // dd($location, $item, $stock);
         
         return $stock;
+    }
+
+    /**
+     * Guard completed Transfer Orders.
+     * @param  TransferOrder $transfer_order
+     * @return view/HTTP/void
+     */
+    private function guardCompleted(TransferOrder $transfer_order)
+    {
+        if ($transfer_order->isCompleted())
+            abort(400);
     }
 
     // TODO: Move this operation to the Receivings controller

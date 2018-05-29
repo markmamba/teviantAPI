@@ -25,6 +25,14 @@ class TransferOrder extends Model
     	return $this->belongsTo('App\Models\PurchaseOrderReceivingProduct');
     }
 
+    public function isCompleted()
+    {
+        if (isset($this->transferred_at))
+            return true;
+        else
+            return false;
+    }
+
     public function location()
     {
     	return $this->belongsTo('App\Models\Location');	
