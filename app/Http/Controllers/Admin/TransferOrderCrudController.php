@@ -305,7 +305,7 @@ class TransferOrderCrudController extends CrudController
         return redirect()->route('crud.transfer-order.index');
     }
 
-    public function transferOrderStock($transfer_order)
+    private function transferOrderStock($transfer_order)
     {
         // TODO: Store receivings on a stock (receivings location) and
         // use $stock->move($from_location, $to_location)
