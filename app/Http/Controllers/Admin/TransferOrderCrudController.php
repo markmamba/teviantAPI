@@ -80,6 +80,7 @@ class TransferOrderCrudController extends CrudController
                 'type'  => 'text',
                 'name'  => 'bin',
                 'tab'   => 'Optionals',
+                'hint'  => 'Note: Aisle, Row and Bin will only be used if the selected item(s) is not yet in the selected location.'
             ],
             [
                 'label' => 'Remark',
