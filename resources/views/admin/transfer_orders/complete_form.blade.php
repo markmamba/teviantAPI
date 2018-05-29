@@ -29,13 +29,36 @@
 		    <div class="box-header with-border">
 		      <h3 class="box-title">Are you sure to complete Transfer Order #{{ $crud->model->id }}?</h3>
 		    </div>
-		    <div class="box-body row">
+		    <div class="box-body">
 		      <!-- load the view from the application if it exists, otherwise load the one in the package -->
 		      @if(view()->exists('vendor.backpack.crud.form_content'))
 		      	@include('vendor.backpack.crud.form_content', [ 'fields' => $crud->getFields('create'), 'action' => 'create' ])
 		      @else
 		      	@include('crud::form_content', [ 'fields' => $crud->getFields('create'), 'action' => 'create' ])
 		      @endif
+
+				<table class="table">
+					<caption>
+						Please review the following Transfer Order details. Click the "Save and back" button to complete.
+					</caption>
+					<thead>
+						<th>SKU</th>
+						<th>Name</th>
+						<th>Quantity</th>
+						<th>Location</th>
+						<th>Aisle-Row-Bin</th>
+					</thead>
+					<tbody>
+						<tr>
+							<td>{{ $crud->model->purchase_order_receiving_product->product->inventory->sku_code }}</td>
+							<td>{{ $crud->model->purchase_order_receiving_product->product->inventory->name }}</td>
+							<td>{{ $crud->model->quantity }}</td>
+							<td>{{ $crud->model->location->name }}</td>
+							<td>{{ $crud->model->aisleRowBin }}</td>
+						</tr>
+					</tbody>
+				</table>
+
 		    </div><!-- /.box-body -->
 		    <div class="box-footer">
 
