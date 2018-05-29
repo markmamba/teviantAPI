@@ -5,6 +5,9 @@ namespace App\Http\Controllers\Admin;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 
 // VALIDATION: change the requests to match your own file names if you need form validation
+use App\Models\Inventory;
+use App\Models\InventoryStock;
+use App\Models\Location;
 use App\Models\PurchaseOrderReceivingProduct;
 use App\Models\TransferOrder;
 use App\Http\Requests\TransferOrderRequest as StoreRequest;
@@ -152,6 +155,7 @@ class TransferOrderCrudController extends CrudController
         // ------ DATATABLE EXPORT BUTTONS
 
         // ------ ADVANCED QUERIES
+        $this->crud->orderBy('created_at', 'desc');
     }
 
     public function index()
@@ -229,6 +233,11 @@ class TransferOrderCrudController extends CrudController
         if ($user->can('transfer_orders.delete')) {
             $this->crud->allowAccess('delete');
         }
+
+        // Allow delete access
+        if ($user->can('transfer_orders.complete')) {
+            $this->crud->allowAccess('complete');
+        }
     }
 
     /**
@@ -237,7 +246,7 @@ class TransferOrderCrudController extends CrudController
      */
     public function completeForm($id)
     {
-        // $this->crud->hasAccessOrFail('complete');
+        $this->crud->hasAccessOrFail('complete');
 
         $this->crud->model = TransferOrder::findOrFail($id);
         $this->crud->route = route('transfer_order.complete', $this->crud->model->id);
@@ -258,15 +267,6 @@ class TransferOrderCrudController extends CrudController
             'bin',
             'remark',
         ]);
-
-        // $this->crud->addField([
-        //     'label' => 'Reason',
-        //     'name' => 'reason',
-        //     'type' => 'text',
-        //     'attributes' => [
-        //         'placeholder' => 'Enter an optional reason.'
-        //     ]
-        // ]);
         
         return view('admin.transfer_orders.complete_form', $this->data);
     }
@@ -279,14 +279,78 @@ class TransferOrderCrudController extends CrudController
     {
         /**
          * Pseudo:
-         * 1 - Add stocks to specified stock and location.
-         * 2 - Reserver stocks for pending orders.
+         * 1 - Move stocks to specified stock and location.
+         * 2 - Reserve stocks for pending orders.
          * 3 - Mark transfer order as complete.
          */
         // dd($id, $request->all());
         
         $transfer_order = TransferOrder::findOrFail($id);
 
-        dd($transfer_order);
+        // 1
+        $this->transferOrderStock($transfer_order);
+
+        // // 2
+        // $this->reserveStock($request, $transfer_order);
+
+        // 3
+        $transfer_order->update(['transferred_at' => \Carbon\Carbon::now()]);
+
+        // die('WIP');
+
+        return redirect()->route('crud.transfer-order.index');
     }
+
+    public function transferOrderStock($transfer_order)
+    {
+        // TODO: Store receivings on a stock (receivings location) and
+        // use $stock->move($from_location, $to_location)
+        // for better receivings stock tracking
+
+        $location = Location::find($transfer_order->location_id);
+        $item = Inventory::find($transfer_order->purchase_order_receiving_product_id);
+        $stock = InventoryStock::find($item->id);
+        $stock = InventoryStock::where('inventory_id', $item->id)->where('location_id', $location->id)->first();
+        $reason = 'New stock from Transfer Order #'.$transfer_order->id;
+
+        // dd($transfer_order->location, $item, $stock);
+        
+        // Add the stocks to the existing inventory stock location else create a new one.
+        if ($stock) {
+            // Add to existing inventory stock.
+            $stock->add($transfer_order->quantity, $reason);
+        } else {
+            // Create new inventory stock to add new stocks to.
+            $stock               = new InventoryStock;
+            $stock->inventory_id = $item->id;
+            $stock->location_id  = $location->id;
+            $stock->quantity     = $transfer_order->quantity;
+            // $stock->cost         = '5.20';
+            $stock->reason       = $reason;
+            $stock->aisle        = isset($transfer_order->aisle) ? $transfer_order->aisle : null;
+            $stock->row          = isset($transfer_order->row) ? $transfer_order->row : null;
+            $stock->bin          = isset($transfer_order->bin) ? $transfer_order->bin : null;
+            $stock->save();
+        }
+
+        // Link the stock movement to the transfer order.
+        $stock->getLastMovement()->update(['transfer_order_id' => $transfer_order->id]);
+
+        // dd($location, $item, $stock);
+        
+        return $stock;
+    }
+
+    // TODO: Move this operation to the Receivings controller
+    // /**
+    //  * Create the Receivings location if does not exist.
+    //  * @return App\Model\Location - The Receivings location.
+    //  */
+    // private function createReceivingsLocation()
+    // {
+    //     $receivings_location = App\Models\Location::where('name', 'Receivings')->first();
+    //     if ($receivings_location == null) {
+    //         App\Models\Location::create(['name' => 'Receivings']);
+    //     }
+    // }
 }

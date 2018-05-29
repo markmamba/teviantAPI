@@ -17,6 +17,7 @@ class TransferOrder extends Model
 		'bin',
 		'quantity',
 		'remark',
+        'transferred_at',
 	];
 
     public function purchase_order_receiving_product()
