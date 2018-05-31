@@ -295,7 +295,7 @@ class TransferOrderCrudController extends CrudController
         $this->transferOrderStock($transfer_order);
 
         // // 2
-        // $this->reserveStock($request, $transfer_order);
+        $this->reservePendingOrders($transfer_order);
 
         // 3
         $transfer_order->update(['transferred_at' => \Carbon\Carbon::now()]);
@@ -305,7 +305,7 @@ class TransferOrderCrudController extends CrudController
         return redirect()->route('crud.transfer-order.index');
     }
 
-    private function transferOrderStock($transfer_order)
+    private function transferOrderStock(TransferOrder $transfer_order)
     {
         // TODO: Store receivings on a stock (receivings location) and
         // use $stock->move($from_location, $to_location)
@@ -343,6 +343,28 @@ class TransferOrderCrudController extends CrudController
         // dd($location, $item, $stock);
         
         return $stock;
+    }
+
+    /**
+     * Reserve pending orders.
+     * @param  TransferOrder $transfer_order
+     */
+    private function reservePendingOrders(TransferOrder $transfer_order)
+    {
+        /**
+         * Pseudo:
+         * 1 - Get pending orders with same pending items as the newly stocked item from the Transfer Order
+         * 2 - Reserve that item
+         * 3 - Update order statuses
+         */
+        
+        // 1
+        $pending_order_products = \App\Models\OrderProduct::pending()->get();
+
+        dd($pending_order_products);
+
+        // 2
+        // 
     }
 
     /**
