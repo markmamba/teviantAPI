@@ -11,6 +11,7 @@ class PurchaseOrderProduct extends Model
 		'purchase_order_id',
 		'price',
 		'quantity',
+        'completed_at',
 	];
 
 	public function purchase_order()
