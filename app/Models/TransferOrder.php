@@ -38,6 +38,11 @@ class TransferOrder extends Model
     	return $this->belongsTo('App\Models\Location');	
     }
 
+    public function purchase_order_product()
+    {
+        return $this->belongsTo('App\Models\PurchaseOrderProduct');
+    }
+
     public function scopeNotCompleted()
     {
     	return $this->whereNull('transferred_at');

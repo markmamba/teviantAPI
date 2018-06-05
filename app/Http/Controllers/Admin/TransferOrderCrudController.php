@@ -5,9 +5,11 @@ namespace App\Http\Controllers\Admin;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 
 // VALIDATION: change the requests to match your own file names if you need form validation
+use DB;
 use App\Models\Inventory;
 use App\Models\InventoryStock;
 use App\Models\Location;
+use App\Models\Order;
 use App\Models\PurchaseOrderReceivingProduct;
 use App\Models\TransferOrder;
 use App\Http\Requests\TransferOrderRequest as StoreRequest;
@@ -161,11 +163,26 @@ class TransferOrderCrudController extends CrudController
 
     public function index()
     {
-        // Remove and disable receiving when there is nothing to receive.
-        if (PurchaseOrderReceivingProduct::count() == 0)
+        // Remove or disable transfers when there is nothing to transfer from the Receivings.
+        if (
+            PurchaseOrderReceivingProduct::whereHas('product', function($query){
+                $query->whereNull('completed_at');
+            })->orDoesntHave('transfer_orders')->count() == 0
+        )
             $this->crud->removeButton('create');
 
         return parent::index();
+    }
+
+    public function create()
+    {
+        // Remove or disable transfers when there is nothing to transfer from the Receivings.
+        if (PurchaseOrderReceivingProduct::doesntHave('transfer_orders')->count() == 0) {
+            \Alert::error('There is nothing to transfer from the Receivings.')->flash();
+            return redirect()->route('crud.transfer-order.index');
+        }
+
+        return parent::create();
     }
 
     public function store(StoreRequest $request)
@@ -191,11 +208,56 @@ class TransferOrderCrudController extends CrudController
 
     private function getReceivingsProductOptions()
     {
-        $receiving_products = PurchaseOrderReceivingProduct::with('product.inventory')->get();
+        // Get the Purchase Order Products that has receivings
+        // $purchase_order_products = \App\Models\PurchaseOrderProduct::whereHas('receivings')->get();
+        // dd($purchase_order_products);
+
+        $receiving_products = PurchaseOrderReceivingProduct::with('product')->doesntHave('transfer_orders')
+            ->with('product.inventory')->get();
+
+        // dd(PurchaseOrderReceivingProduct::getProductQuantityTransferrable($receiving_products->first()->product->product_id));
         
+        // dd(
+        //     $receiving_products_options = $receiving_products->filter(function ($value, $key) {
+        //         return $value->quantity_transferrable > 0;
+        //         // })->pluck('product.inventory.name', 'product.inventory.id');
+        //     })->pluck('product.inventory.name', 'product.product_id'),
+
+        //     DB::table('purchase_order_receiving_products')
+        //         ->select('purchase_order_product_id', DB::raw('count(*) as total'))
+        //         ->groupBy('purchase_order_product_id')
+        //         ->get(),
+
+        //     PurchaseOrderReceivingProduct::with('product')->doesntHave('transfer_orders')
+        //     ->groupBy('purchase_order_product_id')
+        //     ->selectRaw('sum(quantity) as quantity_total, purchase_order_product_id')
+        //     ->get(),
+
+        //     PurchaseOrderReceivingProduct::with('product')
+        //     ->doesntHave('transfer_orders')
+        //     ->get()
+        //     ->groupBy('product.product_id')
+        //     ->map(function($purchase_order_receiving_product, $key){
+        //         return collect([
+        //             // 'product_id' => $purchase_order_receiving_product->product->product_id,
+        //             'product_id' => $key,
+        //             'total_quantity' => $purchase_order_receiving_product->sum('quantity')
+        //         ]);
+        //     })
+        //     // ->pluck('product.inventory.name', 'product.inventory.id')
+        // );
+
         $receiving_products_options = $receiving_products->filter(function ($value, $key) {
+            // return PurchaseOrderReceivingProduct::getProductQuantityTransferrable($value->product->product_id) > 0;
             return $value->quantity_transferrable > 0;
-        })->pluck('product.inventory.name', 'product.inventory.id');
+        })->pluck('product.inventory.name', 'product.product_id');
+
+        // dd($receiving_products_options);
+        
+        // $receiving_products_options = $receiving_products->filter(function ($value, $key) {
+        //     return $value->quantity_transferrable > 0;
+        // // })->pluck('product.inventory.name', 'product.inventory.id');
+        // })->pluck('product.inventory.name', 'purchase_order_product_id');
 
         return $receiving_products_options;
     }
@@ -294,8 +356,8 @@ class TransferOrderCrudController extends CrudController
         // 1
         $this->transferOrderStock($transfer_order);
 
-        // // 2
-        $this->reservePendingOrders($transfer_order);
+        // 2
+        $this->reservePendingOrders();
 
         // 3
         $transfer_order->update(['transferred_at' => \Carbon\Carbon::now()]);
@@ -312,7 +374,7 @@ class TransferOrderCrudController extends CrudController
         // for better receivings stock tracking
 
         $location = Location::find($transfer_order->location_id);
-        $item = Inventory::find($transfer_order->purchase_order_receiving_product_id);
+        $item = Inventory::find($transfer_order->purchase_order_receiving_product->product->inventory->id);
         $stock = InventoryStock::find($item->id);
         $stock = InventoryStock::where('inventory_id', $item->id)->where('location_id', $location->id)->first();
         $reason = 'New stock from Transfer Order #'.$transfer_order->id;
@@ -347,24 +409,24 @@ class TransferOrderCrudController extends CrudController
 
     /**
      * Reserve pending orders.
+     *
+     * Pseudo:
+     * 1 - Get pending orders.
+     * 2 - Reserve pending orders.
+     * 3 - Update order statuses.
+     * 
      * @param  TransferOrder $transfer_order
      */
-    private function reservePendingOrders(TransferOrder $transfer_order)
-    {
-        /**
-         * Pseudo:
-         * 1 - Get pending orders with same pending items as the newly stocked item from the Transfer Order
-         * 2 - Reserve that item
-         * 3 - Update order statuses
-         */
-        
+    private function reservePendingOrders()
+    {   
         // 1
         $pending_order_products = \App\Models\OrderProduct::pending()->get();
 
-        dd($pending_order_products);
+        $order_reservations = collect([]);
 
-        // 2
-        // 
+        foreach ($pending_order_products as $pending_order_product) {
+            $order_reservations->push(Order::reserve($pending_order_product->order));
+        }
     }
 
     /**

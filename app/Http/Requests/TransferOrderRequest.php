@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\PurchaseOrderReceivingProduct;
 use App\Http\Requests\Request;
 
 class TransferOrderRequest extends \Backpack\CRUD\app\Http\Requests\CrudRequest
@@ -26,10 +27,16 @@ class TransferOrderRequest extends \Backpack\CRUD\app\Http\Requests\CrudRequest
     {
         // Set the maximum transferable product quantity.
         $purchase_order_receiving_product = null;
+        
         if (isset($this->purchase_order_receiving_product_id))
-            $purchase_order_receiving_product = \App\Models\PurchaseOrderReceivingProduct::findOrFail($this->purchase_order_receiving_product_id)->product;
+            $purchase_order_receiving_product = PurchaseOrderReceivingProduct::findOrFail($this->purchase_order_receiving_product_id);
+        
         // 2147483647 is just the maximum value INT of in MYSQL.
-        $max_quantity = isset($purchase_order_receiving_product->quantity_pending) ? $purchase_order_receiving_product->quantity_pending : 2147483647;
+        $max_quantity = isset($purchase_order_receiving_product->quantity_transferrable) ? $purchase_order_receiving_product->quantity_transferrable : 2147483647;
+        
+        // $max_quantity = isset($purchase_order_receiving_product) ? PurchaseOrderReceivingProduct::getProductQuantityTransferrable($purchase_order_receiving_product->product->product_id) : 2147483647;
+
+        // dd($purchase_order_receiving_product, $max_quantity);
 
         return [
             // 'name' => 'required|min:5|max:255'

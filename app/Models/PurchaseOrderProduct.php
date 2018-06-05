@@ -24,14 +24,25 @@ class PurchaseOrderProduct extends Model
         return $this->belongsTo('App\Models\Inventory', 'product_id');
     }
 
+    /**
+     * Alias receiving_products()
+     */
     public function receivings()
     {
-    	return $this->hasMany('App\Models\PurchaseOrderProductReceiving', 'product_id');
+    	return $this->hasMany('App\Models\PurchaseOrderReceivingProduct', 'purchase_order_product_id');
     }
 
+    /**
+     * Alias receiving_products()
+     */
     public function receiving_products()
     {
     	return $this->hasMany('App\Models\PurchaseOrderReceivingProduct');
+    }
+
+    public function transfer_orders()
+    {
+        return $this->hasMany('App\Models\TransferOrder');
     }
 
     /**
@@ -62,15 +73,5 @@ class PurchaseOrderProduct extends Model
             return true;
         else
             return false;
-    }
-
-    /**
-     * Return completed_at as the datetime at which the lastreceiving has fullfilled the quantity ordered.
-     * @return datetime
-     */
-    public function getCompletedAtAttribute()
-    {
-        if ($this->is_completed)
-            return $this->receiving_products()->orderBy('created_at', 'desc')->first()->created_at;
     }
 }
