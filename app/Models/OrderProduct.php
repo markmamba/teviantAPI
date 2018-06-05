@@ -35,7 +35,7 @@ class OrderProduct extends Model
     }
 
     /**
-     * Scope a query to only include Order Products that are not yet fullfilled.
+     * Scope a query to only include Order Products that are not yet reserved.
      */
     public function scopePending($query)
     {
