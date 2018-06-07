@@ -50,8 +50,8 @@
 					</thead>
 					<tbody>
 						<tr>
-							<td>{{ $crud->model->purchase_order_receiving_product->product->inventory->sku_code }}</td>
-							<td>{{ $crud->model->purchase_order_receiving_product->product->inventory->name }}</td>
+							<td>{{ $crud->model->purchase_order_product->inventory->sku_code }}</td>
+							<td>{{ $crud->model->purchase_order_product->inventory->name }}</td>
 							<td>{{ $crud->model->quantity }}</td>
 							<td>{{ $crud->model->location->name }}</td>
 							<td>{{ $crud->model->aisleRowBin }}</td>

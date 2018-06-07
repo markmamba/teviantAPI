@@ -1,1 +1,1 @@
-{{ $entry->purchase_order_receiving_product->product->inventory->sku_code }}
+{{ $entry->purchase_order_product->inventory->sku_code }}

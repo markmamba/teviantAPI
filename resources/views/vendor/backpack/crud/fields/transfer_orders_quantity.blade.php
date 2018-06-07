@@ -46,39 +46,42 @@
 
     window.angularApp.controller('TransferOrdersQuantityFieldController', function($scope, $document, $http, $filter){
       var vm = this;
-      vm.purchase_order_receiving_product_id_selection = $document.find("select[name='purchase_order_receiving_product_id']");
-      vm.purchase_order_receiving_product_id = vm.purchase_order_receiving_product_id_selection.val();
+      vm.purchase_order_product_id_selection = $document.find("select[name='purchase_order_product_id']");
+      vm.purchase_order_product_id = vm.purchase_order_product_id_selection.val();
       vm.quantity_max = 0;
-      vm.receivings_products = null;
+      vm.products = null;
+      vm.product = null;
 
       // Handle purchase_order_id field changes
-      vm.purchase_order_receiving_product_id_selection.change(function() {
-          // console.log($(this).val());
+      vm.purchase_order_product_id_selection.change(function() {
+        vm.purchase_order_product_id = $(this).val();
+        vm.product = $filter('filter')(vm.products, {'product_id': parseInt(vm.purchase_order_product_id)})[0];
 
-          vm.purchase_order_receiving_product_id = $(this).val();
-          console.log('vm.purchase_order_receiving_product_id = ' + vm.purchase_order_receiving_product_id);
-          // console.log(receivings_products);
+        // Set maximum quantity based on product selection.
+        if (vm.product != undefined)
+          vm.quantity_max = $filter('filter')(vm.products, {'product_id': parseInt(vm.purchase_order_product_id)})[0].total_quantity_transferrable;
+        else
+          vm.quantity_max = 0;
 
-          console.log($filter('filter')(vm.receivings_products, {'product_id': vm.purchase_order_receiving_product_id})[0]);
+        // Force-apply changes to the vm variables
+        $that = $(this);
+        $scope.$apply(function(){
+          vm.purchase_order_product_id = $that.val();
+        });
 
-          // Get the selected product's maximum quantity transferable
-          // console.log(vm.quantity_max);
-          // vm.quantity_max = $filter('filter')(vm.receivings_products, {'product_id': vm.purchase_order_receiving_product_id})[0].product_quantity_transferrable;
-          vm.quantity_max = $filter('filter')(vm.receivings_products, {'product_id': vm.purchase_order_receiving_product_id})[0].quantity_transferrable;
-
-          // Force-apply changes to the vm variables
-          $that = $(this);
-          $scope.$apply(function(){
-            vm.purchase_order_receiving_product_id = $that.val();
-          });
+        // Dev logs
+        console.log('product_id: ' + $(this).val());
+        console.log($filter('filter')(vm.products, {'product_id': parseInt(vm.purchase_order_product_id)})[0]);
+        console.log('quantity_max: ' + vm.quantity_max);
+        console.log('vm.purchase_order_product_id = ' + vm.purchase_order_product_id);
       });
 
       // Get the list of receivings products
-      $http.get('{{ route('purchase_order_receivings_products.index') }}')
+      $http.get('{{ route('purchase_order_products.index') }}')
         .then(
           function successCallback(response) {
-            vm.receivings_products = response.data;
-            console.log(vm.receivings_products);
+            vm.products = response.data;
+            console.log(vm.products);
           },
           function errorCallback(response) {
             console.log(response.data);

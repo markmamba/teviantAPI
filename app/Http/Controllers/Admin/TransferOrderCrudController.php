@@ -10,7 +10,7 @@ use App\Models\Inventory;
 use App\Models\InventoryStock;
 use App\Models\Location;
 use App\Models\Order;
-use App\Models\PurchaseOrderReceivingProduct;
+use App\Models\PurchaseOrderProduct;
 use App\Models\TransferOrder;
 use App\Http\Requests\TransferOrderRequest as StoreRequest;
 use App\Http\Requests\TransferOrderRequest as UpdateRequest;
@@ -44,8 +44,8 @@ class TransferOrderCrudController extends CrudController
             [ // select_from_array
                 'label' => "Product",
                 'type' => 'select2_from_array',
-                'name' => 'purchase_order_receiving_product_id',
-                'options' => $this->getReceivingsProductOptions(),
+                'name' => 'purchase_order_product_id',
+                'options' => $this->getProductOptions(),
                 'allows_null' => true,
                 'default' => null,
                 // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
@@ -107,7 +107,7 @@ class TransferOrderCrudController extends CrudController
             [
                 'label'     => 'Product',
                 'type'      => 'view',
-                'name'      => 'purchase_order_receiving_product_id',
+                'name'      => 'purchase_order_product_id',
                 'view'     => "admin.transfer_orders.columns.product",
             ],
             [
@@ -161,30 +161,6 @@ class TransferOrderCrudController extends CrudController
         $this->crud->orderBy('created_at', 'desc');
     }
 
-    public function index()
-    {
-        // Remove or disable transfers when there is nothing to transfer from the Receivings.
-        if (
-            PurchaseOrderReceivingProduct::whereHas('product', function($query){
-                $query->whereNull('completed_at');
-            })->orDoesntHave('transfer_orders')->count() == 0
-        )
-            $this->crud->removeButton('create');
-
-        return parent::index();
-    }
-
-    public function create()
-    {
-        // Remove or disable transfers when there is nothing to transfer from the Receivings.
-        if (PurchaseOrderReceivingProduct::doesntHave('transfer_orders')->count() == 0) {
-            \Alert::error('There is nothing to transfer from the Receivings.')->flash();
-            return redirect()->route('crud.transfer-order.index');
-        }
-
-        return parent::create();
-    }
-
     public function store(StoreRequest $request)
     {
         // your additional operations before save here
@@ -206,60 +182,17 @@ class TransferOrderCrudController extends CrudController
         abort(404);
     }
 
-    private function getReceivingsProductOptions()
+    /**
+     * Get the product options for use HTML select options.
+     * @return Collection
+     */
+    private function getProductOptions()
     {
-        // Get the Purchase Order Products that has receivings
-        // $purchase_order_products = \App\Models\PurchaseOrderProduct::whereHas('receivings')->get();
-        // dd($purchase_order_products);
+        $product_groups = PurchaseOrderProduct::getGroups()->filter(function($group){
+            return $group->total_quantity_transferrable > 0;
+        })->pluck('name', 'product_id');
 
-        $receiving_products = PurchaseOrderReceivingProduct::with('product')->doesntHave('transfer_orders')
-            ->with('product.inventory')->get();
-
-        // dd(PurchaseOrderReceivingProduct::getProductQuantityTransferrable($receiving_products->first()->product->product_id));
-        
-        // dd(
-        //     $receiving_products_options = $receiving_products->filter(function ($value, $key) {
-        //         return $value->quantity_transferrable > 0;
-        //         // })->pluck('product.inventory.name', 'product.inventory.id');
-        //     })->pluck('product.inventory.name', 'product.product_id'),
-
-        //     DB::table('purchase_order_receiving_products')
-        //         ->select('purchase_order_product_id', DB::raw('count(*) as total'))
-        //         ->groupBy('purchase_order_product_id')
-        //         ->get(),
-
-        //     PurchaseOrderReceivingProduct::with('product')->doesntHave('transfer_orders')
-        //     ->groupBy('purchase_order_product_id')
-        //     ->selectRaw('sum(quantity) as quantity_total, purchase_order_product_id')
-        //     ->get(),
-
-        //     PurchaseOrderReceivingProduct::with('product')
-        //     ->doesntHave('transfer_orders')
-        //     ->get()
-        //     ->groupBy('product.product_id')
-        //     ->map(function($purchase_order_receiving_product, $key){
-        //         return collect([
-        //             // 'product_id' => $purchase_order_receiving_product->product->product_id,
-        //             'product_id' => $key,
-        //             'total_quantity' => $purchase_order_receiving_product->sum('quantity')
-        //         ]);
-        //     })
-        //     // ->pluck('product.inventory.name', 'product.inventory.id')
-        // );
-
-        $receiving_products_options = $receiving_products->filter(function ($value, $key) {
-            // return PurchaseOrderReceivingProduct::getProductQuantityTransferrable($value->product->product_id) > 0;
-            return $value->quantity_transferrable > 0;
-        })->pluck('product.inventory.name', 'product.product_id');
-
-        // dd($receiving_products_options);
-        
-        // $receiving_products_options = $receiving_products->filter(function ($value, $key) {
-        //     return $value->quantity_transferrable > 0;
-        // // })->pluck('product.inventory.name', 'product.inventory.id');
-        // })->pluck('product.inventory.name', 'purchase_order_product_id');
-
-        return $receiving_products_options;
+        return $product_groups;
     }
 
     /**
@@ -322,7 +255,7 @@ class TransferOrderCrudController extends CrudController
         $this->data['title'] = 'Complete Transfer Order';
 
         $this->crud->removeFields([
-            'purchase_order_receiving_product_id',
+            'purchase_order_product_id',
             'transfer_orders_quantity',
             'quantity',
             'location_id',
@@ -374,7 +307,7 @@ class TransferOrderCrudController extends CrudController
         // for better receivings stock tracking
 
         $location = Location::find($transfer_order->location_id);
-        $item = Inventory::find($transfer_order->purchase_order_receiving_product->product->inventory->id);
+        $item = Inventory::find($transfer_order->purchase_order_product->inventory->id);
         $stock = InventoryStock::find($item->id);
         $stock = InventoryStock::where('inventory_id', $item->id)->where('location_id', $location->id)->first();
         $reason = 'New stock from Transfer Order #'.$transfer_order->id;

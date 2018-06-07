@@ -10,7 +10,7 @@ class TransferOrder extends Model
 	use CrudTrait;
 
 	protected $fillable = [
-		'purchase_order_receiving_product_id',
+		'purchase_order_product_id',
 		'location_id',
 		'aisle',
 		'row',
@@ -41,6 +41,14 @@ class TransferOrder extends Model
     public function purchase_order_product()
     {
         return $this->belongsTo('App\Models\PurchaseOrderProduct');
+    }
+
+    /**
+     * Alias of purchase_order_product()
+     */
+    public function product()
+    {
+        return $this->belongsTo('App\Models\PurchaseOrderProduct', 'purchase_order_product_id');
     }
 
     public function scopeNotCompleted()

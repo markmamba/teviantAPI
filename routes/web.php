@@ -100,10 +100,10 @@ Route::group([
     CRUD::resource('transfer-order', 'TransferOrderCrudController');
 
     Route::group(['prefix' => 'ajax'], function() {
-        Route::get('purchase-order-receivings-products', 'PurchaseOrderReceivingsProductsController@ajaxIndex')
-            ->name('purchase_order_receivings_products.index');
-        Route::get('purchase-order-receivings-products/{id}', 'PurchaseOrderReceivingsProductsController@ajaxShow')
-            ->name('purchase_order_receivings_products.show');
+        Route::get('purchase-order-receivings-products', 'PurchaseOrderProductsController@ajaxIndex')
+            ->name('purchase_order_products.index');
+        Route::get('purchase-order-products/{id}', 'PurchaseOrderProductsController@ajaxShow')
+            ->name('purchase_order_products.show');
     });
 
 });
