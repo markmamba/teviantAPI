@@ -93,5 +93,17 @@ Route::group([
     });
 
     CRUD::resource('receiving', 'ReceivingCrudController');
+    
+    Route::get('transfer-order/{id}/complete', 'TransferOrderCrudController@completeForm')->name('transfer_order.complete_form');
+    Route::patch('transfer-order/{id}/complete', 'TransferOrderCrudController@complete')->name('transfer_order.complete');
+    Route::get('transfer-order/{id}/print', 'TransferOrderCrudController@printTransferOrder')->name('transfer_order.print');
+    CRUD::resource('transfer-order', 'TransferOrderCrudController');
+
+    Route::group(['prefix' => 'ajax'], function() {
+        Route::get('purchase-order-receivings-products', 'PurchaseOrderProductsController@ajaxIndex')
+            ->name('purchase_order_products.index');
+        Route::get('purchase-order-products/{id}', 'PurchaseOrderProductsController@ajaxShow')
+            ->name('purchase_order_products.show');
+    });
 
 });

@@ -12,7 +12,7 @@ class LocationsTableSeeder extends Seeder
     public function run()
     {
         $locations = [
-        	[
+            [
             	'name' => 'Warehouse 1',
         	],
         	[
@@ -21,6 +21,9 @@ class LocationsTableSeeder extends Seeder
         	[
             	'name' => 'Branch 1',
         	],
+            [
+                'name' => 'Receivings',
+            ],
         ];
 
         DB::table('locations')->insert($locations);

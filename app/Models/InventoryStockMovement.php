@@ -28,6 +28,7 @@ class InventoryStockMovement extends Model
         'after',
         'cost',
         'reason',
+        'transfer_order_id',
     ];
     // protected $hidden = [];
     // protected $dates = [];

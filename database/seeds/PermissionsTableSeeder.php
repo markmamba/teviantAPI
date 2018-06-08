@@ -45,6 +45,7 @@ class PermissionsTableSeeder extends Seeder
             // Stocks
     		['name' => 'stocks.index'],
             ['name' => 'stocks.create'],
+            ['name' => 'stocks.store'],
             ['name' => 'stocks.show'],
             ['name' => 'stocks.update'],
             ['name' => 'stocks.delete'],
@@ -104,6 +105,11 @@ class PermissionsTableSeeder extends Seeder
             ['name' => 'receivings.create'],
             ['name' => 'receivings.show'],
 
+            // Transfer Orders
+            ['name' => 'transfer_orders.index'],
+            ['name' => 'transfer_orders.create'],
+            ['name' => 'transfer_orders.delete'],
+            ['name' => 'transfer_orders.complete'],
     	];
 
     	DB::table('permissions')->insert($permissions);

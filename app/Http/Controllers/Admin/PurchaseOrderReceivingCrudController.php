@@ -201,6 +201,11 @@ class PurchaseOrderReceivingCrudController extends CrudController
                 ])
                 ->toArray()
             );
+
+            // Save completion date for the Purchase Order Product if completed.
+            $purchase_order_product = PurchaseOrderProduct::find($product->id);
+            if ($purchase_order_product->is_completed)
+                $purchase_order_product->update(['completed_at' => \Carbon\Carbon::now()]);
         }
         
         return redirect()->route('crud.purchase-order.index');

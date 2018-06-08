@@ -579,6 +579,11 @@ class InventoryStockCrudController extends CrudController
             $this->crud->allowAccess('create');
         }
 
+        // Allow create access
+        if ($user->can('stocks.store')) {
+            $this->crud->allowAccess('store');
+        }
+
         // Allow update access
         if ($user->can('stocks.update')) {
             $this->crud->allowAccess('update');
