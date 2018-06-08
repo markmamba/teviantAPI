@@ -161,8 +161,35 @@ class TransferOrderCrudController extends CrudController
         $this->crud->orderBy('created_at', 'desc');
     }
 
+    public function index()
+    {
+        // Disable the Create button when there is nothing to transfer from the receivings
+        if (PurchaseOrderProduct::getGroupsTransferrable()->count() == 0) {
+            $this->crud->removeButton('create');
+        }
+
+        return parent::index();
+    }
+
+    public function create()
+    {
+        // Disable the Create button operation when there is nothing to transfer from the receivings
+        if (PurchaseOrderProduct::getGroupsTransferrable()->count() == 0) {
+            \Alert::error('There is nothing to transfer from the receivings.')->flash();
+            return redirect()->route('crud.transfer-order.index');
+        }
+
+        return parent::create();
+    }
+
     public function store(StoreRequest $request)
     {
+        // Disable the store operation when there is nothing to transfer from the receivings
+        if (PurchaseOrderProduct::getGroupsTransferrable()->count() == 0) {
+            \Alert::error('Nice try! But there were nothing to transfer from the receivings.')->flash();
+            return redirect()->route('crud.transfer-order.index');
+        }
+
         // your additional operations before save here
         $redirect_location = parent::storeCrud($request);
         // your additional operations after save here
@@ -188,11 +215,11 @@ class TransferOrderCrudController extends CrudController
      */
     private function getProductOptions()
     {
-        $product_groups = PurchaseOrderProduct::getGroups()->filter(function($group){
-            return $group->total_quantity_transferrable > 0;
-        })->pluck('name', 'product_id');
+        $product_groups = PurchaseOrderProduct::getGroupsTransferrable();
 
-        return $product_groups;
+        $product_groups_options = isset($product_groups) ? $product_groups->pluck('name', 'product_id') : [];
+
+        return $product_groups_options;
     }
 
     /**

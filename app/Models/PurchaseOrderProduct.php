@@ -162,4 +162,11 @@ class PurchaseOrderProduct extends Model
         //     ->orderBy('name')
         //     ->get();
     }
+
+    public static function getGroupsTransferrable()
+    {
+        return self::getGroups()->filter(function($group){
+            return $group->total_quantity_transferrable > 0;
+        });
+    }
 }
