@@ -216,6 +216,10 @@ class OrderCrudController extends CrudController
             // Skip the order if it is already saved before.
             if (Order::where('common_id', $order->id)->first())
                 continue;
+
+            // Skip the order if does not have any products
+            if (count($order->products) == 0)
+                continue;
             
             // Save the new order
             $new_order = new Order;
