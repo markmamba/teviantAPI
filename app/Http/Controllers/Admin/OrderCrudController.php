@@ -177,7 +177,7 @@ class OrderCrudController extends CrudController
     {   
         $order = Order::findOrFail($id);
 
-        $this->handleStatusChange($request, $order);
+        $request = $this->handleStatusChange($request, $order);
 
         $order->update($request->all());
 
@@ -215,6 +215,10 @@ class OrderCrudController extends CrudController
 
             // Skip the order if it is already saved before.
             if (Order::where('common_id', $order->id)->first())
+                continue;
+
+            // Skip the order if does not have any products
+            if (count($order->products) == 0)
                 continue;
             
             // Save the new order
@@ -511,10 +515,19 @@ class OrderCrudController extends CrudController
         return $pdf->stream();
     }
 
-    public function handleStatusChange($request, $order)
+    public function handleStatusChange($request, $order, $auto_complete = true)
     {
+        // Automatically complete an order if it was set to delivered.
+        if ($auto_complete)
+            if (OrderStatus::find($request->status_id)->name === 'Delivered')
+                $request->merge([
+                    'status_id' => OrderStatus::where('name', 'Done')->first()->id
+                ]);
+
         $this->handleCancellation($request, $order);
         // $this->handlePicking($request, $order);
+        
+        return $request;
     }
 
     public function setPermissions()

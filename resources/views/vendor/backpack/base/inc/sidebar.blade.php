@@ -33,7 +33,7 @@
               @endcan
               {{-- Category --}}
               @can('categories.index')
-                <li><a href="{{ backpack_url('category') }}"><i class="fa fa-tags"></i> <span>Categories</span></a></li>
+                <li><a href="{{ backpack_url('category') }}"><i class="fa fa-sitemap"></i> <span>Categories</span></a></li>
               @endcan
               {{-- Locations --}}
               @can('locations.index')
@@ -41,7 +41,7 @@
               @endcan
               {{-- Inventories --}}
               @can('inventories.index')
-                <li><a href="{{ backpack_url('inventory') }}"><i class="fa fa-star"></i> <span>Items</span></a></li>
+                <li><a href="{{ backpack_url('inventory') }}"><i class="fa fa-tags"></i> <span>Items</span></a></li>
               @endcan
               {{-- Stock --}}
               @can('stocks.index')
