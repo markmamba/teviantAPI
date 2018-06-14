@@ -380,7 +380,10 @@ class TransferOrderCrudController extends CrudController
     private function reservePendingOrders()
     {   
         // 1
-        $pending_order_products = \App\Models\OrderProduct::pending()->get();
+        $pending_order_products = \App\Models\OrderProduct::with('order')->pending()->get()
+            ->sortBy(function($pending_order_product){
+                return $pending_order_product->order->created;
+            });
 
         $order_reservations = collect([]);
 
