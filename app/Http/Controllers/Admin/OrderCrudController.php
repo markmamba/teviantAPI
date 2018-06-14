@@ -208,7 +208,13 @@ class OrderCrudController extends CrudController
 
         $response = $this->ecommerce_client->get('api/orders');
         
-        $orders = json_decode($response->getBody());
+        $orders = collect(json_decode($response->getBody()));
+
+        // Re-format the created_at attribute so we can sort it properly afterwards.
+        $orders = $orders->map(function($order){
+            $order->created_at = \Carbon\Carbon::parse($order->created_at)->toDateTimeString();
+            return $order;
+        })->sortBy('created_at');
 
         // Save each orders on the database.
         foreach ($orders as $order) {
