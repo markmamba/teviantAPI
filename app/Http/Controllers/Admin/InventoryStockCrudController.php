@@ -201,9 +201,12 @@ class InventoryStockCrudController extends CrudController
         $this->crud->addButtonFromView('line', 'stock_decrease', 'stock_decrease', 'beginning');
         $this->crud->addButtonFromView('line', 'stock_increase', 'stock_increase', 'beginning');
 
-        // ------ CRUD ACCESS
-        // $this->crud->allowAccess(['list', 'create', 'update', 'reorder', 'delete']);
-        // $this->crud->denyAccess(['list', 'create', 'update', 'reorder', 'delete']);
+        /*
+        |--------------------------------------------------------------------------
+        | PERMISSIONS
+        |-------------------------------------------------------------------------
+        */
+        $this->setPermissions();
 
         // ------ CRUD REORDER
         // $this->crud->enableReorder('label_name', MAX_TREE_LEVEL);
@@ -249,6 +252,8 @@ class InventoryStockCrudController extends CrudController
 
     public function store(StoreRequest $request)
     {
+        $this->crud->hasAccessOrFail('store');
+
         // dd($request->all());
         // your additional operations before save here
         // $redirect_location = parent::storeCrud($request);
@@ -262,6 +267,8 @@ class InventoryStockCrudController extends CrudController
 
     public function update(UpdateRequest $request)
     {
+        $this->crud->hasAccessOrFail('update');
+
         // your additional operations before save here
         $redirect_location = parent::updateCrud($request);
         // your additional operations after save here
@@ -275,11 +282,15 @@ class InventoryStockCrudController extends CrudController
      */
     public function add(Request $request)
     {
+        $this->crud->hasAccessOrFail('add');
+
         return view('admin.stocks.add');
     }
     
     private function storeCrudCustom(StoreRequest $request)
     {
+        $this->crud->hasAccessOrFail('store');
+
         // dd($request->all());
         
         $item     = Inventory::find($request->inventory_id);
@@ -333,6 +344,11 @@ class InventoryStockCrudController extends CrudController
      */
     public function getAddStock(Request $request, $stock_id)
     {
+        // Temporary issue fix where setup() is not called when calling this method from the route.
+        $this->setPermissions();
+
+        $this->crud->hasAccessOrFail('add');
+
         // WIP setup permissions
         // $this->crud->hasAccessOrFail('add');
 
@@ -428,6 +444,11 @@ class InventoryStockCrudController extends CrudController
      */
     public function postAddStock(ReplenishStockRequest $request, $stock_id)
     {
+        // Temporary issue fix where setup() is not called when calling this method from the route.
+        $this->setPermissions();
+
+        $this->crud->hasAccessOrFail('add');
+
         $location = Location::find($request->location_id);
         $stock = InventoryStock::find($stock_id);
         $stock->add($request->add_quantity, $request->reason, $request->cost);
@@ -443,6 +464,11 @@ class InventoryStockCrudController extends CrudController
      */
     public function getRemoveStock(Request $request, $stock_id)
     {
+        // Temporary issue fix where setup() is not called when calling this method from the route.
+        $this->setPermissions();
+
+        $this->crud->hasAccessOrFail('subtract');
+
         // WIP setup permissions
         // $this->crud->hasAccessOrFail('remove');
 
@@ -515,6 +541,11 @@ class InventoryStockCrudController extends CrudController
      */
     public function postRemoveStock(DepleteStockRequest $request, $stock_id)
     {
+        // Temporary issue fix where setup() is not called when calling this method from the route.
+        $this->setPermissions();
+        
+        $this->crud->hasAccessOrFail('subtract');
+
         $stock = InventoryStock::find($stock_id);
         
         try {
@@ -527,6 +558,50 @@ class InventoryStockCrudController extends CrudController
         } catch (\Stevebauman\Inventory\Exceptions\NotEnoughStockException $e) {
             \Alert::warning($e->getMessage())->flash();
             return back()->withInput();
+        }
+    }
+
+    public function setPermissions()
+    {
+        // Get authenticated user
+        $user = auth()->user();
+
+        // Deny all accesses
+        $this->crud->denyAccess(['list', 'create', 'update', 'delete', 'add', 'subtract']);
+
+        // Allow list access
+        if ($user->can('stocks.index')) {
+            $this->crud->allowAccess('list');
+        }
+
+        // Allow create access
+        if ($user->can('stocks.create')) {
+            $this->crud->allowAccess('create');
+        }
+
+        // Allow create access
+        if ($user->can('stocks.store')) {
+            $this->crud->allowAccess('store');
+        }
+
+        // Allow update access
+        if ($user->can('stocks.update')) {
+            $this->crud->allowAccess('update');
+        }
+
+        // Allow delete access
+        if ($user->can('stocks.delete')) {
+            $this->crud->allowAccess('delete');
+        }
+
+        // Allow add access
+        if ($user->can('stocks.add')) {
+            $this->crud->allowAccess('add');
+        }
+
+        // Allow subtract access
+        if ($user->can('stocks.subtract')) {
+            $this->crud->allowAccess('subtract');
         }
     }
 

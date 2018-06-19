@@ -61,7 +61,8 @@ Route::group([
 
     Route::group(['prefix' => 'movement/{movement_id}', 'as' => 'movement.'], function()
     {
-        Route::post('rollback', 'MovementCrudController@rollback')->name('rollback');
+        Route::get('rollback', 'MovementCrudController@rollbackForm')->name('rollback.form');
+        Route::patch('rollback', 'MovementCrudController@rollback')->name('rollback');
     });
 
     CRUD::resource('supplier', 'SupplierCrudController');
@@ -86,6 +87,23 @@ Route::group([
     // Purchase orders
     Route::get('purchase-order/{purchase_order_id}/print-order', 'PurchaseOrderCrudController@printOrder')->name('purchase_order.print-order');
     CRUD::resource('purchase-order', 'PurchaseOrderCrudController')->name('purchase_order');
-    CRUD::resource('receiving', 'PurchaseOrderReceivingCrudController');
+    Route::group(['prefix' => 'purchase-order/{purchase_order_id}', 'as' => 'purchase_order.'], function()
+    {
+        CRUD::resource('receiving', 'PurchaseOrderReceivingCrudController');
+    });
+
+    CRUD::resource('receiving', 'ReceivingCrudController');
+    
+    Route::get('transfer-order/{id}/complete', 'TransferOrderCrudController@completeForm')->name('transfer_order.complete_form');
+    Route::patch('transfer-order/{id}/complete', 'TransferOrderCrudController@complete')->name('transfer_order.complete');
+    Route::get('transfer-order/{id}/print', 'TransferOrderCrudController@printTransferOrder')->name('transfer_order.print');
+    CRUD::resource('transfer-order', 'TransferOrderCrudController');
+
+    Route::group(['prefix' => 'ajax'], function() {
+        Route::get('purchase-order-receivings-products', 'PurchaseOrderProductsController@ajaxIndex')
+            ->name('purchase_order_products.index');
+        Route::get('purchase-order-products/{id}', 'PurchaseOrderProductsController@ajaxShow')
+            ->name('purchase_order_products.show');
+    });
 
 });

@@ -1,0 +1,1 @@
+<a href="{{ route('crud.receiving.show', $entry->getKey()) }}" class="btn btn-xs btn-default" title="View Receiving" data-toggle="tooltip"><i class="fa fa-eye"></i> View</a>

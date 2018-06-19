@@ -9,6 +9,7 @@ use Backpack\CRUD\app\Http\Controllers\CrudController;
 // VALIDATION: change the requests to match your own file names if you need form validation
 use App\Http\Requests\InventoryStockMovementRequest as StoreRequest;
 use App\Http\Requests\InventoryStockMovementRequest as UpdateRequest;
+use App\Http\Requests\RollbackMovementRequest;
 use Illuminate\Support\Facades\Route;
 
 class MovementCrudController extends CrudController
@@ -112,9 +113,12 @@ class MovementCrudController extends CrudController
         $this->crud->removeButton('update');
         $this->crud->removeButton('delete');
 
-        // ------ CRUD ACCESS
-        // $this->crud->allowAccess(['list', 'create', 'update', 'reorder', 'delete']);
-        // $this->crud->denyAccess(['list', 'create', 'update', 'reorder', 'delete']);
+        /*
+        |--------------------------------------------------------------------------
+        | PERMISSIONS
+        |-------------------------------------------------------------------------
+        */
+        $this->setPermissions();
 
         // ------ CRUD REORDER
         // $this->crud->enableReorder('label_name', MAX_TREE_LEVEL);
@@ -223,16 +227,48 @@ class MovementCrudController extends CrudController
     }
 
     /**
+     * Show the form for rolling back the given movement.
+     * @return view
+     */
+    public function rollbackForm($id)
+    {
+        $this->crud->hasAccessOrFail('rollback');
+
+        $this->crud->model = InventoryStockMovement::findOrFail($id);
+        $this->crud->route = route('movement.rollback', $this->crud->model->id);
+
+        // prepare the fields you need to show
+        $this->data['crud'] = $this->crud;
+        $this->data['saveAction'] = $this->getSaveAction();
+        $this->data['fields'] = $this->crud->getCreateFields();
+        $this->data['title'] = 'Rollback Movement';
+
+        $this->crud->addField([
+            'label' => 'Reason',
+            'name' => 'reason',
+            'type' => 'text',
+            'attributes' => [
+                'placeholder' => 'Enter an optional reason.'
+            ]
+        ]);
+        
+        return view('admin.movements.rollback', $this->data);
+    }
+
+    /**
      * Trigger a rollback on a specific movement.
      */
-    public function rollback(Request $request, $movement_id)
+    public function rollback(RollbackMovementRequest $request, $movement_id)
     {
-        // dd($request, $movement_id);
+        $this->crud->hasAccessOrFail('rollback');
 
         $movement = InventoryStockMovement::find($movement_id);
 
         try {
             $movement->rollback();
+
+            // Add the reason for the rollback
+            $movement->stock->getLastMovement()->update($request->only(['reason']));
             
             \Alert::success('Rollbacked movement.')->flash();
 
@@ -245,4 +281,28 @@ class MovementCrudController extends CrudController
         }
     }
 
+    public function setPermissions()
+    {
+        // Get authenticated user
+        $user = auth()->user();
+
+        // Deny all accesses
+        $this->crud->denyAccess(['list', 'create', 'store', 'show', 'rollback']);
+
+        // Allow list access
+        if ($user->can('movements.index')) {
+            $this->crud->allowAccess('list');
+        }
+
+        // Allow show access
+        if ($user->can('movements.show')) {
+            $this->crud->allowAccess('show');
+        }
+
+        // Allow rollback access
+        if ($user->can('movements.rollback')) {
+            $this->crud->allowAccess('rollback');
+        } else {
+        }
+    }
 }

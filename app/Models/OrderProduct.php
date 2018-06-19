@@ -33,4 +33,14 @@ class OrderProduct extends Model
     {
         return $this->reservations()->sum('quantity_reserved');
     }
+
+    /**
+     * Scope a query to only include Order Products that are not yet reserved.
+     */
+    public function scopePending($query)
+    {
+        return $query->doesntHave('reservations')->orWhereHas('reservations', function ($query) {
+            $query->where('order_products.quantity', '!=', \DB::raw('order_product_reservations.quantity_reserved'));
+        });
+    }
 }

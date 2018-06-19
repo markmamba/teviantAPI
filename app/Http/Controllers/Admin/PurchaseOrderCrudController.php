@@ -126,12 +126,12 @@ class PurchaseOrderCrudController extends CrudController
                 'attribute' => 'name',
             ],
             [
-                'label' => 'Total Products',
+                'label' => 'Products',
                 'name'  => 'products_count',
             ],
             [
                 'label' => 'Total Price',
-                'name'  => 'products_price_sum',
+                'name'  => 'price_total',
             ],
             [
                 'label' => 'Date Created',
@@ -145,12 +145,23 @@ class PurchaseOrderCrudController extends CrudController
                 'label' => 'Remark',
                 'name'  => 'remark',
             ],
+            [
+                'label' => "Status",
+                'name' => 'status',
+                'type' => 'view',
+                'view' => 'admin.purchase_orders.columns.status_view', // or path to blade file
+            ],
         ]);
 
         // ------ CRUD BUTTONS
         $this->crud->addButtonFromView('line', 'purchase_order_view', 'purchase_order_view', 'beginning');
+        $this->crud->addButtonFromView('line', 'purchase_order_receiving_create', 'purchase_order_receiving_create', 'beginning');
+        $this->crud->removeButton('update');
+        $this->crud->removeButton('delete');
+        $this->crud->removeButton('preview');
 
         // ------ CRUD ACCESS
+        $this->setPermissions();
 
         // ------ CRUD REORDER
 
@@ -212,23 +223,29 @@ class PurchaseOrderCrudController extends CrudController
         return view('admin.purchase_orders.show', compact('purchase_order', 'crud'));
     }
 
+    public function edit($id)
+    {
+        // Disable the edit form.
+        abort(404);
+    }
+
     public function update(UpdateRequest $request)
     {
-        // your additional operations before save here
-        $redirect_location = parent::updateCrud($request);
-        // your additional operations after save here
-        // use $this->data['entry'] or $this->crud->entry
-        return $redirect_location;
+        // Disable the edit form submission.
+        abort(404);
     }
 
     public function destroy($id)
     {
-        $this->crud->hasAccessOrFail('delete');
+        // Disable deleting of purchase orders.
+        abort(404);
 
-        // Delete associated items
-        PurchaseOrder::findOrFail($id)->products()->delete();
+        // $this->crud->hasAccessOrFail('delete');
 
-        return $this->crud->delete($id);
+        // // Delete associated items
+        // PurchaseOrder::findOrFail($id)->products()->delete();
+
+        // return $this->crud->delete($id);
     }
 
     /**
@@ -241,5 +258,29 @@ class PurchaseOrderCrudController extends CrudController
 
         $pdf = \PDF::loadView('pdf.purchase_order', compact('purchase_order'));
         return $pdf->stream();
+    }
+
+    public function setPermissions()
+    {
+        // Get authenticated user
+        $user = auth()->user();
+
+        // Deny all accesses
+        $this->crud->denyAccess(['list', 'create', 'update', 'delete']);
+
+        // Allow list access
+        if ($user->can('purchase_orders.index')) {
+            $this->crud->allowAccess('list');
+        }
+
+        // Allow create access
+        if ($user->can('purchase_orders.create')) {
+            $this->crud->allowAccess('create');
+        }
+
+        // Allow show access
+        if ($user->can('purchase_orders.show')) {
+            $this->crud->allowAccess('show');
+        }
     }
 }

@@ -1,0 +1,1 @@
+<a href="{{ route('transfer_order.print', $entry->getKey()) }}" class="btn btn-xs btn-default" title="Print Transfer Order" data-toggle="tooltip" target="_blank"><i class="fa fa-print"></i> Print</a>

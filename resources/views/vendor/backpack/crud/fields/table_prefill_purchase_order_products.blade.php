@@ -1,27 +1,66 @@
 <!-- array input -->
 
 <?php
-    $parent_model_items = $field['parent_model']::with(['products', 'products.inventory'])->get();
-    $parent_model_items_plucked = $parent_model_items->map(function($purchase_order){
-        return collect($purchase_order->only([
-            'id',
-        ]))
-        ->merge([
-            'products' => $purchase_order->products->map(function($product){
-                return collect($product->only([
-                    'id'
-                ]))
-                ->merge([
-                    'name' => $product->inventory->name,
-                    'sku' => $product->inventory->sku_code
-                ]);
-            })
-        ]);
-    });
+    // Check if an entry is being created or edited.
+    if (!isset($entry)) {
+        // Creating
+        
+        $parent_model_items = $field['parent_model']::with(['products', 'products.inventory'])->get();
+        $parent_model_items_plucked = $parent_model_items->map(function($purchase_order){
+            return collect($purchase_order->only([
+                'id',
+            ]))
+            ->merge([
+                'products' => $purchase_order->products
+                // Get only incomplete products
+                ->filter(function($product, $key) {
+                    return !$product->is_completed;
+                })
+                ->map(function($product){
+                    return collect($product->only([
+                        'id'
+                    ]))
+                    ->merge([
+                        'name' => $product->inventory->name,
+                        'sku' => $product->inventory->sku_code,
+                        'quantity_pending' => $product->quantity_pending,
+                    ]);
+                })
+            ]);
+        });
 
-    // echo 'Debugging<hr>';
+    } else {
+        // Editing
+
+        $parent_model_items = $entry->purchase_order()->get();
+        $parent_model_items_plucked = $parent_model_items->map(function($purchase_order) use ($entry){
+            return collect($purchase_order->only([
+                'id',
+            ]))
+            ->merge([
+                'products' => $entry->products
+                // Get only incomplete products
+                ->filter(function($product, $key) {
+                    return !$product->is_completed;
+                })
+                ->map(function($receiving_product){
+                    return collect($receiving_product->only([
+                        'id'
+                    ]))
+                    ->merge([
+                        'name' => $receiving_product->product->inventory->name,
+                        'sku' => $receiving_product->product->inventory->sku_code,
+                        'quantity' => $receiving_product->quantity,
+                        'quantity_received' => $receiving_product->product->quantity_received,
+                        'quantity_pending' => $receiving_product->product->quantity_pending,
+                    ]);
+                })
+            ]);
+        });
+    }
+
+    // // echo 'Debugging<hr>';
     // dd(
-    //     $items,
     //     $field['parent_model']::all(),
     //     $parent_model_items,
     //     $parent_model_items_plucked->toArray()
@@ -80,7 +119,7 @@
                         {{-- <input class="form-control input-sm" type="text" ng-model="product.name" disabled> --}}
                     </td>
                     <td>
-                        <input class="form-control input-sm" type="number" ng-model="product.quantity" required>
+                        <input class="form-control input-sm" type="number" ng-model="product.quantity" min="1" max="<% product.quantity_pending %>" placeholder="1..<% product.quantity_pending %>">
                     </td>
                     <td ng-if="max == -1 || max > 1">
                         <span class="btn btn-sm btn-default sort-handle"><span class="sr-only">sort item</span><i class="fa fa-sort" role="presentation" aria-hidden="true"></i></span>

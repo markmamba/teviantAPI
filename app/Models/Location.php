@@ -35,6 +35,11 @@ class Location extends Node
     | RELATIONS
     |--------------------------------------------------------------------------
     */
+    
+    public function transfer_orders()
+    {
+        return $this->hasMany('App\Models\TransferOrder');
+    }
 
     /*
     |--------------------------------------------------------------------------

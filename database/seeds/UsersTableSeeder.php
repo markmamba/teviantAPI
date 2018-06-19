@@ -31,18 +31,23 @@ class UsersTableSeeder extends Seeder
 
         $users = [
             [
+                'name' => 'Super User',
+                'email' => 'super_user@teviant.com',
+                'password' => bcrypt($default_admin_password),
+            ],
+            [
             	'name' => 'Teviant Admin',
             	'email' => 'admin@teviant.com',
             	'password' => bcrypt($default_admin_password),
         	],
+            [
+                'name' => 'Inbound Operator',
+                'email' => 'inbound@teviant.com',
+                'password' => bcrypt($default_admin_password),
+            ],
         	[
             	'name' => 'Outbound Operator',
             	'email' => 'outbound@teviant.com',
-            	'password' => bcrypt($default_admin_password),
-        	],
-        	[
-            	'name' => 'Inbound Operator',
-            	'email' => 'inbound@teviant.com',
             	'password' => bcrypt($default_admin_password),
         	],
         ];
