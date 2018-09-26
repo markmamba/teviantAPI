@@ -219,11 +219,11 @@ class OrderCrudController extends CrudController
         // Save each orders on the database.
         foreach ($orders as $order) {
 
-            // Skip the order if it is already saved before.
+            // Skip the order if it was already saved before.
             if (Order::where('common_id', $order->id)->first())
                 continue;
 
-            // Skip the order if does not have any products
+            // Skip the order if it does not have any products
             if (count($order->products) == 0)
                 continue;
             
