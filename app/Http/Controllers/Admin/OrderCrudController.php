@@ -206,9 +206,13 @@ class OrderCrudController extends CrudController
     {
         $this->crud->hasAccessOrFail('sync');
 
-        $response = $this->ecommerce_client->get('api/orders');
-        
-        $orders = collect(json_decode($response->getBody()));
+        try {
+            $response = $this->ecommerce_client->get('api/orders');
+            $orders = collect(json_decode($response->getBody()));
+        } catch (\Exception $e) {
+            \Alert::error($e->getMessage())->flash();
+            return back();
+        }
 
         // Re-format the created_at attribute so we can sort it properly afterwards.
         $orders = $orders->map(function($order){
@@ -382,7 +386,7 @@ class OrderCrudController extends CrudController
             ->toArray()
         );
 
-        \Alert::success('Status updated.')->flash();
+        \Alert::error('Status updated.')->flash();
 
         return redirect()->route('order.show', $id);
     }
