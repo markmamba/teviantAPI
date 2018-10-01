@@ -106,27 +106,28 @@ class InventoryStockCrudController extends CrudController
         // $this->crud->setColumnDetails('column_name', ['attribute' => 'value']); // adjusts the properties of the passed in column (by name)
         // $this->crud->setColumnsDetails(['column_1', 'column_2'], ['attribute' => 'value']);
 
-        $this->crud->addColumn([
-           // 1-n relationship
-           'label'     => 'Inventory', // Table column heading
-           'type'      => 'select',
-           'name'      => 'inventory_id', // the column that contains the ID of that connected entity;
-           'entity'    => 'item', // the method that defines the relationship in your Model
-           'attribute' => 'name', // foreign key attribute that is shown to user
-           'tab'       => 'Primary',
-        ]);
-
-        $this->crud->addColumn([
-           // 1-n relationship
-           'label'     => 'Location', // Table column heading
-           'type'      => 'select',
-           'name'      => 'location_id', // the column that contains the ID of that connected entity;
-           'entity'    => 'location', // the method that defines the relationship in your Model
-           'attribute' => 'name', // foreign key attribute that is shown to user
-           'tab'       => 'Primary',
-        ]);
-
         $this->crud->addColumns([
+            [
+                'label' => 'SKU',
+                'name'  => 'sku_code',
+                'type'  => 'text',
+            ],
+            [
+                // 1-n relationship
+               'label'     => 'Inventory', // Table column heading
+               'type'      => 'select',
+               'name'      => 'inventory_id', // the column that contains the ID of that connected entity;
+               'entity'    => 'item', // the method that defines the relationship in your Model
+               'attribute' => 'name', // foreign key attribute that is shown to user
+            ],
+            [
+                // 1-n relationship
+               'label'     => 'Location',
+               'type'      => 'select',
+               'name'      => 'location_id',
+               'entity'    => 'location',
+               'attribute' => 'name',
+            ],
             [
                 'label' => 'Quantity',
                 'name'  => 'quantity',
