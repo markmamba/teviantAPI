@@ -114,7 +114,7 @@ class InventoryStockCrudController extends CrudController
             ],
             [
                 // 1-n relationship
-               'label'     => 'Inventory', // Table column heading
+               'label'     => 'Product', // Table column heading
                'type'      => 'select',
                'name'      => 'inventory_id', // the column that contains the ID of that connected entity;
                'entity'    => 'item', // the method that defines the relationship in your Model
