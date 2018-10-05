@@ -206,9 +206,13 @@ class OrderCrudController extends CrudController
     {
         $this->crud->hasAccessOrFail('sync');
 
-        $response = $this->ecommerce_client->get('api/orders');
-        
-        $orders = collect(json_decode($response->getBody()));
+        try {
+            $response = $this->ecommerce_client->get('api/orders');
+            $orders = collect(json_decode($response->getBody()));
+        } catch (\Exception $e) {
+            \Alert::error($e->getMessage())->flash();
+            return back();
+        }
 
         // Re-format the created_at attribute so we can sort it properly afterwards.
         $orders = $orders->map(function($order){
@@ -219,11 +223,11 @@ class OrderCrudController extends CrudController
         // Save each orders on the database.
         foreach ($orders as $order) {
 
-            // Skip the order if it is already saved before.
+            // Skip the order if it was already saved before.
             if (Order::where('common_id', $order->id)->first())
                 continue;
 
-            // Skip the order if does not have any products
+            // Skip the order if it does not have any products
             if (count($order->products) == 0)
                 continue;
             
@@ -382,7 +386,7 @@ class OrderCrudController extends CrudController
             ->toArray()
         );
 
-        \Alert::success('Status updated.')->flash();
+        \Alert::error('Status updated.')->flash();
 
         return redirect()->route('order.show', $id);
     }

@@ -129,6 +129,17 @@
                 @endif
               </a>
             </li>
+            <li class="header">SYSTEM</li>
+            <li>
+              <a href="#">
+                <i class="fa fa-line-chart"></i> <span>Reports</span>
+              </a>
+            </li>
+            <li>
+              <a href="#">
+                <i class="fa fa-cogs"></i> <span>Settings</span>
+              </a>
+            </li>
             @endcan
           @endif
 

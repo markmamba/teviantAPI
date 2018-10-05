@@ -107,7 +107,7 @@ class OrderObserver
         foreach ($order->products as $product) {
             // Update the ecommerce through its API.
             try {
-                $response = $this->ecommerce_client->patch('api/products/' . $product->product->common_id, [
+                $response = $this->ecommerce_client->patch('api/products/' . $product->common_id, [
                     'form_params' => [
                         'stock' => $product->product->stock
                     ],
