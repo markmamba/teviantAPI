@@ -386,7 +386,7 @@ class OrderCrudController extends CrudController
             ->toArray()
         );
 
-        \Alert::error('Status updated.')->flash();
+        \Alert::success('Status updated.')->flash();
 
         return redirect()->route('order.show', $id);
     }
