@@ -31,8 +31,8 @@
 	</thead>
 	<tbody>
 		<tr>
-			<td>{{ $transfer_order->purchase_order_receiving_product->product->inventory->sku_code }}</td>
-			<td>{{ $transfer_order->purchase_order_receiving_product->product->inventory->name }}</td>
+			<td>{{ $transfer_order->product->inventory->sku_code }}</td>
+			<td>{{ $transfer_order->product->inventory->name }}</td>
 			<td>{{ $transfer_order->quantity }}</td>
 			<td>{{ $transfer_order->location->name }}</td>
 			<td>{{ $transfer_order->ailse_row_bin or 'unspecified'}}</td>

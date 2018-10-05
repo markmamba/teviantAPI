@@ -22,7 +22,7 @@ class StockMovementCrudController extends InventoryStockCrudController
         */
         $this->crud->setModel('\App\Models\InventoryStockMovement');
         // $this->crud->setRoute(config('backpack.base.route_prefix') . '/movement');
-        $this->crud->setEntityNameStrings('stock movement', 'stock movements');
+        $this->crud->setEntityNameStrings('stock movement', 'stock movement history');
 
         // get the stock_id parameter
         $stock_id = \Route::current()->parameter('stock_id');
