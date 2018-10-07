@@ -78,11 +78,13 @@ class OrderObserver
         
         // Get the status Id from request() if its updated via form submit or via programatically.
         $status_name = $order_statuses[isset(request()->status_id) ? request()->status_id : $order->status_id];
+        // The associated ecommerce status_id
+        $status_id = null;
         
         foreach ($this->status_associations as $key => $value) {
             // Search
             if (in_array($status_name, $value)) {
-                request()->status_id = collect($this->ecommerce_order_statuses)->search($key);
+                $status_id = collect($this->ecommerce_order_statuses)->search($key);
                 break;
             }
         }
@@ -90,7 +92,9 @@ class OrderObserver
         // Update the ecommerce through its API.
         try {
             $response = $this->ecommerce_client->patch('api/orders/' . $order->common_id, [
-                'form_params' => request()->all(),
+                'form_params' => [
+                    'status_id' => $status_id,
+                ],
             ]);
             Log::info('Ecommerce order updated via API.');
         } catch (\Exception $e) {
