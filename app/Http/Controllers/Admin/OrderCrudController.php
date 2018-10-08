@@ -33,6 +33,12 @@ class OrderCrudController extends CrudController
      */
     private $auto_pick_list = true;
 
+    /**
+     * Auto-set the order status to Done after it was set to Delivered.
+     * @var boolean
+     */
+    private $auto_done_after_delivered = true;
+
     public function __construct()
     {
         parent::__construct();
@@ -177,7 +183,7 @@ class OrderCrudController extends CrudController
     {   
         $order = Order::findOrFail($id);
 
-        $request = $this->handleStatusChange($request, $order);
+        $request = $this->handleStatusChange($request, $order, $this->auto_done_after_delivered);
 
         $order->update($request->all());
 
@@ -194,8 +200,9 @@ class OrderCrudController extends CrudController
 
         $order = Order::findOrFail($id);
         $order_status_options = collect(OrderStatus::orderBy('id', 'asc')->pluck('name', 'id'));
+        $auto_done_after_delivered = $this->auto_done_after_delivered;
 
-        return view('admin.orders.show', compact('order', 'crud', 'order_status_options'));
+        return view('admin.orders.show', compact('order', 'crud', 'order_status_options', 'auto_done_after_delivered'));
     }
 
     /**

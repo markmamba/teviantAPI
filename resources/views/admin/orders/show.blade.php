@@ -133,7 +133,11 @@
 						@endif
 						@if($order->status->name == 'Shipped')
 							{!! Form::open(['route' => ['crud.order.update', $order->id], 'method' => 'PATCH']) !!}
-								{!! Form::hidden('status_id', $order_status_options->search('Delivered')) !!}
+								@if(!$auto_done_after_delivered)
+									{!! Form::hidden('status_id', $order_status_options->search('Delivered')) !!}
+								@else
+									{!! Form::hidden('status_id', $order_status_options->search('Done')) !!}
+								@endif
 								{!! Form::submit('Set as Delivered', ['class' => 'form-control btn btn-primary']) !!}
 							{!! Form::close() !!}
 						@endif
