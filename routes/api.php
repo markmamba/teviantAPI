@@ -24,8 +24,9 @@ Route::group(['namespace' => 'Api', 'middleware' => ['client'], 'as' => 'api.'],
     	return 'Welcome to our API!';
 	});
 
-	Route::apiResource('orders', 'OrdersController');
 	Route::apiResource('categories', 'CategoriesController');
+	Route::apiResource('products', 'ProductsController');
+	Route::apiResource('orders', 'OrdersController');
 
 });
 
