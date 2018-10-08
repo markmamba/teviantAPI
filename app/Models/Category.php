@@ -21,7 +21,13 @@ class Category extends Node
     //protected $primaryKey = 'id';
     // public $timestamps = false;
     // protected $guarded = ['id'];
-    protected $fillable = ['name'];
+    protected $fillable = [
+        'name',
+        'parent_id',
+        'lft',
+        'rgt',
+        'depth',
+    ];
     // protected $hidden = [];
     // protected $dates = [];
     
