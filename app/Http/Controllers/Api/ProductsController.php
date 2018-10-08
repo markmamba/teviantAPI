@@ -19,6 +19,6 @@ class ProductsController extends Controller
     	if (!\Auth::once($credentials))
 		    throw new \Exception('Invalid credentials.');
 
-		return Inventory::create(collect($request->all())->merge(['user_id' => 1])->toArray());
+		return Inventory::create(collect($request->all())->merge(['user_id' => 1])->toArray())->updateSku($request->sku_code);
     }
 }

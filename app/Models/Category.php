@@ -22,11 +22,14 @@ class Category extends Node
     // public $timestamps = false;
     // protected $guarded = ['id'];
     protected $fillable = [
+        'id',
         'name',
         'parent_id',
         'lft',
         'rgt',
         'depth',
+        'created_at',
+        'updated_at',
     ];
     // protected $hidden = [];
     // protected $dates = [];
