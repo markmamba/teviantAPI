@@ -62,7 +62,7 @@ class OrderObserver
             // Base URI is used with relative requests
             'base_uri' => env('ECOMMERCE_BASE_URI'),
             // You can set any number of default request options.
-            'timeout'  => 2.0,
+            // 'timeout'  => 2.0,
         ]);
     }
 
