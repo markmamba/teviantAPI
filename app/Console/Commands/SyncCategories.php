@@ -14,7 +14,7 @@ class SyncCategories extends Command
      *
      * @var string
      */
-    protected $signature = 'categories:sync';
+    protected $signature = 'sync:categories';
 
     /**
      * The console command description.
