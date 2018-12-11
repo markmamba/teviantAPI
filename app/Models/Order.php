@@ -22,6 +22,11 @@ class Order extends Model
     protected $fillable = ['status_id', 'packer_id', 'packed_at'];
     // protected $hidden = [];
     // protected $dates = [];
+    
+    protected $casts = [
+        'shipping_address' => 'array',
+        'billing_address' => 'array',
+    ];
 
     /*
     |--------------------------------------------------------------------------
@@ -197,15 +202,15 @@ class Order extends Model
         return $this->hasOne('App\Models\OrderShipment', 'order_id');
     }
 
-    public function shippingAddress()
-    {
-        return $this->hasOne('App\Models\OrderShippingAddress');
-    }
+    // public function shippingAddress()
+    // {
+    //     return $this->hasOne('App\Models\OrderShippingAddress');
+    // }
 
-    public function billingAddress()
-    {
-        return $this->hasOne('App\Models\OrderBillingAddress');
-    }
+    // public function billingAddress()
+    // {
+    //     return $this->hasOne('App\Models\OrderBillingAddress');
+    // }
 
     public function status()
     {
@@ -311,17 +316,21 @@ class Order extends Model
 
     public function getFullUserNameAttribute()
     {
-        return $this->shippingAddress->name;
+        return $this->shipping_address['name'];
     }
 
     public function getFullShippingAddressAttribute()
     {
-        return $this->shippingAddress->address1 . ', ' . $this->shippingAddress->address1 . ', ' . $this->shippingAddress->city . ', ' . $this->shippingAddress->county . ', ' . $this->shippingAddress->postal_code;
+        // return $this->shippingAddress->address1 . ', ' . $this->shippingAddress->address1 . ', ' . $this->shippingAddress->city . ', ' . $this->shippingAddress->county . ', ' . $this->shippingAddress->postal_code;
+        
+        return $this->shipping_address['unit'] . ', ' . $this->shipping_address['house'] . ', ' . $this->shipping_address['house'] . ', ' . $this->shipping_address['building'] . ', ' . $this->shipping_address['street'] . ', ' . $this->shipping_address['barangay'] . ', ' . $this->shipping_address['town'] . ', ' . $this->shipping_address['county'] . ', ' . $this->shipping_address['state'] . ', ' . $this->shipping_address['region'];
     }
 
     public function getFullBillingAddressAttribute()
     {
-        return $this->billingAddress->address1 . ', ' . $this->billingAddress->address1 . ', ' . $this->billingAddress->city . ', ' . $this->billingAddress->county . ', ' . $this->billingAddress->postal_code;
+        // return $this->billingAddress->address1 . ', ' . $this->billingAddress->address1 . ', ' . $this->billingAddress->city . ', ' . $this->billingAddress->county . ', ' . $this->billingAddress->postal_code;
+        
+        return $this->shipping_address['unit'] . ', ' . $this->shipping_address['house'] . ', ' . $this->shipping_address['house'] . ', ' . $this->shipping_address['building'] . ', ' . $this->shipping_address['street'] . ', ' . $this->shipping_address['barangay'] . ', ' . $this->shipping_address['town'] . ', ' . $this->shipping_address['county'] . ', ' . $this->shipping_address['state'] . ', ' . $this->shipping_address['region'];
     }
 
     public function getTotalAttribute()
