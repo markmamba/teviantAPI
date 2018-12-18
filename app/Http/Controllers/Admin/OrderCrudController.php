@@ -17,6 +17,7 @@ use App\Models\OrderBillingAddress;
 use App\Models\OrderProduct;
 use App\Models\OrderProductPicking;
 use App\Models\OrderProductReservation;
+use Illuminate\Support\Facades\DB;
 
 // VALIDATION: change the requests to match your own file names if you need form validation
 // use App\Http\Requests\OrderRequest as StoreRequest;
@@ -213,6 +214,8 @@ class OrderCrudController extends CrudController
     {
         $this->crud->hasAccessOrFail('sync');
 
+        DB::beginTransaction();
+
         // Before syncing orders, sync categories and products first.
         $exitCode = \Artisan::call('sync:all');
 
@@ -221,6 +224,8 @@ class OrderCrudController extends CrudController
             $orders = collect(json_decode($response->getBody()));
         } catch (\Exception $e) {
             \Alert::error($e->getMessage())->flash();
+            \Log::critical($e->getMessage());
+            DB::rollBack();
             return back();
         }
 
@@ -241,13 +246,20 @@ class OrderCrudController extends CrudController
             if (count($order->products) == 0)
                 continue;
             
-            // Save the new order
-            $new_order = new Order;
-            $new_order->common_id = $order->id;
-            $new_order->created_at = \Carbon\Carbon::parse($order->created_at);
-            $new_order->shipping_address = $order->shipping_address;
-            $new_order->billing_address = $order->billing_address;
-            $new_order->save(['timestamps' => false]);
+            try {
+                // Save the new order
+                $new_order = new Order;
+                $new_order->common_id = $order->id;
+                $new_order->created_at = \Carbon\Carbon::parse($order->created_at);
+                $new_order->shipping_address = $order->shipping_address;
+                $new_order->billing_address = $order->billing_address;
+                $new_order->save(['timestamps' => false]);
+            } catch (\Exception $e) {
+                \Alert::error($e->getMessage())->flash();
+                \Log::critical($e->getMessage());
+                DB::rollBack();
+                return back();
+            }
 
             // Save the new order's user
             // $order_user = new OrderUser;
@@ -262,23 +274,29 @@ class OrderCrudController extends CrudController
 
             // Save each order's products.
             foreach ($order->products as $product) {
-                $order_product             = new OrderProduct();
-                $order_product->product_id = Inventory::findBySku2($product->pivot->sku)->id;
-                $order_product->order_id   = $new_order->id;
-                $order_product->common_id  = $product->pivot->product_id;
-                $order_product->name       = $product->pivot->name;
-                $order_product->sku        = $product->pivot->sku;
-                $order_product->quantity   = $product->pivot->quantity;
-                $order_product->price      = isset($product->pivot->price_with_tax) ? $product->pivot->price_with_tax : $product->pivot->price;
-                $order_product->save();
+                try {
+                    $order_product             = new OrderProduct();
+                    $order_product->product_id = Inventory::findBySku2($product->pivot->sku)->id;
+                    $order_product->order_id   = $new_order->id;
+                    $order_product->common_id  = $product->pivot->product_id;
+                    $order_product->name       = $product->pivot->name;
+                    $order_product->sku        = $product->pivot->sku;
+                    $order_product->quantity   = $product->pivot->quantity;
+                    $order_product->price      = isset($product->pivot->price_with_tax) ? $product->pivot->price_with_tax : $product->pivot->price;
+                    $order_product->save();
+                } catch (\Exception $e) {
+                    \Alert::error('Server error occured. Please check logs.')->flash();
+                    \Log::critical([$e->getMessage(), $product]);
+                    DB::rollBack();
+                    return back();
+                }
             }
 
              // Handle product reservation
             $this->reserveOrder($new_order, $this->auto_pick_list);
         }
-
-        // // tmp debug
-        // die();
+        
+        DB::commit();
         
         \Alert::success('Synced orders.')->flash();
         
