@@ -211,6 +211,7 @@
 				<div class="box-body">
 					<table class="table table-responsive">
 						<thead>
+							<th>Product</th>
 							<th>SKU</th>
 							<th>Quantity</th>
 							<th>Location</th>
@@ -224,6 +225,7 @@
 							<tbody>
 							@foreach($item as $reservation)
 								<tr>
+									<td>{{ $reservation->stock->item->name }}</td>
 									<td>{{ $reservation->stock->item->sku_code }}</td>
 									<td>{{ $reservation->order_product->quantity }}</td>
 									<td>{{ $reservation->stock->location->name }}</td>
@@ -235,7 +237,7 @@
 								</tr>
 							@endforeach
 								<tr>
-									<td class="text-right" colspan="8">
+									<td class="text-right" colspan="9">
 										<strong>Item deficiency:</strong> 
 										@if($reservation->order_product->isFullyReserved())
 											<span class="label label-success">
