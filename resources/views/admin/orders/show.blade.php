@@ -158,12 +158,12 @@
 							{!! Form::close() !!}
 						@endif
 						{{-- Reopen button --}}
-						@if($order->status->name == 'Done' || $order->status->name == 'Cancelled')
+						{{-- @if($order->status->name == 'Done' || $order->status->name == 'Cancelled')
 							{!! Form::open(['route' => ['order.reopen', $order->id], 'method' => 'PATCH']) !!}
 								{!! Form::hidden('status_id', $order_status_options->search('Pending')) !!}
 								{!! Form::submit('Re-open Order', ['class' => 'form-control btn btn-default']) !!}
 							{!! Form::close() !!}
-						@endif
+						@endif --}}
 					</p>
 				</div>
 			</div>
