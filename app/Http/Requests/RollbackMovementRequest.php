@@ -13,7 +13,7 @@ class RollbackMovementRequest extends FormRequest
      */
     public function authorize()
     {
-        return \Auth::check();
+        return backpack_auth()->check();
     }
 
     /**

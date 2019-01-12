@@ -19,7 +19,7 @@
         "stevebauman/inventory": "1.7.*"
     },
     "require-dev": {
-        "backpack/generators": "^1.1",
+        "backpack/generators": "^1.2",
         "barryvdh/laravel-debugbar": "^3.1",
         "filp/whoops": "~2.0",
         "fzaninotto/faker": "~1.4",
