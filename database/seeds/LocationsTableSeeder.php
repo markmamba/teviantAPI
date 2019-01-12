@@ -11,24 +11,12 @@ class LocationsTableSeeder extends Seeder
      */
     public function run()
     {
-        // $locations = [
-        //     [
-        //     	'name' => 'Warehouse 1',
-        // 	],
-        // 	[
-        //     	'name' => 'Warehouse 2',
-        // 	],
-        // 	[
-        //     	'name' => 'Branch 1',
-        // 	],
-        //     [
-        //         'name' => 'Receivings',
-        //     ],
-        // ];
-        
         $locations = [
             [
-                'name' => 'Default Location',
+                'name' => 'Receivings',
+            ],
+            [
+                'name' => 'Default',
             ],
         ];
 
