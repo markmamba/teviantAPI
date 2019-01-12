@@ -220,7 +220,7 @@ class TransferOrderCrudController extends CrudController
             // Concatenate the transferable quantity after the name.
             $product->inventory->name = $product->inventory->name . ' ('.$product->quantity_transferrable.')';
         });
-        $product_options = isset($products) ? $products->pluck('inventory.name', 'product_id') : [];
+        $product_options = isset($products) ? $products->pluck('inventory.name', 'id') : [];
         // dd($products, $product_options);
         return $product_options;
 

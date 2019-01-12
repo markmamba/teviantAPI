@@ -41,7 +41,7 @@ class TransferOrderRequest extends \Backpack\CRUD\app\Http\Requests\CrudRequest
 
         return [
             // 'name' => 'required|min:5|max:255'
-            'purchase_order_product_id' => 'required|exists:purchase_order_products,product_id',
+            'purchase_order_product_id' => 'required|exists:purchase_order_products,id',
             'location_id'               => 'required|exists:locations,id',
             'aisle'                     => 'required_with:row,bin|max:255',
             'row'                       => 'required_with:aisle,bin|max:255',
