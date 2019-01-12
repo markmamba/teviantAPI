@@ -6,14 +6,14 @@
     "type": "project",
     "require": {
         "php": ">=7.0.0",
-        "backpack/base": "^0.8.7",
-        "backpack/crud": "^3.3",
+        "backpack/base": "^1.0.0",
+        "backpack/crud": "^3.5.0",
         "backpack/permissionmanager": "^2.1",
         "barryvdh/laravel-dompdf": "^0.8.2",
-        "fideloper/proxy": "~3.3",
+        "fideloper/proxy": "^4.0",
         "guzzlehttp/guzzle": "~6.0",
-        "laravel/framework": "5.5.*",
-        "laravel/passport": "~4.0",
+        "laravel/framework": "5.6.*",
+        "laravel/passport": "^6.0",
         "laravel/tinker": "~1.0",
         "laravelcollective/html": "^5.2.0",
         "stevebauman/inventory": "1.7.*"
@@ -25,7 +25,7 @@
         "fzaninotto/faker": "~1.4",
         "laracasts/generators": "dev-master",
         "mockery/mockery": "~1.0",
-        "phpunit/phpunit": "~6.0",
+        "phpunit/phpunit": "^7.0",
         "symfony/thanks": "^1.0"
     },
     "autoload": {
