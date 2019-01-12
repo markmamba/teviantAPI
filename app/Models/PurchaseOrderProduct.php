@@ -169,4 +169,14 @@ class PurchaseOrderProduct extends Model
             return $group->total_quantity_transferrable > 0;
         });
     }
+
+    public static function getTransferrables()
+    {
+        return self::with(['inventory'])
+            ->get()
+            ->sortBy('inventory.name')
+            ->filter(function($purchase_order_product){
+                return $purchase_order_product->quantity_transferrable > 0;
+            });
+    }
 }

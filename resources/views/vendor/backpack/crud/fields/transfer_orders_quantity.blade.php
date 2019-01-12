@@ -49,17 +49,24 @@
       vm.purchase_order_product_id_selection = $document.find("select[name='purchase_order_product_id']");
       vm.purchase_order_product_id = vm.purchase_order_product_id_selection.val();
       vm.quantity_max = 0;
-      vm.products = null;
+      vm.products = [];
       vm.product = null;
 
       // Handle purchase_order_id field changes
       vm.purchase_order_product_id_selection.change(function() {
+        // Dev logs
+        // console.log(vm.products);
+        // console.log('product_id: ' + $(this).val());
+        // console.log($filter('filter')(vm.products, {'product_id': $(this).val()})[0].total_quantity_transferrable);
+        // console.log('quantity_max: ' + vm.quantity_max);
+        // console.log('vm.purchase_order_product_id = ' + vm.purchase_order_product_id);
+
         vm.purchase_order_product_id = $(this).val();
-        vm.product = $filter('filter')(vm.products, {'product_id': parseInt(vm.purchase_order_product_id)})[0];
+        vm.product = $filter('filter')(vm.products, {'product_id': parseInt($(this).val())})[0];
 
         // Set maximum quantity based on product selection.
         if (vm.product != undefined)
-          vm.quantity_max = $filter('filter')(vm.products, {'product_id': parseInt(vm.purchase_order_product_id)})[0].total_quantity_transferrable;
+          vm.quantity_max = $filter('filter')(vm.products, {'product_id': parseInt($(this).val())})[0].total_quantity_transferrable;
         else
           vm.quantity_max = 0;
 
@@ -68,12 +75,6 @@
         $scope.$apply(function(){
           vm.purchase_order_product_id = $that.val();
         });
-
-        // Dev logs
-        console.log('product_id: ' + $(this).val());
-        console.log($filter('filter')(vm.products, {'product_id': parseInt(vm.purchase_order_product_id)})[0]);
-        console.log('quantity_max: ' + vm.quantity_max);
-        console.log('vm.purchase_order_product_id = ' + vm.purchase_order_product_id);
       });
 
       // Get the list of receivings products
@@ -81,7 +82,6 @@
         .then(
           function successCallback(response) {
             vm.products = response.data;
-            console.log(vm.products);
           },
           function errorCallback(response) {
             console.log(response.data);

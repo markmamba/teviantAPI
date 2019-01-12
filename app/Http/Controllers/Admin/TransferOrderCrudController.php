@@ -215,11 +215,18 @@ class TransferOrderCrudController extends CrudController
      */
     private function getProductOptions()
     {
-        $product_groups = PurchaseOrderProduct::getGroupsTransferrable();
+        $products = PurchaseOrderProduct::getTransferrables();
+        $products = $products->each(function($product){
+            // Concatenate the transferable quantity after the name.
+            $product->inventory->name = $product->inventory->name . ' ('.$product->quantity_transferrable.')';
+        });
+        $product_options = isset($products) ? $products->pluck('inventory.name', 'product_id') : [];
+        // dd($products, $product_options);
+        return $product_options;
 
-        $product_groups_options = isset($product_groups) ? $product_groups->pluck('name', 'product_id') : [];
-
-        return $product_groups_options;
+        // $product_groups = PurchaseOrderProduct::getGroupsTransferrable();
+        // $product_groups_options = isset($product_groups) ? $product_groups->pluck('name', 'product_id') : [];
+        // return $product_groups_options;
     }
 
     /**
