@@ -4,7 +4,7 @@
 	<section class="content-header">
 	  <h1>
 	    <span>
-	    	{{ title_case($crud->entity_name) }} #{{ $order->id }}
+	    	{{ title_case($crud->entity_name) }} #{{ $order->common_id }}
 	    </span>
 	    <small>
 	    	@if($order->status->name == 'Pending')
