@@ -135,11 +135,7 @@
                 <i class="fa fa-line-chart"></i> <span>Reports</span>
               </a>
             </li>
-            <li>
-              <a href="#">
-                <i class="fa fa-cogs"></i> <span>Settings</span>
-              </a>
-            </li>
+            <li><a href='{{ url(config('backpack.base.route_prefix', 'admin') . '/setting') }}'><i class='fa fa-cog'></i> <span>Settings</span></a></li>
             @endcan
           @endif
 

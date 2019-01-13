@@ -9,6 +9,7 @@
         "backpack/base": "^1.0.0",
         "backpack/crud": "^3.5.0",
         "backpack/permissionmanager": "^2.1",
+        "backpack/settings": "^2.1",
         "barryvdh/laravel-dompdf": "^0.8.2",
         "fideloper/proxy": "^4.0",
         "guzzlehttp/guzzle": "~6.0",
