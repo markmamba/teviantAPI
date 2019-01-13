@@ -316,18 +316,29 @@ class TransferOrderCrudController extends CrudController
          */
         // dd($id, $request->all());
         
-        $transfer_order = TransferOrder::findOrFail($id);
+        DB::beginTransaction();
+        
+        try {
+            $transfer_order = TransferOrder::findOrFail($id);
 
-        $this->guardCompleted($transfer_order);
+            $this->guardCompleted($transfer_order);
+            // 1
+            $this->transferOrderStock($transfer_order);
+            // 2
+            $this->reservePendingOrders();
+            // 3
+            $transfer_order->update(['transferred_at' => \Carbon\Carbon::now()]);
 
-        // 1
-        $this->transferOrderStock($transfer_order);
+        } catch (\Exception $e) {
+            \Alert::error('Server error occured. Please check logs.')->flash();
+            \Log::critical([$e->getMessage(), $product]);
+            DB::rollBack();
+        }
 
-        // 2
-        $this->reservePendingOrders();
+        // tmp
+        // DB::rollBack();
 
-        // 3
-        $transfer_order->update(['transferred_at' => \Carbon\Carbon::now()]);
+        DB::commit();
 
         // die('WIP');
 
@@ -388,15 +399,17 @@ class TransferOrderCrudController extends CrudController
     {   
         // 1
         $pending_order_products = \App\Models\OrderProduct::with('order')->pending()->get()
-            ->sortBy(function($pending_order_product){
+            ->sortByDesc(function($pending_order_product){
                 return $pending_order_product->order->created;
             });
 
         $order_reservations = collect([]);
 
         foreach ($pending_order_products as $pending_order_product) {
-            $order_reservations->push(Order::reserve($pending_order_product->order));
+            $order_reservations->push(Order::reserveProduct($pending_order_product));
         }
+
+        return $order_reservations;
     }
 
     /**

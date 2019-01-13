@@ -200,6 +200,7 @@ class OrderCrudController extends CrudController
         $crud = $this->crud;
 
         $order = Order::findOrFail($id);
+        // dd($order->deficiency);
         $order_status_options = collect(OrderStatus::orderBy('id', 'asc')->pluck('name', 'id'));
         $auto_done_after_delivered = $this->auto_done_after_delivered;
 

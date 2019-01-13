@@ -58,8 +58,10 @@ class Order extends Model
      */
     public static function reserve(Order $order, $auto_pick_list = true)
     {
+        // dd($order, $order->products);
         foreach ($order->products as $product) {
             $reservations = self::reserveProduct($product);
+            // dd($product, $reservations->get());
         }
 
         if ($auto_pick_list && $order->isSufficient()) {
@@ -86,6 +88,7 @@ class Order extends Model
 
         // Check if we can reserve enough stock from the most abundant location.
         if ($stocks->first()->hasEnoughStockForReservation($order_product->quantity)) {
+            // dd(1, $order_product, $stocks->first()->hasEnoughStockForReservation($order_product->quantity), $stocks->first());
             // Reserve the available stock.
             // $stocks->first()->take($order_product->quantity);
 
@@ -113,14 +116,17 @@ class Order extends Model
             // echo '<br>';
             // echo 'Fully reserved?: '.$order_product->isFullyReserved();
         } else {
+            // dd(2, $order_product);
             
             // // tmp debug
             // echo '<br>';
             // echo 'Order #: '.$order_product->order->id;
 
             foreach ($stocks as $key => $stock) {
+                // dd($stock, $stock->quantityAvailable(), $stock->hasEnoughStockForReservation());
                 
                 if ($stock->hasEnoughStockForReservation() && !$order_product->isFullyReserved()) {
+                    // dd('123');
 
                     // // tmp debug
                     // echo '<hr>';
@@ -137,17 +143,29 @@ class Order extends Model
                     // Formula: (order - (order - stock)) - reserved
                     // $stock_quantity_takable = ($order_product->quantity - ($order_product->quantity - $stock->quantity)) - $order_product->quantity_reserved;
                     // $stock->take($stock_quantity_takable);
+                    
+                    // dd($order_product)
 
                     $formula_result = $order_product->quantity - ($order_product->quantity - $stock->quantityReservable()) - $order_product->quantity_reserved;
+                    // dd($formula_result, $order_product->quantity, $stock->quantityReservable());
                     // if ($formula_result <= 0) {
-                    if ($formula_result <= $order_product->quantity && $formula_result >= 0) {
+                    if ($formula_result <= $order_product->quantity && $formula_result > 0) {
+                        // dd(1);
                         $stock_quantity_reservable = $order_product->quantity - ($order_product->quantity - $stock->quantityReservable()) - $order_product->quantity_reserved;
                         // // tmp debug
                         // echo '<br>';
                         // echo 'Reservable formula: '. $order_product->quantity .'-('.$order_product->quantity .'-'. $stock->quantityReservable().')-'. $order_product->quantity_reserved;
+                        // dd(
+                        //     $order_product->quantity, // 2
+                        //     $stock->quantityReservable(), // 1
+                        //     $order_product->quantity_reserved, // 1
+                        //     $stock_quantity_reservable // 0
+                        // );
                     }
                     else {
+                        // dd(2, $order_product->quantity, $order_product->quantity_reserved, $order_product->quantity - $order_product->quantity_reserved);
                         $stock_quantity_reservable = $order_product->quantity - $order_product->quantity_reserved;
+                        // dd(9, $stock_quantity_reservable);
                         // // tmp debug
                         // echo '<br>';
                         // echo 'Reservable formula used: '. $order_product->quantity .'-'. $order_product->quantity_reserved;
@@ -156,6 +174,7 @@ class Order extends Model
                     // // tmp
                     // echo '<br>';
                     // echo '$stock_quantity_reservable: '.$stock_quantity_reservable;
+                    // dd($stock_quantity_reservable);
 
                     try {
                         // Save the product's reservation.
