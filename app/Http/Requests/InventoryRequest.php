@@ -13,7 +13,7 @@ class InventoryRequest extends \Backpack\CRUD\app\Http\Requests\CrudRequest
      */
     public function authorize()
     {
-        return true;
+        return backpack_auth()->check();
     }
 
     /**

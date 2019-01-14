@@ -13,7 +13,7 @@ class ShipOrderRequest extends FormRequest
      */
     public function authorize()
     {
-        return true;
+        return backpack_auth()->check();
     }
 
     /**

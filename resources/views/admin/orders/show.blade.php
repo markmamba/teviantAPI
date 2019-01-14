@@ -4,7 +4,7 @@
 	<section class="content-header">
 	  <h1>
 	    <span>
-	    	{{ title_case($crud->entity_name) }} #{{ $order->id }}
+	    	{{ title_case($crud->entity_name) }} #{{ $order->common_id }}
 	    </span>
 	    <small>
 	    	@if($order->status->name == 'Pending')
@@ -158,12 +158,12 @@
 							{!! Form::close() !!}
 						@endif
 						{{-- Reopen button --}}
-						@if($order->status->name == 'Done' || $order->status->name == 'Cancelled')
+						{{-- @if($order->status->name == 'Done' || $order->status->name == 'Cancelled')
 							{!! Form::open(['route' => ['order.reopen', $order->id], 'method' => 'PATCH']) !!}
 								{!! Form::hidden('status_id', $order_status_options->search('Pending')) !!}
 								{!! Form::submit('Re-open Order', ['class' => 'form-control btn btn-default']) !!}
 							{!! Form::close() !!}
-						@endif
+						@endif --}}
 					</p>
 				</div>
 			</div>
@@ -211,6 +211,7 @@
 				<div class="box-body">
 					<table class="table table-responsive">
 						<thead>
+							<th>Product</th>
 							<th>SKU</th>
 							<th>Quantity</th>
 							<th>Location</th>
@@ -224,6 +225,7 @@
 							<tbody>
 							@foreach($item as $reservation)
 								<tr>
+									<td>{{ $reservation->stock->item->name }}</td>
 									<td>{{ $reservation->stock->item->sku_code }}</td>
 									<td>{{ $reservation->order_product->quantity }}</td>
 									<td>{{ $reservation->stock->location->name }}</td>
@@ -235,7 +237,7 @@
 								</tr>
 							@endforeach
 								<tr>
-									<td class="text-right" colspan="8">
+									<td class="text-right" colspan="9">
 										<strong>Item deficiency:</strong> 
 										@if($reservation->order_product->isFullyReserved())
 											<span class="label label-success">
