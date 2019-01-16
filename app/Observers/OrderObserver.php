@@ -63,6 +63,11 @@ class OrderObserver
             throw new \Exception('ECOMMERCE_BASE_URI is not set in the .env file.');
         }
 
+        // Check auto_sync_order_statuses setting whether we update orders on the CMS app.
+        if (\Config::get('settings.auto_sync_order_statuses') == 0) {
+            return; // Exit immediately
+        }
+
         // The HTTP client for the ecommerce API.
         $this->ecommerce_client = new Client([
             // Base URI is used with relative requests
