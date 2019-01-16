@@ -57,6 +57,12 @@ class OrderObserver
 
     public function __construct()
     {
+        // Throw an error if there is no env value for ECOMMERCE_BASE_URI in the .env file.
+        if (env('ECOMMERCE_BASE_URI') == null) {
+            Log::critical('Oops, could not update orders without knowing where they are. Check ECOMMERCE_BASE_URI in your .env file.');
+            throw new \Exception('ECOMMERCE_BASE_URI is not set in the .env file.');
+        }
+
         // The HTTP client for the ecommerce API.
         $this->ecommerce_client = new Client([
             // Base URI is used with relative requests
