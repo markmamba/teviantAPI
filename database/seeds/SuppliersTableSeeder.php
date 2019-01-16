@@ -13,13 +13,7 @@ class SuppliersTableSeeder extends Seeder
     {
         $suppliers = [
         	[
-            	'name' => 'Good Supplier',
-        	],
-        	[
-            	'name' => 'Better Supplier',
-        	],
-        	[
-            	'name' => 'Best Supplier',
+            	'name' => 'Default Supplier',
         	],
         ];
 

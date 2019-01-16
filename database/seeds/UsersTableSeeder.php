@@ -14,8 +14,8 @@ class UsersTableSeeder extends Seeder
     	if (App::isLocal()) {
             // Truncate orders and its associated tables
             Schema::disableForeignKeyConstraints();
-            DB::table('order_billing_addresses')->truncate();
-            DB::table('order_shipping_addresses')->truncate();
+            // DB::table('order_billing_addresses')->truncate();
+            // DB::table('order_shipping_addresses')->truncate();
             DB::table('order_carriers')->truncate();
             DB::table('order_shipments')->truncate();
             DB::table('order_products')->truncate();

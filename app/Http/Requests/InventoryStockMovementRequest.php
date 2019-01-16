@@ -14,7 +14,7 @@ class InventoryStockMovementRequest extends \Backpack\CRUD\app\Http\Requests\Cru
     public function authorize()
     {
         // only allow updates if the user is logged in
-        return \Auth::check();
+        return backpack_auth()->check();
     }
 
     /**

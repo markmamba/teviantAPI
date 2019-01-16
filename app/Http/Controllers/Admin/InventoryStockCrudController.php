@@ -144,9 +144,10 @@ class InventoryStockCrudController extends CrudController
                 'type'  => 'number',
             ],
             [
-                'label' => 'Available',
-                'name'  => 'quantity_reservable',
-                'type'  => 'number',
+               'name' => 'quantity_available',
+               'label' => "Available",
+               'type' => 'view',
+               'view' => 'admin.inventory_stocks.columns.available_view',
             ],
         ]); // add multiple columns, at the end of the 
 

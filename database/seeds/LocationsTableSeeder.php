@@ -13,16 +13,7 @@ class LocationsTableSeeder extends Seeder
     {
         $locations = [
             [
-            	'name' => 'Warehouse 1',
-        	],
-        	[
-            	'name' => 'Warehouse 2',
-        	],
-        	[
-            	'name' => 'Branch 1',
-        	],
-            [
-                'name' => 'Receivings',
+                'name' => 'Default',
             ],
         ];
 

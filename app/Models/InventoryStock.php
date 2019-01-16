@@ -136,6 +136,15 @@ class InventoryStock extends Model
         return abs($this->quantity - $this->pendingReservationsCount());
     }
 
+    /**
+     * Alias of quantityReservable
+     * @return int
+     */
+    public function quantityAvailable()
+    {
+        return $this->quantityReservable();
+    }
+
     public function pendingReservationsCount()
     {
         return $this->reservations()->whereHas('order_product.order', function ($query) {

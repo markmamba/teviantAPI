@@ -79,7 +79,7 @@ return [
     */
 
     // Fully qualified namespace of the User model
-    'user_model_fqn' => '\App\User',
+    'user_model_fqn' => App\Models\BackpackUser::class,
 
     // What kind of avatar will you like to show to the user?
     // Default: gravatar (automatically use the gravatar for his email)
@@ -103,4 +103,26 @@ return [
     */
 
     'license_code' => env('BACKPACK_LICENSE', false),
+
+    // The guard that protects the Backpack admin panel.
+    // If null, the config.auth.defaults.guard value will be used.
+    'guard' => 'backpack',
+
+    // The password reset configuration for Backpack.
+    // If null, the config.auth.defaults.passwords value will be used.
+    'passwords' => 'backpack',
+
+    // The classes for the middleware to check if the visitor is an admin
+    // Can be a single class or an array of clases
+    'middleware_class' => [
+        App\Http\Middleware\CheckIfAdmin::class,
+        \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
+        Backpack\Base\app\Http\Middleware\UseBackpackAuthGuardInsteadOfDefaultAuthGuard::class,
+    ],
+
+    // Overlays - CSS files that change the look and feel of the admin panel
+    'overlays' => [
+        'vendor/backpack/base/backpack.bold.css',
+        // 'vendor/backpack/base/backpack.content.is.king.css', // opinionized borderless alternative
+    ],
 ];

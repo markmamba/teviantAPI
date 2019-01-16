@@ -17,6 +17,7 @@ use App\Models\OrderBillingAddress;
 use App\Models\OrderProduct;
 use App\Models\OrderProductPicking;
 use App\Models\OrderProductReservation;
+use Illuminate\Support\Facades\DB;
 
 // VALIDATION: change the requests to match your own file names if you need form validation
 // use App\Http\Requests\OrderRequest as StoreRequest;
@@ -47,7 +48,7 @@ class OrderCrudController extends CrudController
             // Base URI is used with relative requests
             'base_uri' => env('ECOMMERCE_BASE_URI'),
             // You can set any number of default request options.
-            'timeout'  => 2.0,
+            // 'timeout'  => 2.0,
         ]);
     }
 
@@ -199,6 +200,7 @@ class OrderCrudController extends CrudController
         $crud = $this->crud;
 
         $order = Order::findOrFail($id);
+        // dd($order->deficiency);
         $order_status_options = collect(OrderStatus::orderBy('id', 'asc')->pluck('name', 'id'));
         $auto_done_after_delivered = $this->auto_done_after_delivered;
 
@@ -213,11 +215,18 @@ class OrderCrudController extends CrudController
     {
         $this->crud->hasAccessOrFail('sync');
 
+        DB::beginTransaction();
+
+        // Before syncing orders, sync categories and products first.
+        $exitCode = \Artisan::call('sync:all');
+
         try {
             $response = $this->ecommerce_client->get('api/orders');
             $orders = collect(json_decode($response->getBody()));
         } catch (\Exception $e) {
             \Alert::error($e->getMessage())->flash();
+            \Log::critical($e->getMessage());
+            DB::rollBack();
             return back();
         }
 
@@ -238,43 +247,24 @@ class OrderCrudController extends CrudController
             if (count($order->products) == 0)
                 continue;
             
-            // Save the new order
-            $new_order = new Order;
-            $new_order->common_id = $order->id;
-            $new_order->created_at = \Carbon\Carbon::parse($order->created_at);
-            $new_order->save(['timestamps' => false]);
+            try {
+                // Save the new order
+                $new_order = new Order;
+                $new_order->common_id = $order->id;
+                $new_order->created_at = \Carbon\Carbon::parse($order->created_at);
+                $new_order->shipping_address = $order->shipping_address;
+                $new_order->billing_address = $order->billing_address;
+                $new_order->save(['timestamps' => false]);
+            } catch (\Exception $e) {
+                \Alert::error($e->getMessage())->flash();
+                \Log::critical($e->getMessage());
+                DB::rollBack();
+                return back();
+            }
 
             // Save the new order's user
             // $order_user = new OrderUser;
             // $order_user->first_name
-
-            // Save the new order's shipping address
-            $shipping_address               = new OrderShippingAddress;
-            $shipping_address->common_id    = $order->shipping_address->id;
-            $shipping_address->order_id     = $new_order->id;
-            $shipping_address->name         = $order->shipping_address->name;
-            $shipping_address->address1     = $order->shipping_address->address1;
-            $shipping_address->address2     = $order->shipping_address->address2;
-            $shipping_address->county       = $order->shipping_address->county;
-            $shipping_address->city         = $order->shipping_address->city;
-            $shipping_address->postal_code  = $order->shipping_address->postal_code;
-            $shipping_address->phone        = $order->shipping_address->phone;
-            $shipping_address->mobile_phone = $order->shipping_address->mobile_phone;
-            $shipping_address->save();
-
-            // Save the new order's billing address
-            $billing_address               = new OrderBillingAddress;
-            $billing_address->common_id    = $order->billing_address->id;
-            $billing_address->order_id     = $new_order->id;
-            $billing_address->name         = $order->billing_address->name;
-            $billing_address->address1     = $order->billing_address->address1;
-            $billing_address->address2     = $order->billing_address->address2;
-            $billing_address->county       = $order->billing_address->county;
-            $billing_address->city         = $order->billing_address->city;
-            $billing_address->postal_code  = $order->billing_address->postal_code;
-            $billing_address->phone        = $order->billing_address->phone;
-            $billing_address->mobile_phone = $order->billing_address->mobile_phone;
-            $billing_address->save();
 
             // Save the order's carrier
             $carrier = OrderCarrier::create(
@@ -285,23 +275,29 @@ class OrderCrudController extends CrudController
 
             // Save each order's products.
             foreach ($order->products as $product) {
-                $order_product             = new OrderProduct();
-                $order_product->product_id = Inventory::findBySku2($product->sku)->id;
-                $order_product->order_id   = $new_order->id;
-                $order_product->common_id  = $product->product_id;
-                $order_product->name       = $product->name;
-                $order_product->sku        = $product->sku;
-                $order_product->quantity   = $product->quantity;
-                $order_product->price      = isset($product->price_with_tax) ? $product->price_with_tax : $product->price;
-                $order_product->save();
+                try {
+                    $order_product             = new OrderProduct();
+                    $order_product->product_id = Inventory::findBySku2($product->pivot->sku)->id;
+                    $order_product->order_id   = $new_order->id;
+                    $order_product->common_id  = $product->pivot->product_id;
+                    $order_product->name       = $product->pivot->name;
+                    $order_product->sku        = $product->pivot->sku;
+                    $order_product->quantity   = $product->pivot->quantity;
+                    $order_product->price      = isset($product->pivot->price_with_tax) ? $product->pivot->price_with_tax : $product->pivot->price;
+                    $order_product->save();
+                } catch (\Exception $e) {
+                    \Alert::error('Server error occured. Please check logs.')->flash();
+                    \Log::critical([$e->getMessage(), $product]);
+                    DB::rollBack();
+                    return back();
+                }
             }
 
              // Handle product reservation
             $this->reserveOrder($new_order, $this->auto_pick_list);
         }
-
-        // // tmp debug
-        // die();
+        
+        DB::commit();
         
         \Alert::success('Synced orders.')->flash();
         

@@ -10,7 +10,7 @@ return [
      *
      * @var bool
      */
-    'allow_no_user' => false,
+    'allow_no_user' => true,
 
     /*
      * Allows inventory stock movements to have the same before and after quantity
