@@ -30,6 +30,8 @@ class DatabaseSeeder extends Seeder
         // $this->call(InventoriesTableSeeder::class);
         $this->call(SuppliersTableSeeder::class);
         // $this->call(InventoryStocksTableSeeder::class);
+        
+        $this->call(SettingsTableSeeder::class);
 
         Auth::logout();
     }
