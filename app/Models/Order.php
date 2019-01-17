@@ -216,6 +216,9 @@ class Order extends Model
         return $this->hasMany('App\Models\OrderProduct');
     }
 
+    /**
+     * TODO: convert this to 1-n to support partial fulfillment
+     */
     public function shipment()
     {
         return $this->hasOne('App\Models\OrderShipment', 'order_id');

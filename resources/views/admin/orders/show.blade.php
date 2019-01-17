@@ -48,14 +48,14 @@
 	</div>
 
 	<div class="row">
-		<div class="col-md-4">
+		<div class="col-md-6">
 			<div class="box box-default">
 				<div class="box-header with-border">
 					<h3 class="box-title">General Details</h3>
 				</div>
 				<div class="box-body">
 					<h5>Order Id</h5>
-					{{ $order->id }}
+					{{ $order->common_id }}
 					<h5>Date</h5>
 					{{ $order->created_at }}
 					<h5>Customer</h5>
@@ -67,24 +67,7 @@
 				</div>
 			</div>
 		</div>
-		<div class="col-md-4">
-			<div class="box box-default">
-				<div class="box-header with-border">
-					<h3 class="box-title">Address</h3>
-				</div>
-				<div class="box-body">
-					<h5>Billing</h5>
-					<p>
-						{{ $order->full_billing_address }}
-					</p>
-					<h5>Shipping</h5>
-					<p>
-						{{ $order->full_billing_address }}
-					</p>
-				</div>
-			</div>
-		</div>
-		<div class="col-md-4">
+		<div class="col-md-6">
 			<div class="box box-default">
 				<div class="box-header with-border">
 					<h3 class="box-title">Order</h3>
@@ -165,6 +148,89 @@
 							{!! Form::close() !!}
 						@endif --}}
 					</p>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col-md-12">
+			<div class="box box-default">
+				<div class="box-header with-border">
+					<h3 class="box-title">Address</h3>
+					<div class="box-tools pull-right">
+		                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+		                </button>
+		            </div>
+				</div>
+				<div class="box-body">
+					<table class="table table-hover">
+						<thead>
+							<th></th>
+							<th>Shipping Address</th>
+							<th>Billing Address</th>
+						</thead>
+						<tr>
+							<td>Contact Person</td>
+							<td>{{ $order->shipping_address['name'] }}</td>
+							<td>{{ $order->billing_address['name'] }}</td>
+						</tr>
+						<tr>
+							<td>Unit/Room No.</td>
+							<td>{{ $order->shipping_address['unit'] }}</td>
+							<td>{{ $order->billing_address['unit'] }}</td>
+						</tr>
+						<tr>
+							<td>Building</td>
+							<td>{{ $order->shipping_address['building'] }}</td>
+							<td>{{ $order->billing_address['building'] }}</td>
+						</tr>
+						<tr>
+							<td>Street</td>
+							<td>{{ $order->shipping_address['street'] }}</td>
+							<td>{{ $order->billing_address['street'] }}</td>
+						</tr>
+						<tr>
+							<td>Barangay</td>
+							<td>{{ $order->shipping_address['barangay'] }}</td>
+							<td>{{ $order->billing_address['barangay'] }}</td>
+						</tr>
+						<tr>
+							<td>City</td>
+							<td>{{ $order->shipping_address['city'] }}</td>
+							<td>{{ $order->billing_address['city'] }}</td>
+						</tr>
+						<tr>
+							<td>Province/County</td>
+							<td>{{ $order->shipping_address['county'] }}</td>
+							<td>{{ $order->billing_address['county'] }}</td>
+						</tr>
+						<tr>
+							<td>Postal Code</td>
+							<td>{{ $order->shipping_address['postal_code'] }}</td>
+							<td>{{ $order->billing_address['postal_code'] }}</td>
+						</tr>
+						<tr>
+							<td>State</td>
+							<td>{{ $order->shipping_address['state'] }}</td>
+							<td>{{ $order->billing_address['state'] }}</td>
+						</tr>
+						<tr>
+							<td>Country</td>
+							<td>{{ isset($order->shipping_address['country']) ? $order->shipping_address['country']['name'] : null }}</td>
+							<td>{{ isset($order->billing_address['country']) ? $order->shipping_address['country']['name'] : null }}</td>
+						</tr>
+						<tr>
+							<td>Mobile Phone</td>
+							<td>{{ $order->shipping_address['mobile_phone'] }}</td>
+							<td>{{ $order->billing_address['mobile_phone'] }}</td>
+						</tr>
+						<tr>
+							<td>Phone</td>
+							<td>{{ $order->shipping_address['phone'] }}</td>
+							<td>{{ $order->billing_address['phone'] }}</td>
+						</tr>
+					</table>
 				</div>
 			</div>
 		</div>
