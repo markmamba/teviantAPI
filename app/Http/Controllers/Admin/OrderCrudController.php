@@ -18,6 +18,7 @@ use App\Models\OrderProduct;
 use App\Models\OrderProductPicking;
 use App\Models\OrderProductReservation;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 // VALIDATION: change the requests to match your own file names if you need form validation
 // use App\Http\Requests\OrderRequest as StoreRequest;
@@ -528,12 +529,12 @@ class OrderCrudController extends CrudController
         return $pdf->stream();
     }
 
-    public function getPickings($order_id)
+    public function getReservations($order_id)
     {
         $crud = $this->crud;
         $order = Order::with(['status', 'products', 'products.reservations'])->findOrFail($order_id);
 
-        return view('admin.orders.pickings', compact('crud', 'order'));
+        return view('admin.orders.reservations', compact('crud', 'order'));
     }
 
     /**
@@ -542,11 +543,47 @@ class OrderCrudController extends CrudController
      * @param  Request $request
      * @return redirect()
      */
-    public function updatePickings($order_id, Request $request)
+    public function updateReservations($order_id, Request $request)
     {
         $order = Order::find($order_id);
 
-        dd($order, $request->all());
+        DB::beginTransaction();
+
+        try {
+            foreach ($request->reservations as $reservation_item) {
+                $reservation = OrderProductReservation::find($reservation_item['id']);
+                
+                if (isset($reservation_item['is_picked'])) {
+
+                    // Update the reservation
+                    $reservation->quantity_taken = $reservation->quantity_reserved;
+                    $reservation->picked_at      = \Carbon\Carbon::now();
+                    $reservation->picked_by      = Auth::user()->id;
+                    $reservation->save();
+
+                    // Create a picking record. For now, we'lll do 1-1.
+                    $picking = new OrderProductPicking;
+                    $picking->reservation_id  = $reservation->id;
+                    $picking->quantity_picked = $reservation->quantity_taken;
+                    $picking->picker_id       = isset($request->packer_id) ? $request->packer_id : Auth::user()->id;
+                    $picking->picked_at       = \Carbon\Carbon::now();
+                    
+                    $reservation->stock->take($picking->reservation->quantity_reserved, 'Picked for order #' . $order->id);
+
+                    $picking->movement_id     = $picking->reservation->order_product->product->stocks->first()->getLastMovement()->id;
+                    $picking->save();
+
+                }
+            }
+        } catch (\Exception $e) {
+            DB::rollback();
+            \Log::critical('Could not pick product reservations.', [$e->getMessage()]);
+            throw new \Exception($e->getMessage());
+        }
+
+        DB::commit();
+
+        return redirect()->route('order.show', $order->id);
     }
 
     public function handleStatusChange($request, $order, $auto_complete = true)

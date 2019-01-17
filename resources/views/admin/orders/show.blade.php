@@ -277,7 +277,7 @@
 									</li>
 								</ul>
 							</div>
-							<a href="{{ route('order.pick', $order->id) }}" class="btn btn-default btn-flat btn-flat"><i class="fa fa-hand-lizard-o"></i> Pick Products</a>
+							<a href="{{ route('order.get_reservations', $order->id) }}" class="btn btn-default btn-flat btn-flat"><i class="fa fa-hand-lizard-o"></i> Pick Products</a>
 						</div>
 					</div>
 				</div>

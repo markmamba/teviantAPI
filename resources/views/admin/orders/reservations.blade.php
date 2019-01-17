@@ -36,8 +36,12 @@
 					<th></th>
 				</thead>
 				<tbody>
+					{!! Form::open(['url' => route('order.update_reservations', $order->id), 'method' => 'patch', 'id' => 'orderPickingsForm']) !!}
 					@foreach($order->reservations->groupBy('order_product_id') as $key => $item)
 						@foreach($item as $reservation)
+							@if(!$reservation->picked_at)
+								{!! Form::hidden('reservations['.$key.'][id]', $reservation->id) !!}
+							@endif
 							<td>{{ $reservation->stock->item->sku_code }}</td>
 							<td>{{ $reservation->stock->item->name }}</td>
 							<td>{{ $reservation->stock->location->name }}</td>
@@ -46,17 +50,22 @@
 							<td>
 								<div class="checkbox">
 									<label>
-										<input type="checkbox"> Picked
+										@if(!isset($reservation->picked_at))
+											{!! Form::hidden('reservations['.$key.'][id]', $reservation->id) !!}
+										@else
+											<span class="text-muted">PICKED</span>
+										@endif
 									</label>
 								</div>
 							</td>
 						@endforeach
 					@endforeach
+					{!! Form::close() !!}
 				</tbody>
 				<tfoot>
 					<tr class="text-right">
 						<td colspan="6">
-							<button class="btn btn-primary btn-flat">Confirm Pickings</button>
+							<button type="submit" form="orderPickingsForm" class="btn btn-primary btn-flat">Confirm Pickings</button>
 						</td>
 					</tr>
 				</tfoot>

@@ -12,6 +12,8 @@ class OrderProductReservation extends Model
 		'user_id',
 		'quantity_reserved',
 		'quantity_taken',
+        'picked_at',
+        'picked_by'
 	];
 
     public function order_product()
