@@ -528,6 +528,27 @@ class OrderCrudController extends CrudController
         return $pdf->stream();
     }
 
+    public function getPickings($order_id)
+    {
+        $crud = $this->crud;
+        $order = Order::with(['status', 'products', 'products.reservations'])->findOrFail($order_id);
+
+        return view('admin.orders.pickings', compact('crud', 'order'));
+    }
+
+    /**
+     * WIP
+     * @param  string  $order_id
+     * @param  Request $request
+     * @return redirect()
+     */
+    public function updatePickings($order_id, Request $request)
+    {
+        $order = Order::find($order_id);
+
+        dd($order, $request->all());
+    }
+
     public function handleStatusChange($request, $order, $auto_complete = true)
     {
         // Automatically complete an order if it was set to delivered.

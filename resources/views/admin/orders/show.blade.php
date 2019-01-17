@@ -102,17 +102,17 @@
 							@if($order->isSufficient())
 								{!! Form::open(['route' => ['crud.order.update', $order->id], 'method' => 'PATCH']) !!}
 									{!! Form::hidden('status_id', $order_status_options->search('Pick Listed')) !!}
-									{!! Form::submit('Set as Pick-listed', ['class' => 'form-control btn btn-primary']) !!}
+									{!! Form::submit('Set as Pick-listed', ['class' => 'form-control btn btn-primary btn-flat']) !!}
 								{!! Form::close() !!}
 							@else
-								<a href="#" class="btn btn-primary btn-block" disabled>Set as Pick-listed</a>
+								<a href="#" class="btn btn-primary btn-flat btn-block" disabled>Set as Pick-listed</a>
 							@endif
 						@endif
 						@if($order->status->name == 'Pick Listed')
-							<a href="{{ route('order.pack', $order->id) }}" class="btn btn-primary btn-block">Pack Order</a>
+							<a href="{{ route('order.pack', $order->id) }}" class="btn btn-primary btn-flat btn-block">Pack Order</a>
 						@endif
 						@if($order->status->name == 'Packed')
-							<a href="{{ route('order.ship', $order->id) }}" class="btn btn-primary btn-block">Ship Order</a>
+							<a href="{{ route('order.ship', $order->id) }}" class="btn btn-primary btn-flat btn-block">Ship Order</a>
 						@endif
 						@if($order->status->name == 'Shipped')
 							{!! Form::open(['route' => ['crud.order.update', $order->id], 'method' => 'PATCH']) !!}
@@ -121,13 +121,13 @@
 								@else
 									{!! Form::hidden('status_id', $order_status_options->search('Done')) !!}
 								@endif
-								{!! Form::submit('Set as Delivered', ['class' => 'form-control btn btn-primary']) !!}
+								{!! Form::submit('Set as Delivered', ['class' => 'form-control btn btn-primary btn-flat']) !!}
 							{!! Form::close() !!}
 						@endif
 						@if($order->status->name == 'Delivered')
 							{!! Form::open(['route' => ['crud.order.update', $order->id], 'method' => 'PATCH']) !!}
 								{!! Form::hidden('status_id', $order_status_options->search('Done')) !!}
-								{!! Form::submit('Set as Done', ['class' => 'form-control btn btn-primary']) !!}
+								{!! Form::submit('Set as Done', ['class' => 'form-control btn btn-primary btn-flat']) !!}
 							{!! Form::close() !!}
 						@endif
 					</p>
@@ -137,7 +137,7 @@
 						@if($order->status->name != 'Done' && $order->status->name != 'Cancelled')
 							{!! Form::open(['route' => ['order.cancel', $order->id], 'method' => 'PATCH']) !!}
 								{!! Form::hidden('status_id', $order_status_options->search('Cancelled')) !!}
-								{!! Form::submit('Cancel Order', ['class' => 'form-control btn btn-default']) !!}
+								{!! Form::submit('Cancel Order', ['class' => 'form-control btn btn-default btn-flat']) !!}
 							{!! Form::close() !!}
 						@endif
 						{{-- Reopen button --}}
@@ -255,31 +255,29 @@
 								<p class="text-warning">Insufficient stocks. Replenish stocks!</p>
 							@endif
 						</div>
-						<div class="col-md-9">
-							<div class="pull-right">
-								
-								<div class="dropdown">
-									<button class="btn btn-default dropdown-toggle" type="button" id="printDropdownButtons" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true"><i class="fa fa-print"></i> Print <span class="caret"></span></button>
-									<ul class="dropdown-menu" aria-labelledby="printDropdownButtons">
-										<li>
-											<a href="{{ route('order.print_pick_list', $order->id) }}" target="_blank">Pick List</a>
-										</li>
-										<li>
-											<a href="{{ route('order.print_receipt', $order->id) }}" target="_blank">Official Receipt</a>
-										</li>
-										<li>
-											<a href="{{ route('order.print_delivery_receipt', $order->id) }}" target="_blank">Delivery Receipt</a>
-										</li>
-										<li>
-											<a href="{{ route('order.print_carrier_receipt', $order->id) }}" target="_blank">Carrier Receipt</a>
-										</li>
-										<li role="separator" class="divider"></li>
-										<li>
-											<a href="{{ route('order.print_all', $order->id) }}" target="_blank">Print All</a>
-										</li>
-									</ul>
-								</div>
+						<div class="col-md-9 text-right">
+							<div class="btn-group">
+								<button class="btn btn-default btn-flat dropdown-toggle" type="button" id="printDropdownButtons" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true"><i class="fa fa-print"></i> Print <span class="caret"></span></button>
+								<ul class="dropdown-menu" aria-labelledby="printDropdownButtons">
+									<li>
+										<a href="{{ route('order.print_pick_list', $order->id) }}" target="_blank">Pick List</a>
+									</li>
+									<li>
+										<a href="{{ route('order.print_receipt', $order->id) }}" target="_blank">Official Receipt</a>
+									</li>
+									<li>
+										<a href="{{ route('order.print_delivery_receipt', $order->id) }}" target="_blank">Delivery Receipt</a>
+									</li>
+									<li>
+										<a href="{{ route('order.print_carrier_receipt', $order->id) }}" target="_blank">Carrier Receipt</a>
+									</li>
+									<li role="separator" class="divider"></li>
+									<li>
+										<a href="{{ route('order.print_all', $order->id) }}" target="_blank">Print All</a>
+									</li>
+								</ul>
 							</div>
+							<a href="{{ route('order.pick', $order->id) }}" class="btn btn-default btn-flat btn-flat"><i class="fa fa-hand-lizard-o"></i> Pick Products</a>
 						</div>
 					</div>
 				</div>
