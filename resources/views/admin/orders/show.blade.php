@@ -257,19 +257,28 @@
 						</div>
 						<div class="col-md-9">
 							<div class="pull-right">
-								@if($order->isSufficient())
-									<a href="{{ route('order.print_pick_list', $order->id) }}" class="btn btn-default btn-sm" title="Print Pick List" data-toggle="tooltip" target="_blank"><i class="fa fa-print"></i> Pick List</a>
-									<a href="{{ route('order.print_receipt', $order->id) }}" class="btn btn-default btn-sm" title="Print Official Receipt" data-toggle="tooltip" target="_blank"><i class="fa fa-print"></i> Official Receipt</a>
-									<a href="{{ route('order.print_delivery_receipt', $order->id) }}" class="btn btn-default btn-sm" title="Print Delivery Receipt" data-toggle="tooltip" target="_blank"><i class="fa fa-print"></i> Delivery Receipt</a>
-									<a href="{{ route('order.print_carrier_receipt', $order->id) }}" class="btn btn-default btn-sm" title="Print Carrier Receipt" data-toggle="tooltip" target="_blank"><i class="fa fa-print"></i> Carrier Receipt</a>
-									<a href="{{ route('order.print_all', $order->id) }}" class="btn btn-default btn-sm" title="Print All" data-toggle="tooltip" target="_blank"><i class="fa fa-print"></i> Print All</a>
-								@else
-									<a href="#" class="btn btn-default btn-sm" title="Pick List" data-toggle="tooltip" disabled><i class="fa fa-print"></i> Pick List</a>
-									<a href="#" class="btn btn-default btn-sm" title="Print Official Receipt" data-toggle="tooltip" disabled><i class="fa fa-print"></i> Official Receipt</a>
-									<a href="#" class="btn btn-default btn-sm" title="Print Delivery Receipt" data-toggle="tooltip" disabled><i class="fa fa-print"></i> Delivery Receipt</a>
-									<a href="#" class="btn btn-default btn-sm" title="Print Carrier Receipt" data-toggle="tooltip" disabled><i class="fa fa-print"></i> Carrier Receipt</a>
-									<a href="#" class="btn btn-default btn-sm" title="Print All" data-toggle="tooltip" disabled><i class="fa fa-print"></i> Print All</a>
-								@endif
+								
+								<div class="dropdown">
+									<button class="btn btn-default dropdown-toggle" type="button" id="printDropdownButtons" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true"><i class="fa fa-print"></i> Print <span class="caret"></span></button>
+									<ul class="dropdown-menu" aria-labelledby="printDropdownButtons">
+										<li>
+											<a href="{{ route('order.print_pick_list', $order->id) }}" target="_blank">Pick List</a>
+										</li>
+										<li>
+											<a href="{{ route('order.print_receipt', $order->id) }}" target="_blank">Official Receipt</a>
+										</li>
+										<li>
+											<a href="{{ route('order.print_delivery_receipt', $order->id) }}" target="_blank">Delivery Receipt</a>
+										</li>
+										<li>
+											<a href="{{ route('order.print_carrier_receipt', $order->id) }}" target="_blank">Carrier Receipt</a>
+										</li>
+										<li role="separator" class="divider"></li>
+										<li>
+											<a href="{{ route('order.print_all', $order->id) }}" target="_blank">Print All</a>
+										</li>
+									</ul>
+								</div>
 							</div>
 						</div>
 					</div>
