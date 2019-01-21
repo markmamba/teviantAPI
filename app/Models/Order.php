@@ -47,6 +47,73 @@ class Order extends Model
     }
 
     /**
+     * Check if an order can be paritally fulfilled.
+     * @return boolean
+     */
+    public function isPartiallyFulfillable()
+    {
+        if ($this->reservations->sum('quantity_reserved') > 0 && $this->reservations->sum('quantity_reserved') < $this->products->sum('quantity'))
+            return true;
+        else
+            return false;   
+    }
+
+    /**
+     * Check if the order has been fully fulfilled
+     * @return boolean
+     */
+    public function isFullfilled()
+    {
+        // Check status
+        if ($this->status->name == 'Done')
+            return true;
+
+        // Check reservations
+        foreach ($this->reservations as $reservation) {
+            if ($reservation->picked_at == null || $reservation->order_carrier_id == null)
+                return false;
+        }        
+
+        // Check carrier shipments
+        foreach ($this->carriers as $carrier) {
+            if ($carrier->delivered_at == null)
+                return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Check if the order has any reserved products to be picked.
+     * @return boolean
+     */
+    public function hasPickableReservations()
+    {
+        if ($this->reservations()->whereNull('picked_at')->count())
+            return true;
+    }
+
+    /**
+     * Check if the order has any reserved products that has been picked.
+     * @return boolean
+     */
+    public function hasPickedReservations()
+    {
+        if ($this->reservations()->whereNotNull('picked_at')->count())
+            return true;
+    }
+
+    /**
+     * Check if the order has unshipped picked-reservations.
+     * @return boolean
+     */
+    public function hasShippableReservations()
+    {
+        if ($this->reservations()->whereNotNull('picked_at')->whereNull('order_carrier_id')->count())
+            return true;
+    }
+
+    /**
      * Reserve a given order's products.
      * TODO: This was copied with minor modifications from the OrderCrudController.
      * Should use this instead for reusability or maybe use Repositories.
@@ -219,9 +286,9 @@ class Order extends Model
     /**
      * TODO: convert this to 1-n to support partial fulfillment
      */
-    public function shipment()
+    public function shipments()
     {
-        return $this->hasOne('App\Models\OrderShipment', 'order_id');
+        return $this->hasMany('App\Models\OrderShipment', 'order_id');
     }
 
     // public function shippingAddress()
@@ -244,9 +311,9 @@ class Order extends Model
         return $this->hasManyThrough('App\Models\OrderProductReservation', 'App\Models\OrderProduct', 'order_id', 'order_product_id');
     }
 
-    public function carrier()
+    public function carriers()
     {
-        return $this->hasOne('App\Models\OrderCarrier', 'order_id');
+        return $this->hasMany('App\Models\OrderCarrier');
     }
 
     public function packer()

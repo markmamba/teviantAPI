@@ -10,6 +10,9 @@
 	    	@if($order->status->name == 'Pending')
 				<span class="label label-warning">Pending</span>
 			@endif
+			@if($order->status->name == 'Partial')
+				<span class="label label-info">Partial</span>
+			@endif
 			@if($order->status->name == 'Pick Listed')
 				<span class="label label-primary">Ready for Picking</span>
 			@endif
@@ -124,7 +127,7 @@
 								{!! Form::submit('Set as Delivered', ['class' => 'form-control btn btn-primary btn-flat']) !!}
 							{!! Form::close() !!}
 						@endif
-						@if($order->status->name == 'Delivered')
+						@if($order->status->name == 'Delivered' || ($order->isFullfilled() && $order->status->name != 'Done'))
 							{!! Form::open(['route' => ['crud.order.update', $order->id], 'method' => 'PATCH']) !!}
 								{!! Form::hidden('status_id', $order_status_options->search('Done')) !!}
 								{!! Form::submit('Set as Done', ['class' => 'form-control btn btn-primary btn-flat']) !!}
@@ -277,7 +280,16 @@
 									</li>
 								</ul>
 							</div>
-							<a href="{{ route('order.get_reservations', $order->id) }}" class="btn btn-default btn-flat btn-flat"><i class="fa fa-hand-lizard-o"></i> Pick Products</a>
+							@if($order->hasPickableReservations())
+								<a href="{{ route('order.get_reservations', $order->id) }}" class="btn btn-default btn-flat btn-flat"><i class="fa fa-hand-lizard-o"></i> Pick-Pack Products</a>
+							@else
+								<a href="#" class="btn btn-default btn-flat btn-flat" disabled><i class="fa fa-hand-lizard-o"></i> Pick-Pack Products</a>
+							@endif
+							@if($order->hasShippableReservations())
+								<a href="{{ route('order.get_reservations', $order->id) }}" class="btn btn-default btn-flat btn-flat"><i class="fa fa-truck"></i> Ship Products</a>
+							@else
+								<a href="#" class="btn btn-default btn-flat btn-flat" disabled><i class="fa fa-truck"></i> Ship Products</a>
+							@endif
 						</div>
 					</div>
 				</div>
@@ -321,50 +333,59 @@
 										@endif
 									</td>
 								</tr>
-								</tr>
 							</tbody>
 						@endforeach
 					</table>
 				</div>
 				<div class="box-footer">
-					@if(in_array($order->status->name, ['Packed', 'Shipped', 'Delivered', 'Done']))
+					{{-- @if(in_array($order->status->name, ['Packed', 'Shipped', 'Delivered', 'Done']))
 						Packed by {{ $order->packer->name }} on {{ $order->packed_at }}
-					@endif
+					@endif --}}
 				</div>
 			</div>
 		</div>
 	</div>
 
-	{{-- Shipment Panel --}}
-	@if(in_array($order->status->name, ['Shipped', 'Delivered', 'Done']))
+	{{-- Shipments Panel --}}
+	@if(in_array($order->status->name, ['Shipped', 'Delivered', 'Done', 'Partial']))
 	<div class="box box-default">
 		<div class="box-header with-border">
-			<h3 class="box-title">Shipment</h3>
+			<h3 class="box-title">Carriers</h3>
 		</div>
-		<div class="box-body">
-			<div class="form-group">
-				<label>Carrier</label>
-				<p class="form-control-static">{{ $order->carrier->name }}</p>
-			</div>
-			<div class="form-group">
-				<label>Package Dimensions</label>
-				@if(isset($order->shipment->package_length, $order->shipment->package_width, $order->shipment->package_height))
-					<p class="form-control-static">
-						{{ $order->shipment->package_length }} x {{ $order->shipment->package_width }} x {{ $order->shipment->package_height }} cm
-					</p>
-				@else
-					<p>Unspecified</p>
-				@endif
-			</div>
-			<div class="form-group">
-				<label>Package Weight</label>
-				@if(isset($order->shipment->package_weight))
-					<p class="form-control-static">{{ $order->shipment->package_weight }} grams</p>
-				@else
-					<p class="form-control-static">Unspecified</p>
-				@endif
-			</div>
-		</div>
+		<table class="table table-hover">
+			<thead>
+				<th>Carrier</th>
+				<th>Tracking #</th>
+				<th>Date Shipped</th>
+				<th>Status</th>
+				<th>Date Delivered</th>
+				<th></th>
+			</thead>
+			<tbody>
+				@foreach($order->carriers as $carrier)
+					<tr>
+						<td>{{ $carrier->name }}</td>
+						<td>{{ $carrier->tracking_number }}</td>
+						<td>{{ $carrier->created_at }}</td>
+						<td>
+							@if($carrier->delivered_at == null)
+								<span class="label label-info">Shipping</span>
+							@else
+								<span class="label label-success">Delivered</span>
+							@endif
+						</td>
+						<td>{{ $carrier->delivered_at ?? null }}</td>
+						<td class="text-right">
+							@if($carrier->delivered_at === null)
+								{!! Form::open(['url' => route('order.deliver_order_carrier', [$order->id, $carrier->id]), 'method' => 'patch']) !!}
+									<button class="btn btn-default btn-flat">Mark as Delivered</button>
+								{!! Form::close() !!}
+							@endif
+						</td>
+					</tr>
+				@endforeach
+			</tbody>
+		</table>
 	</div>
 	@endif
 

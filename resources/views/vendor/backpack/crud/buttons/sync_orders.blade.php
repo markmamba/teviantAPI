@@ -33,6 +33,11 @@ $(document).ready(function(){
 	        })
 	        .fail(function(data) {
 	            // console.log("error");
+	            new PNotify({
+					title: "Failed to Sync",
+					text: "Check your network or retry later.",
+					type: "warning"
+				});
 	        })
 	        .always(function(data) {
 	        	// console.log("always");

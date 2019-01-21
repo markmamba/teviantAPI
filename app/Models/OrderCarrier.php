@@ -11,6 +11,8 @@ class OrderCarrier extends Model
     	'name',
     	'price',
     	'delivery_text',
+        'delivered_at',
+        'tracking_number',
     ];
 
     public function order()

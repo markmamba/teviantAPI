@@ -13,7 +13,8 @@ class OrderProductReservation extends Model
 		'quantity_reserved',
 		'quantity_taken',
         'picked_at',
-        'picked_by'
+        'picked_by',
+        'order_shipment_id'
 	];
 
     public function order_product()

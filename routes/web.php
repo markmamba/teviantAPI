@@ -84,6 +84,7 @@ Route::group([
     Route::patch('order/{order_id}/ship', 'OrderCrudController@ship')->name('order.ship');
     Route::get('order/{order_id}/reservations', 'OrderCrudController@getReservations')->name('order.get_reservations');
     Route::patch('order/{order_id}/reservations', 'OrderCrudController@updateReservations')->name('order.update_reservations');
+    Route::patch('order/{order_id}/carriers/{order_carrier_id}/deliver', 'OrderCrudController@deliverOrderCarrier')->name('order.deliver_order_carrier');
     // Route::patch('order/{order_id}', 'OrderCrudController@update')->name('order.update');
     
     // Purchase orders

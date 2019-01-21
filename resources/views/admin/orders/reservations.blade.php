@@ -3,8 +3,8 @@
 @section('header')
 	<section class="content-header">
 	  <h1>
-        <span class="text-capitalize">Order #{{ $order->common_id }} Pickings</span>
-        <small>Set Picked Products</small>
+        <span class="text-capitalize">Order #{{ $order->common_id }}</span>
+        <small>Product Reservations</small>
 	  </h1>
 	  <ol class="breadcrumb">
 	    <li><a href="{{ url(config('backpack.base.route_prefix'), 'dashboard') }}">{{ trans('backpack::crud.admin') }}</a></li>
@@ -16,7 +16,8 @@
 
 @section('content')
 <div class="row">
-	<div class="col-md-12">
+	<div class="col-md-8 col-md-offset-2">
+		@include('errors.list')
 		<!-- Default box -->
 		@if ($crud->hasAccess('list'))
 			<a href="{{ route('order.show', $order->id) }}"><i class="fa fa-angle-double-left"></i> Back to order</a><br><br>
@@ -39,25 +40,25 @@
 					{!! Form::open(['url' => route('order.update_reservations', $order->id), 'method' => 'patch', 'id' => 'orderPickingsForm']) !!}
 					@foreach($order->reservations->groupBy('order_product_id') as $key => $item)
 						@foreach($item as $reservation)
-							@if(!$reservation->picked_at)
-								{!! Form::hidden('reservations['.$key.'][id]', $reservation->id) !!}
-							@endif
-							<td>{{ $reservation->stock->item->sku_code }}</td>
-							<td>{{ $reservation->stock->item->name }}</td>
-							<td>{{ $reservation->stock->location->name }}</td>
-							<td>{{ $reservation->stock->aisle }}-{{ $reservation->stock->row }}-{{ $reservation->stock->bin }}</td>
-							<td>{{ $reservation->order_product->quantity }}/{{ $reservation->quantity_reserved }}</td>
-							<td>
-								<div class="checkbox">
-									<label>
-										@if(!isset($reservation->picked_at))
+							<tr>
+								<td>{{ $reservation->stock->item->sku_code }}</td>
+								<td>{{ $reservation->stock->item->name }}</td>
+								<td>{{ $reservation->stock->location->name }}</td>
+								<td>{{ $reservation->stock->aisle }}-{{ $reservation->stock->row }}-{{ $reservation->stock->bin }}</td>
+								<td>{{ $reservation->order_product->quantity }}/{{ $reservation->quantity_reserved }}</td>
+								<td class="text-right">
+									@if(!isset($reservation->picked_at))
+										{{-- <div class="checkbox"> --}}
+										<label>
 											{!! Form::hidden('reservations['.$key.'][id]', $reservation->id) !!}
-										@else
-											<span class="text-muted">PICKED</span>
-										@endif
-									</label>
-								</div>
-							</td>
+											{!! Form::checkbox('reservations['.$key.'][is_picked]', true, $reservation->picked_at, ['required' => true]) !!} Picked
+										</label>
+										{{-- </div> --}}
+									@else
+										<span class="text-muted">PICKED/PACKED</span>
+									@endif
+								</td>
+							</tr>
 						@endforeach
 					@endforeach
 					{!! Form::close() !!}
@@ -65,7 +66,12 @@
 				<tfoot>
 					<tr class="text-right">
 						<td colspan="6">
-							<button type="submit" form="orderPickingsForm" class="btn btn-primary btn-flat">Confirm Pickings</button>
+							@if($order->hasPickableReservations())
+								<button type="submit" form="orderPickingsForm" class="btn btn-primary btn-flat">Confirm Pickings</button>
+							@endif
+							@if($order->hasPickedReservations())
+								<a href="{{ route('order.ship', $order->id) }}" class="btn btn-primary btn-flat">Ship Products</a>
+							@endif
 						</td>
 					</tr>
 				</tfoot>

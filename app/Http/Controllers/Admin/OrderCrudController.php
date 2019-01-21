@@ -200,7 +200,8 @@ class OrderCrudController extends CrudController
 
         $crud = $this->crud;
 
-        $order = Order::with(['status', 'products'])->findOrFail($id);
+        $order = Order::with(['status', 'products', 'carriers', 'reservations'])->findOrFail($id);
+
         // dd($order->deficiency);
         $order_status_options = collect(OrderStatus::orderBy('id', 'asc')->pluck('name', 'id'));
         $auto_done_after_delivered = $this->auto_done_after_delivered;
@@ -268,11 +269,11 @@ class OrderCrudController extends CrudController
             // $order_user->first_name
 
             // Save the order's carrier
-            $carrier = OrderCarrier::create(
-                collect($order->carrier)
-                ->merge(['order_id' => $new_order->id])
-                ->toArray()
-            );
+            // $carrier = OrderCarrier::create(
+            //     collect($order->carrier)
+            //     ->merge(['order_id' => $new_order->id])
+            //     ->toArray()
+            // );
 
             // Save each order's products.
             foreach ($order->products as $product) {
@@ -378,17 +379,35 @@ class OrderCrudController extends CrudController
 
     public function ship(ShipOrderRequest $request, $id)
     {
+        // dd($request->all());
         $this->crud->hasAccessOrFail('ship');
 
         $order = Order::findOrFail($id);
 
+        DB::beginTransaction();
+
         $order->update($request->all());
 
-        $order->shipment = OrderShipment::create(
+        $order_carrier = OrderCarrier::create(
             collect(['order_id' => $id])
             ->merge($request->all())
+            ->merge([
+                'price' => 0,
+            ])
             ->toArray()
         );
+
+        // dd($order_shipment);
+
+        // // Associate the picked reservations on the new shipment.
+        foreach($order->reservations()->whereNotNull('picked_at')->get() as $reservation) {
+            $reservation->order_carrier_id = $order_carrier->id;
+            $reservation->save();
+        }
+
+        // die($order->reservations);
+
+        DB::commit();
 
         \Alert::success('Status updated.')->flash();
 
@@ -601,6 +620,20 @@ class OrderCrudController extends CrudController
         return $request;
     }
 
+    public function deliverOrderCarrier($order_id, $order_carrier_id)
+    {
+        try {
+            $order_carrier = OrderCarrier::find($order_carrier_id);
+            $order_carrier->update([
+                'delivered_at' => Carbon::now()
+            ]);
+
+            return redirect()->route('order.show', $order_carrier->order->id);
+        } catch (\Exception $e) {
+            throw new \Exception($e->getMessage());
+        }
+    }
+
     public function setPermissions()
     {
         // Get authenticated user
@@ -686,8 +719,16 @@ class OrderCrudController extends CrudController
             $reservations = $this->reserveProduct($product);
         }
 
+        // If the order can be fully fulfilled.
         if ($auto_pick_list && $order->isSufficient()) {
             $order->status_id = OrderStatus::where('name', 'Pick Listed')->first()->id;
+            $order->save();
+        }
+
+        // If the order can be partially fulfilled
+        if ($auto_pick_list && $order->isPartiallyFulfillable())
+        {
+            $order->status_id = OrderStatus::where('name', 'Partial')->first()->id;
             $order->save();
         }
 
