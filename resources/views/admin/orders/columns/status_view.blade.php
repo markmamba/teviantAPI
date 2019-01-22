@@ -17,5 +17,5 @@
 	<span class="label label-success">Completed</span>
 @endif
 @if($entry->status->name == 'Cancelled')
-	<span class="label label-danger">Cancelled</span>
+	<span class="label label-default">Cancelled</span>
 @endif
