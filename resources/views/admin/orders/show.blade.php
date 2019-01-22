@@ -314,7 +314,7 @@
 									</li>
 								</ul>
 							</div>
-							@if($order->hasPickableReservations())
+							@if($order->hasPickableReservations() && !in_array($order->status->name, ['Done', 'Cancelled']))
 								<a href="{{ route('order.get_reservations', $order->id) }}" class="btn btn-default btn-flat btn-flat"><i class="fa fa-hand-lizard-o"></i> Pick-Pack Products</a>
 							@else
 								<a href="#" class="btn btn-default btn-flat btn-flat" disabled><i class="fa fa-hand-lizard-o"></i> Pick-Pack Products</a>
