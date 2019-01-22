@@ -91,7 +91,7 @@
 						@elseif($order->status->name == 'Shipped')
 							<p class="alert alert-info">Awaiting delivery.</p>
 						@endif
-					@else
+					@elseif(!in_array($order->status->name, ['Cancelled']))
 						<p class="alert alert-warning">Insufficient stocks. Check details below.</p>
 					@endif
 
@@ -134,7 +134,7 @@
 								{!! Form::submit('Set as Delivered', ['class' => 'form-control btn btn-primary btn-flat']) !!}
 							{!! Form::close() !!}
 						@endif
-						@if($order->status->name == 'Delivered' || ($order->isFullfilled() && $order->status->name != 'Done'))
+						@if($order->status->name == 'Delivered' || ($order->isFullfilled() && $order->status->name != 'Cancelled'))
 							{!! Form::open(['route' => ['crud.order.update', $order->id], 'method' => 'PATCH']) !!}
 								{!! Form::hidden('status_id', $order_status_options->search('Done')) !!}
 								{!! Form::submit('Set as Done', ['class' => 'form-control btn btn-primary btn-flat']) !!}
