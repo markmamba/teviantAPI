@@ -57,22 +57,51 @@
 					<h3 class="box-title">General Details</h3>
 				</div>
 				<div class="box-body">
-					<h5>Order Id</h5>
-					{{ $order->common_id }}
-					<h5>Date</h5>
-					{{ $order->created_at }}
-					<h5>Customer</h5>
-					{{ $order->full_user_name }}
-					
-					{{-- Show order status accordingly --}}
-					<h5>Status</h5>
-					<span class="label label-default">{{ $order->status->name }}</span>
+					<form class="form-horizontal">
+						<div class="form-group">
+							<label class="col-sm-3 control-label">Order #</label>
+						    <div class="col-sm-9">
+						      	<p class="form-control-static">{{ $order->common_id }}</p>
+						    </div>
+						</div>
+						<div class="form-group">
+							<label class="col-sm-3 control-label">Date Ordered</label>
+						    <div class="col-sm-9">
+						      	<p class="form-control-static">{{ $order->created_at }}</p>
+						    </div>
+						</div>
+						<div class="form-group">
+							<label class="col-sm-3 control-label">Customer</label>
+						    <div class="col-sm-9">
+						      	<p class="form-control-static">{{ $order->full_user_name }}</p>
+						    </div>
+						</div>
+						<div class="form-group">
+							<label class="col-sm-3 control-label">Status</label>
+						    <div class="col-sm-9">
+						      	<p class="form-control-static">{{ $order->status->name }}</p>
+						    </div>
+						</div>
+					</form>
+
+					{{-- Status recommendations or alerts --}}
+					@if($order->isSufficient())
+						@if($order->status->name == 'Packed')
+							<p class="alert alert-info">Ready for shipping.</p>
+						@elseif($order->status->name == 'Shipped')
+							<p class="alert alert-info">Awaiting delivery.</p>
+						@endif
+					@else
+						<p class="alert alert-warning">Insufficient stocks.</p>
+					@endif
+
 				</div>
 				<div class="box-footer">
 					<p>
 						{{-- 
 							Show the appropriate primary button according to the order's current status
 							- Pending
+							- Partial
 							- Pick Listed
 							- Packed
 							- Shipped
@@ -112,6 +141,7 @@
 							{!! Form::close() !!}
 						@endif
 					</p>
+
 					{{-- Set the cancel button accordingly --}}
 					<p>
 						{{-- Cancel button --}}
@@ -226,14 +256,18 @@
 						<th>Product</th>
 						<th>SKU</th>
 						<th class="text-right">Quantity</th>
+						<th class="text-right">Reservations</th>
 						<th class="text-right">Price</th>
 					</thead>
 					<tbody>
 						@foreach($order->products as $product)
-							<tr>
+							<tr class="{{ $product->isFullyReserved() ? 'success' : 'danger' }}">
 								<td>{{ $product->name }}</td>
 								<td>{{ $product->sku }}</td>
 								<td class="text-right">{{ number_format($product->quantity) }}</td>
+								<td class="text-right">
+									{{ $product->quantity_reserved }}/{{ $product->quantity }}
+								</td>
 								<td class="text-right">{{ number_format($product->price, 2) }}</td>
 							</tr>
 						@endforeach
@@ -257,16 +291,6 @@
 					<div class="row">
 						<div class="col-md-3">
 							<h3 class="box-title">Pick List</h3>
-							<br>
-							@if($order->isSufficient())
-								@if($order->status->name == 'Packed')
-									<p class="text-success">Ready for shipping.</p>
-								@elseif($order->status->name == 'Shipped')
-									<p class="text-success">Awaiting delivery.</p>
-								@endif
-							@else
-								<p class="text-warning">Insufficient stocks. Replenish stocks!</p>
-							@endif
 						</div>
 						<div class="col-md-9 text-right">
 							<div class="btn-group">
@@ -304,7 +328,7 @@
 					</div>
 				</div>
 				<div class="box-body">
-					<table class="table table-responsive">
+					<table class="table table-bordered table-hover table-responsive">
 						<thead>
 							<th>Product</th>
 							<th>SKU</th>
@@ -315,36 +339,29 @@
 							<th>Picked</th>
 							<th>Picker</th>
 							<th>Date Picked</th>
+							<th class="text-right">Deficiency</th>
 						</thead>
-						@foreach($order->reservations->groupBy('order_product_id') as $key => $item)
-							<tbody>
-							@foreach($item as $reservation)
-								<tr>
-									<td>{{ $reservation->stock->item->name }}</td>
-									<td>{{ $reservation->stock->item->sku_code }}</td>
-									<td>{{ $reservation->order_product->quantity }}</td>
-									<td>{{ $reservation->stock->location->name }}</td>
-									<td>{{ $reservation->stock->aisle }}-{{ $reservation->stock->row }}-{{ $reservation->stock->bin }}</td>
-									<td>{{ $reservation->quantity_reserved }}/{{ $reservation->order_product->quantity }}</td>
-									<td>{{ $reservation->total_picked }}/{{ $reservation->order_product->quantity }}</td>
-									<td>{{ $reservation->pickings->first()->picker->name or null }}</td>
-									<td>{{ $reservation->picked_at or null }}</td>
-								</tr>
+						<tbody>
+							{{-- Products with reservations --}}
+							@foreach($order->reservations->groupBy('order_product_id') as $key => $item)
+								@foreach($item as $reservation)
+									<tr>
+										<td>{{ $reservation->stock->item->name }}</td>
+										<td>{{ $reservation->stock->item->sku_code }}</td>
+										<td>{{ $reservation->order_product->quantity }}</td>
+										<td>{{ $reservation->stock->location->name }}</td>
+										<td>{{ $reservation->stock->aisle }}-{{ $reservation->stock->row }}-{{ $reservation->stock->bin }}</td>
+										<td>{{ $reservation->quantity_reserved }}/{{ $reservation->order_product->quantity }}</td>
+										<td>{{ $reservation->total_picked }}/{{ $reservation->order_product->quantity }}</td>
+										<td>{{ $reservation->pickings->first()->picker->name or null }}</td>
+										<td>{{ $reservation->picked_at or null }}</td>
+										<td rowspan="{{ $item->count() }}" class="text-right">
+											{{ $reservation->order_product->quantity - $reservation->order_product->reservations->sum('quantity_reserved')}}
+										</td>
+									</tr>
+								@endforeach
 							@endforeach
-								<tr>
-									<td class="text-right" colspan="9">
-										<strong>Item deficiency:</strong> 
-										@if($reservation->order_product->isFullyReserved())
-											<span class="label label-success">
-												{{ $reservation->order_product->quantity - $reservation->order_product->reservations->sum('quantity_reserved')}}
-											</span>
-										@else
-											<span class="label label-danger">{{ $reservation->order_product->quantity - $reservation->order_product->reservations->sum('quantity_reserved')}}</span>
-										@endif
-									</td>
-								</tr>
-							</tbody>
-						@endforeach
+						</tbody>
 					</table>
 				</div>
 				<div class="box-footer">
