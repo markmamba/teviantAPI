@@ -368,11 +368,6 @@
 						</tbody>
 					</table>
 				</div>
-				<div class="box-footer">
-					{{-- @if(in_array($order->status->name, ['Packed', 'Shipped', 'Delivered', 'Done']))
-						Packed by {{ $order->packer->name }} on {{ $order->packed_at }}
-					@endif --}}
-				</div>
 			</div>
 		</div>
 	</div>
