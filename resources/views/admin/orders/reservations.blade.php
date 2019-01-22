@@ -39,7 +39,7 @@
 						<th></th>
 					</thead>
 					<tbody>
-						{!! Form::open(['url' => route('order.update_reservations', $order->id), 'method' => 'patch', 'id' => 'orderPickingsForm', 'onsubmit' => 'return confirm("Are you sure that listed products have been picked?");']) !!}
+						{!! Form::open(['url' => route('order.update_reservations', $order->id), 'method' => 'patch', 'id' => 'orderPickingsForm', 'onsubmit' => 'return confirm("Are you sure the listed products have been picked?");']) !!}
 						@foreach($order->reservations->groupBy('order_product_id') as $key => $item)
 							@foreach($item as $reservation)
 								<tr>
