@@ -72,11 +72,32 @@ class Order extends Model
         foreach ($this->reservations as $reservation) {
             if ($reservation->picked_at == null || $reservation->order_carrier_id == null)
                 return false;
-        }        
+        }
 
         // Check carrier shipments
         foreach ($this->carriers as $carrier) {
             if ($carrier->delivered_at == null)
+                return false;
+        }
+
+        if ($this->status->name == 'Partial')
+            return false;
+
+        return true;
+    }
+
+    /**
+     * Check if the order has been fully delivered
+     * @return boolean
+     */
+    public function isDelivered()
+    {
+        if (!$this->isSufficient())
+            return false;
+
+        // Check reservations
+        foreach ($this->reservations as $reservation) {
+            if ($reservation->picked_at == null || $reservation->order_carrier_id == null)
                 return false;
         }
 
@@ -109,6 +130,7 @@ class Order extends Model
      */
     public function hasShippableReservations()
     {
+        // dd($this->reservations()->whereNotNull('picked_at')->whereNull('order_carrier_id')->get());
         if ($this->reservations()->whereNotNull('picked_at')->whereNull('order_carrier_id')->count())
             return true;
     }

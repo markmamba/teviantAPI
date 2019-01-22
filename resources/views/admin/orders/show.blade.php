@@ -92,7 +92,7 @@
 							<p class="alert alert-info">Awaiting delivery.</p>
 						@endif
 					@else
-						<p class="alert alert-warning">Insufficient stocks.</p>
+						<p class="alert alert-warning">Insufficient stocks. Check details below.</p>
 					@endif
 
 				</div>

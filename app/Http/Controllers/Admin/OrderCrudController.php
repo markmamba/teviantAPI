@@ -202,8 +202,7 @@ class OrderCrudController extends CrudController
         $crud = $this->crud;
 
         $order = Order::with(['status', 'products', 'carriers', 'reservations'])->findOrFail($id);
-
-        // dd($order->deficiency);
+        
         $order_status_options = collect(OrderStatus::orderBy('id', 'asc')->pluck('name', 'id'));
         $auto_done_after_delivered = $this->auto_done_after_delivered;
 
@@ -401,17 +400,16 @@ class OrderCrudController extends CrudController
         // dd($order->reservations()->whereNotNull('picked_at')->whereNull('order_carrier_id')->get());
 
         // Associate the picked reservations on the new shipment.
-        foreach($order->reservations()->whereNotNull('picked_at')->whereNotNull('order_carrier_id')->get() as $reservation) {
+        foreach($order->reservations()->whereNotNull('picked_at')->whereNull('order_carrier_id')->get() as $reservation) {
             $reservation->order_carrier_id = $order_carrier->id;
             $reservation->save();
         }
 
-        if ($order->status_id != 'Partial') {
+        if ($order->status->name != 'Partial') {
+            dd(1);
             $order->status_id = OrderStatus::where('name', 'Shipped')->first()->id;
             $order->save();
         }
-
-        // die($order->reservations);
 
         DB::commit();
 
@@ -629,15 +627,25 @@ class OrderCrudController extends CrudController
     public function deliverOrderCarrier($order_id, $order_carrier_id)
     {
         try {
+            DB::beginTransaction();
+
             $order_carrier = OrderCarrier::find($order_carrier_id);
             $order_carrier->update([
                 'delivered_at' => Carbon::now()
             ]);
 
+            // Check if all products have been delivered
+            if ($order_carrier->order->isSufficient()) {
+                $order_carrier->order->status_id = OrderStatus::where('name', 'Delivered')->first()->id;
+                $order_carrier->order->save();
+            }
+
+            DB::commit();
+
             return redirect()->route('order.show', $order_carrier->order->id);
         } catch (\Exception $e) {
             throw new \Exception($e->getMessage());
-        }
+        }   
     }
 
     public function setPermissions()

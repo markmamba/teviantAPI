@@ -50,7 +50,7 @@
               <a href="{{ route('crud.order.index', ['tab' => 'completed']) }}">Completed <span class="label {{ $orders_on_statuses_count['completed'] > 0 ? 'label-success' : 'label-default' }}">{{ $orders_on_statuses_count['completed'] }}</span></a>
             </li>
             <li class="{{ isset($tab) && $tab == 'cancelled' ? 'active' : null }}">
-              <a href="{{ route('crud.order.index', ['tab' => 'cancelled']) }}">Cancelled <span class="label {{ $orders_on_statuses_count['cancelled'] > 0 ? 'label-danger' : 'label-default' }}">{{ $orders_on_statuses_count['cancelled'] }}</span></a>
+              <a href="{{ route('crud.order.index', ['tab' => 'cancelled']) }}">Cancelled <span class="label {{ $orders_on_statuses_count['cancelled'] > 0 ? 'label-default' : 'label-default' }}">{{ $orders_on_statuses_count['cancelled'] }}</span></a>
             </li>
           </ul>
 
