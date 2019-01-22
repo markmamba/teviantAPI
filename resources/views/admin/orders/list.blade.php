@@ -34,6 +34,9 @@
             <li class="{{ isset($tab) && $tab == 'pending' ? 'active' : null }}">
               <a href="{{ route('crud.order.index', ['tab' => 'pending']) }}">Pending <span class="label {{ $orders_on_statuses_count['pending'] > 0 ? 'label-warning' : 'label-default' }}">{{ $orders_on_statuses_count['pending'] }}</span></a>
             </li>
+            <li class="{{ isset($tab) && $tab == 'partial' ? 'active' : null }}">
+              <a href="{{ route('crud.order.index', ['tab' => 'partial']) }}">Partial <span class="label {{ $orders_on_statuses_count['partial'] > 0 ? 'label-info' : 'label-default' }}">{{ $orders_on_statuses_count['partial'] }}</span></a>
+            </li>
             <li class="{{ isset($tab) && $tab == 'for_picking' ? 'active' : null }}">
               <a href="{{ route('crud.order.index', ['tab' => 'for_picking']) }}">For Picking <span class="label label {{ $orders_on_statuses_count['for_picking'] > 0 ? 'label-warning' : 'label-default' }}">{{ $orders_on_statuses_count['for_picking'] }}</span></a>
             </li>

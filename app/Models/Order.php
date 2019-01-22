@@ -346,6 +346,13 @@ class Order extends Model
         });
     }
 
+    public function scopePartial($query)
+    {
+        return $query->whereHas('status', function ($query) {
+            $query->where('name', 'Partial');
+        });
+    }
+
     public function scopeForPicking($query)
     {
         return $query->whereHas('status', function ($query) {

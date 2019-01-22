@@ -155,6 +155,7 @@ class OrderCrudController extends CrudController
 
         $orders_on_statuses_count = [
             'pending'      => Order::pending()->count(),
+            'partial'      => Order::partial()->count(),
             'for_picking'  => Order::forPicking()->count(),
             'for_shipping' => Order::forShipping()->count(),
             'shipped'      => Order::shipped()->count(),
@@ -397,12 +398,17 @@ class OrderCrudController extends CrudController
             ->toArray()
         );
 
-        // dd($order_shipment);
+        // dd($order->reservations()->whereNotNull('picked_at')->whereNull('order_carrier_id')->get());
 
-        // // Associate the picked reservations on the new shipment.
-        foreach($order->reservations()->whereNotNull('picked_at')->get() as $reservation) {
+        // Associate the picked reservations on the new shipment.
+        foreach($order->reservations()->whereNotNull('picked_at')->whereNotNull('order_carrier_id')->get() as $reservation) {
             $reservation->order_carrier_id = $order_carrier->id;
             $reservation->save();
+        }
+
+        if ($order->status_id != 'Partial') {
+            $order->status_id = OrderStatus::where('name', 'Shipped')->first()->id;
+            $order->save();
         }
 
         // die($order->reservations);
@@ -860,12 +866,14 @@ class OrderCrudController extends CrudController
         // Filter status based on tab
         $tab = request()->tab;
 
-        if (!in_array($tab, ['pending', 'for_picking', 'for_shipping', 'shipped', 'completed', 'cancelled']))
+        if (!in_array($tab, ['pending', 'partial', 'for_picking', 'for_shipping', 'shipped', 'completed', 'cancelled']))
             return redirect()->route('crud.order.index');
         
         if (isset($tab)) {
             if ($tab == 'pending')
                 $this->crud->addClause('pending');
+            if ($tab == 'partial')
+                $this->crud->addClause('partial');
             if ($tab == 'for_picking')
                 $this->crud->addClause('forPicking');
             if ($tab == 'for_shipping')
