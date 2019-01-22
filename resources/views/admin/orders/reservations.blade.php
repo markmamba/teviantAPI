@@ -27,55 +27,54 @@
 			<div class="box-header">
 				<h3 class="box-title">Product Reservations</h3>
 			</div>
-			<table class="table table-hover table-bordered">
-				<thead>
-					<th>SKU</th>
-					<th>Name</th>
-					<th>Location</th>
-					<th>Aisle-Row-Bin</th>
-					<th>Quantity Reserved</th>
-					<th></th>
-				</thead>
-				<tbody>
-					{!! Form::open(['url' => route('order.update_reservations', $order->id), 'method' => 'patch', 'id' => 'orderPickingsForm']) !!}
-					@foreach($order->reservations->groupBy('order_product_id') as $key => $item)
-						@foreach($item as $reservation)
-							<tr>
-								<td>{{ $reservation->stock->item->sku_code }}</td>
-								<td>{{ $reservation->stock->item->name }}</td>
-								<td>{{ $reservation->stock->location->name }}</td>
-								<td>{{ $reservation->stock->aisle }}-{{ $reservation->stock->row }}-{{ $reservation->stock->bin }}</td>
-								<td>{{ $reservation->order_product->quantity }}/{{ $reservation->quantity_reserved }}</td>
-								<td class="text-right">
-									@if(!isset($reservation->picked_at))
-										{{-- <div class="checkbox"> --}}
-										<label>
-											{!! Form::hidden('reservations['.$key.'][id]', $reservation->id) !!}
-											{!! Form::checkbox('reservations['.$key.'][is_picked]', true, $reservation->picked_at, ['required' => true]) !!} Picked
-										</label>
-										{{-- </div> --}}
-									@else
-										<span class="text-muted">PICKED/PACKED</span>
-									@endif
-								</td>
-							</tr>
+			<div class="box-body">
+				<table class="table table-hover table-bordered">
+					<caption>Pick the following reserved products.</caption>
+					<thead>
+						<th>SKU</th>
+						<th>Name</th>
+						<th>Location</th>
+						<th>Aisle-Row-Bin</th>
+						<th>Quantity Reserved</th>
+						<th></th>
+					</thead>
+					<tbody>
+						{!! Form::open(['url' => route('order.update_reservations', $order->id), 'method' => 'patch', 'id' => 'orderPickingsForm', 'onsubmit' => 'return confirm("Are you sure that listed products have been picked?");']) !!}
+						@foreach($order->reservations->groupBy('order_product_id') as $key => $item)
+							@foreach($item as $reservation)
+								<tr>
+									<td>{{ $reservation->stock->item->sku_code }}</td>
+									<td>{{ $reservation->stock->item->name }}</td>
+									<td>{{ $reservation->stock->location->name }}</td>
+									<td>{{ $reservation->stock->aisle }}-{{ $reservation->stock->row }}-{{ $reservation->stock->bin }}</td>
+									<td>{{ $reservation->order_product->quantity }}/{{ $reservation->quantity_reserved }}</td>
+									<td class="text-right">
+										@if(!isset($reservation->picked_at))
+											{{-- <div class="checkbox"> --}}
+											<label>
+												{!! Form::hidden('reservations['.$key.'][id]', $reservation->id) !!}
+												{!! Form::checkbox('reservations['.$key.'][is_picked]', true, $reservation->picked_at, ['required' => true]) !!} Picked
+											</label>
+											{{-- </div> --}}
+										@else
+											<span class="text-muted">PICKED/PACKED</span>
+										@endif
+									</td>
+								</tr>
+							@endforeach
 						@endforeach
-					@endforeach
-					{!! Form::close() !!}
-				</tbody>
-				<tfoot>
-					<tr class="text-right">
-						<td colspan="6">
-							@if($order->hasPickableReservations())
-								<button type="submit" form="orderPickingsForm" class="btn btn-primary btn-flat">Confirm Pickings</button>
-							@endif
-							@if($order->hasPickedReservations())
-								<a href="{{ route('order.ship', $order->id) }}" class="btn btn-primary btn-flat">Ship Products</a>
-							@endif
-						</td>
-					</tr>
-				</tfoot>
-			</table>
+						{!! Form::close() !!}
+					</tbody>
+				</table>
+			</div>
+			<div class="box-footer text-right">
+				@if($order->hasPickableReservations())
+					<button type="submit" form="orderPickingsForm" class="btn btn-primary btn-flat">Confirm Pickings</button>
+				@endif
+				@if($order->hasPickedReservations())
+					<a href="{{ route('order.ship', $order->id) }}" class="btn btn-primary btn-flat" onclick="return confirm('Are you sure to ship the products?');">Ship Products</a>
+				@endif
+			</div>
 		</div>
 
 		@include('crud::inc.grouped_errors')

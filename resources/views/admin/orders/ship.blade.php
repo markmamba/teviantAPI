@@ -47,7 +47,7 @@
 					<hr>
 					
 					{{-- Package details --}}
-					<h4>Package</h4>
+					{{-- <h4>Package</h4>
 					<div class="row">
 						<div class="col-xs-3">
 							<div class="form-group">
@@ -85,7 +85,7 @@
 								</div>
 							</div>
 						</div>
-					</div>
+					</div> --}}
 
 				</div>
 				<div class="box-footer">

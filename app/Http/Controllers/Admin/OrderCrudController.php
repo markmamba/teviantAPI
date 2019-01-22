@@ -202,7 +202,7 @@ class OrderCrudController extends CrudController
         $crud = $this->crud;
 
         $order = Order::with(['status', 'products', 'carriers', 'reservations'])->findOrFail($id);
-        
+
         $order_status_options = collect(OrderStatus::orderBy('id', 'asc')->pluck('name', 'id'));
         $auto_done_after_delivered = $this->auto_done_after_delivered;
 
@@ -330,6 +330,8 @@ class OrderCrudController extends CrudController
         // If this function was triggered from an HTTP submit form.
         if (!isset($request)) {
             $order->update(request()->all());
+
+            \Alert::success('Successfully cancelled order #'.$order->common_id)->flash();
 
             return redirect()->route('crud.order.show', $id);
         }
@@ -605,6 +607,8 @@ class OrderCrudController extends CrudController
         }
 
         DB::commit();
+
+        \Alert::success('Successfully picked reservations.')->flash();
 
         return redirect()->route('order.show', $order->id);
     }
