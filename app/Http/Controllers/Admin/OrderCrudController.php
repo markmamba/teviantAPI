@@ -311,6 +311,8 @@ class OrderCrudController extends CrudController
         $this->crud->hasAccessOrFail('cancel');
 
         $order = Order::find($id);
+
+        DB::beginTransaction();
         
         // Put back stock to the stock they where taken from.
         foreach ($order->products as $order_product) {
@@ -330,6 +332,8 @@ class OrderCrudController extends CrudController
         // If this function was triggered from an HTTP submit form.
         if (!isset($request)) {
             $order->update(request()->all());
+
+            DB::commit();
 
             \Alert::success('Successfully cancelled order #'.$order->common_id)->flash();
 
