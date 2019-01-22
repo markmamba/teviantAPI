@@ -68,29 +68,7 @@
 					<h5>Status</h5>
 					<span class="label label-default">{{ $order->status->name }}</span>
 				</div>
-			</div>
-		</div>
-		<div class="col-md-6">
-			<div class="box box-default">
-				<div class="box-header with-border">
-					<h3 class="box-title">Order</h3>
-				</div>
-				<div class="box-body">
-					<ul>
-						@foreach($order->products as $product)
-							<li>
-							{{ $product->quantity }} x {{ $product->name }}
-								<br>
-								SKU: {{ ($product->sku) }}
-								<span class="pull-right">{{ number_format($product->price) }}</span>
-							</li>
-						@endforeach
-					</ul>	
-				</div>
 				<div class="box-footer">
-					<p>
-						Total <span class="pull-right">{{ number_format($order->total) }}</span>
-					</p>
 					<p>
 						{{-- 
 							Show the appropriate primary button according to the order's current status
@@ -138,7 +116,8 @@
 					<p>
 						{{-- Cancel button --}}
 						@if($order->status->name != 'Done' && $order->status->name != 'Cancelled')
-							{!! Form::open(['route' => ['order.cancel', $order->id], 'method' => 'PATCH']) !!}
+							{!! Form::open(['route' => ['order.cancel', $order->id], 'method' => 'PATCH',
+								'onsubmit' => 'return confirm("Are you sure to Cancel the order?");']) !!}
 								{!! Form::hidden('status_id', $order_status_options->search('Cancelled')) !!}
 								{!! Form::submit('Cancel Order', ['class' => 'form-control btn btn-default btn-flat']) !!}
 							{!! Form::close() !!}
@@ -154,10 +133,7 @@
 				</div>
 			</div>
 		</div>
-	</div>
-
-	<div class="row">
-		<div class="col-md-12">
+		<div class="col-md-6">
 			<div class="box box-default">
 				<div class="box-header with-border">
 					<h3 class="box-title">Address</h3>
@@ -239,6 +215,40 @@
 		</div>
 	</div>
 
+	<div class="row">
+		<div class="col-md-12">
+			<div class="box box-default">
+				<div class="box-header">
+					<h3 class="box-title">Products</h3>
+				</div>
+				<table class="table table-hover table-responsive">
+					<thead>
+						<th>Product</th>
+						<th>SKU</th>
+						<th class="text-right">Quantity</th>
+						<th class="text-right">Price</th>
+					</thead>
+					<tbody>
+						@foreach($order->products as $product)
+							<tr>
+								<td>{{ $product->name }}</td>
+								<td>{{ $product->sku }}</td>
+								<td class="text-right">{{ number_format($product->quantity) }}</td>
+								<td class="text-right">{{ number_format($product->price, 2) }}</td>
+							</tr>
+						@endforeach
+					</tbody>
+					<tfoot>
+						<tr>
+							<td colspan="3" class="text-right">Total Quantity: <strong>{{ number_format($order->products()->sum('quantity')) }}</strong></td>
+							<td colspan="4" class="text-right">Total Price: <strong>{{ number_format($order->total, 2) }}</strong></td>
+						</tr>
+					</tfoot>
+				</table>
+			</div>
+		</div>
+	</div>
+	
 	{{-- Picked List (Reservations) panel --}}
 	<div class="row">
 		<div class="col-md-12">
