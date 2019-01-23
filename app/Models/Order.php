@@ -122,6 +122,20 @@ class Order extends Model
     {
         if ($this->reservations()->whereNotNull('picked_at')->count())
             return true;
+        else
+            return false;
+    }
+
+    /**
+     * Check if the order has picked reservations that are not yet packed.
+     * @return boolean
+     */
+    public function hasPackableReservations()
+    {
+        if ($this->reservations()->whereNotNull('picked_at')->whereNull('packed_at')->whereNull('packed_by')->count())
+            return true;
+        else
+            return false;
     }
 
     /**
@@ -131,7 +145,7 @@ class Order extends Model
     public function hasShippableReservations()
     {
         // dd($this->reservations()->whereNotNull('picked_at')->whereNull('order_carrier_id')->get());
-        if ($this->reservations()->whereNotNull('picked_at')->whereNull('order_carrier_id')->count())
+        if ($this->packages()->whereNull('shipped_at')->count())
             return true;
     }
 
@@ -341,6 +355,11 @@ class Order extends Model
     public function packer()
     {
         return $this->belongsTo('App\User', 'packer_id');
+    }
+
+    public function packages()
+    {
+        return $this->hasMany('App\Models\OrderPackage');
     }
 
     /*

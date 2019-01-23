@@ -14,12 +14,19 @@ class OrderProductReservation extends Model
 		'quantity_taken',
         'picked_at',
         'picked_by',
+        'packed_at',
+        'packed_by',
         'order_shipment_id'
 	];
 
     public function order_product()
     {
     	return $this->belongsTo('App\Models\OrderProduct');
+    }
+
+    public function package()
+    {
+        return $this->belongsTo('App\Models\OrderPackage');
     }
 
     public function stock()
@@ -31,6 +38,11 @@ class OrderProductReservation extends Model
     {
         return $this->belongsTo('App\User', 'picked_by');
     }
+
+    public function packer()
+    {
+        return $this->belongsTo('App\User', 'packed_by');
+    }    
 
     public function pickings()
     {

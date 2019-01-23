@@ -10,6 +10,7 @@ use App\Http\Requests\ShipOrderRequest;
 use App\Models\Inventory;
 use App\Models\Order;
 use App\Models\OrderCarrier;
+use App\Models\OrderPackage;
 use App\Models\OrderShipment;
 use App\Models\OrderShippingAddress;
 use App\Models\OrderStatus;
@@ -24,6 +25,7 @@ use Carbon\Carbon;
 // use App\Http\Requests\OrderRequest as StoreRequest;
 // use App\Http\Requests\OrderRequest as UpdateRequest;
 use App\Http\Requests\UpdateOrderRequest;
+use App\Http\Requests\CreateOrderPackageRequest;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 
@@ -201,7 +203,7 @@ class OrderCrudController extends CrudController
 
         $crud = $this->crud;
 
-        $order = Order::with(['status', 'products', 'carriers', 'reservations'])->findOrFail($id);
+        $order = Order::with(['status', 'products', 'carriers', 'reservations', 'packages'])->findOrFail($id);
 
         $order_status_options = collect(OrderStatus::orderBy('id', 'asc')->pluck('name', 'id'));
         $auto_done_after_delivered = $this->auto_done_after_delivered;
@@ -570,8 +572,9 @@ class OrderCrudController extends CrudController
      * @param  Request $request
      * @return redirect()
      */
-    public function updateReservations($order_id, Request $request)
+    public function pickReservations($order_id, Request $request)
     {
+        // dd($request->all());
         $order = Order::find($order_id);
 
         DB::beginTransaction();
@@ -615,6 +618,125 @@ class OrderCrudController extends CrudController
         return redirect()->route('order.show', $order->id);
     }
 
+    /**
+     * Show the view for for packing the picked reservations.
+     * @return view()
+     */
+    public function getPackReservations($order_id)
+    {
+        $crud = $this->crud;
+        $order = Order::with(['status', 'products', 'products.reservations'])->findOrFail($order_id);
+
+        // Check if the order does not have packable reservations.
+        if (!$order->hasPackableReservations()) {
+            \Alert::warning('The order does not have products to be packed. Check if there are reservations and pick them first.')->flash();
+            return redirect()->route('order.show', $order->id);
+        }
+
+        return view('admin.orders.reservations_pack', compact('crud', 'order'));
+    }
+
+    public function postPackReservations($order_id, CreateOrderPackageRequest $request)
+    {
+        // dd($request->all());
+
+        $order = Order::find($order_id);
+
+        DB::beginTransaction();
+
+        try {
+            foreach ($request->reservations as $reservation_item) {
+                $reservation = OrderProductReservation::find($reservation_item['id']);
+                
+                if (isset($reservation_item['is_picked'])) {
+                    // Update the reservation as packed
+                    $reservation->packed_at = \Carbon\Carbon::now();
+                    $reservation->packed_by = Auth::user()->id;
+                }
+
+                $order_carrier = OrderCarrier::create(
+                    collect(['order_id' => $order_id])
+                    ->merge($request->all())
+                    ->merge([
+                        'price' => 0,
+                        'name' => 'LBC'
+                    ])
+                    ->toArray()
+                );
+
+                // Create a package record
+                $order_package = OrderPackage::create([
+                    'order_id'             => $order->id,
+                    'sales_invoice_number' => $request->sales_invoice_number,
+                    'tracking_number'      => $request->tracking_number,
+                    'order_carrier_id'     => $order_carrier->id,
+                ]);
+
+                // Associate the reservation to the new package.
+                $reservation->order_package_id = $order_package->id;
+
+                $reservation->save();
+            }
+        } catch (\Exception $e) {
+            DB::rollback();
+            \Log::critical('Could not pack product reservations. Check error logs.', [$e->getMessage()]);
+            throw new \Exception($e->getMessage());
+        }
+
+        DB::commit();
+        \Alert::success('Successfully packed order reservations.')->flash();
+        return redirect()->route('order.show', $order->id);
+    }
+
+    /**
+     * Show the view for for packing the picked reservations.
+     * @return view()
+     */
+    public function getShipReservations($order_id)
+    {
+        $crud = $this->crud;
+        $order = Order::with(['status', 'products', 'products.reservations'])->findOrFail($order_id);
+
+        // Check if the order does not have packable reservations.
+        if (!$order->hasShippableReservations()) {
+            \Alert::warning('The order does not have products to be shipped. Check if there are reservations and pack them first.')->flash();
+            return redirect()->route('order.show', $order->id);
+        }
+
+        return view('admin.orders.reservations_ship', compact('crud', 'order'));
+    }
+
+    public function postShipReservations($order_id, Request $request)
+    {
+        // dd($request->all());
+        // $this->crud->hasAccessOrFail('ship');
+
+        $order = Order::findOrFail($order_id);
+
+        DB::beginTransaction();
+
+        $order->update($request->all());
+
+        // dd($order->reservations()->whereNotNull('picked_at')->whereNull('order_carrier_id')->get());
+
+        // Associate the picked reservations on the new shipment.
+        foreach($order->packages()->whereNull('shipped_at')->get() as $package) {
+            $package->shipped_at = Carbon::now();
+            $package->save();
+        }
+
+        if ($order->status->name != 'Partial') {
+            $order->status_id = OrderStatus::where('name', 'Shipped')->first()->id;
+            $order->save();
+        }
+
+        DB::commit();
+
+        \Alert::success('Package shipped.')->flash();
+
+        return redirect()->route('order.show', $order->id);
+    }
+
     public function handleStatusChange($request, $order, $auto_complete = true)
     {
         // Automatically complete an order if it was set to delivered.
@@ -653,6 +775,32 @@ class OrderCrudController extends CrudController
             throw new \Exception($e->getMessage());
         }   
     }
+
+    public function deliverOrderPackage($order_id, $order_package_id)
+    {
+        // dd($request->all());
+        try {
+            DB::beginTransaction();
+
+            $order_package = OrderPackage::find($order_package_id);
+            $order_package->update([
+                'delivered_at' => Carbon::now()
+            ]);
+
+            // Check if all products have been delivered
+            if ($order_package->order->isSufficient()) {
+                $order_package->order->status_id = OrderStatus::where('name', 'Delivered')->first()->id;
+                $order_package->order->save();
+            }
+
+            DB::commit();
+
+            return redirect()->route('order.show', $order_package->order->id);
+        } catch (\Exception $e) {
+            throw new \Exception($e->getMessage());
+        }   
+    }
+
 
     public function setPermissions()
     {

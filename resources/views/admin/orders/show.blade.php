@@ -319,14 +319,19 @@
 								</ul>
 							</div>
 							@if($order->hasPickableReservations() && !in_array($order->status->name, ['Done', 'Cancelled']))
-								<a href="{{ route('order.get_reservations', $order->id) }}" class="btn btn-default btn-flat btn-flat"><i class="fa fa-hand-lizard-o"></i> Pick-Pack Products</a>
+								<a href="{{ route('order.get_reservations', $order->id) }}" class="btn btn-default btn-flat btn-flat"><i class="fa fa-hand-lizard-o"></i> Pick Products</a>
 							@else
-								<a href="#" class="btn btn-default btn-flat btn-flat" disabled><i class="fa fa-hand-lizard-o"></i> Pick-Pack Products</a>
+								<a class="btn btn-default btn-flat btn-flat" disabled><i class="fa fa-hand-lizard-o"></i> Pick Products</a>
+							@endif
+							@if($order->hasPackableReservations())
+								<a href="{{ route('order.reservations.get_pack', $order->id) }}" class="btn btn-default btn-flat btn-flat"><i class="fa fa-cube"></i> Pack Products</a>
+							@else
+								<a class="btn btn-default btn-flat btn-flat" disabled><i class="fa fa-cube"></i> Pack Products</a>
 							@endif
 							@if($order->hasShippableReservations())
-								<a href="{{ route('order.get_reservations', $order->id) }}" class="btn btn-default btn-flat btn-flat"><i class="fa fa-truck"></i> Ship Products</a>
+								<a href="{{ route('order.reservations.get_ship', $order->id) }}" class="btn btn-default btn-flat btn-flat"><i class="fa fa-truck"></i> Ship Products</a>
 							@else
-								<a href="#" class="btn btn-default btn-flat btn-flat" disabled><i class="fa fa-truck"></i> Ship Products</a>
+								<a class="btn btn-default btn-flat btn-flat" disabled><i class="fa fa-truck"></i> Ship Products</a>
 							@endif
 						</div>
 					</div>
@@ -376,7 +381,7 @@
 	@if(in_array($order->status->name, ['Shipped', 'Delivered', 'Done', 'Partial']))
 	<div class="box box-default">
 		<div class="box-header with-border">
-			<h3 class="box-title">Carriers</h3>
+			<h3 class="box-title">Packages</h3>
 		</div>
 		<table class="table table-hover">
 			<thead>
@@ -385,28 +390,39 @@
 				<th>Date Shipped</th>
 				<th>Status</th>
 				<th>Date Delivered</th>
-				<th></th>
+				<th class="text-right"></th>
 			</thead>
 			<tbody>
-				@foreach($order->carriers as $carrier)
+				@foreach($order->packages as $package)
 					<tr>
-						<td>{{ $carrier->name }}</td>
-						<td>{{ $carrier->tracking_number }}</td>
-						<td>{{ $carrier->created_at }}</td>
+						<td>{{ $package->carrier->name ?? null }}</td>
+						<td>{{ $package->tracking_number ?? null }}</td>
+						<td>{{ $package->created_at }}</td>
 						<td>
-							@if($carrier->delivered_at == null)
-								<span class="label label-info">Shipping</span>
-							@else
+							@if(!isset($package->shipped_at))
+								<span class="label label-warning">For Shipping</span>
+							@elseif(isset($package->shipped_at) && $package->delivered_at == null)
+								<span class="label label-primary">Shipping</span>
+							@elseif(isset($package->delivered_at))
 								<span class="label label-success">Delivered</span>
 							@endif
 						</td>
-						<td>{{ $carrier->delivered_at ?? null }}</td>
+						<td>{{ $package->shipped_at ?? null }}</td>
 						<td class="text-right">
-							@if($carrier->delivered_at === null)
-								{!! Form::open(['url' => route('order.deliver_order_carrier', [$order->id, $carrier->id]), 'method' => 'patch']) !!}
-									<button class="btn btn-default btn-flat">Mark as Delivered</button>
-								{!! Form::close() !!}
+							<div class="form-inline">
+							@if($order->hasShippableReservations())
+								<a href="{{ route('order.reservations.get_ship', $order->id) }}" class="btn btn-default btn-flat btn-flat"><i class="fa fa-truck"></i> Ship</a>
+							@else
+								<a class="btn btn-default btn-flat btn-flat" disabled><i class="fa fa-truck"></i> Ship</a>
 							@endif
+							@if(isset($package->shipped_at) && $package->delivered_at == null)
+								{!! Form::open(['url' => route('order.packages.deliver', [$order->id, $package->id]), 'method' => 'patch', 'style' => 'display:inline-block;']) !!}
+									<button class="btn btn-default btn-flat"><i class="fa fa-check-square-o"></i> Delivered</button>
+								{!! Form::close() !!}
+							@else
+								<button class="btn btn-default btn-flat" disabled><i class="fa fa-check-square-o"></i> Delivered</button>
+							@endif
+							</div>
 						</td>
 					</tr>
 				@endforeach
