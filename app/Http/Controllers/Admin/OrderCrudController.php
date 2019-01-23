@@ -385,7 +385,6 @@ class OrderCrudController extends CrudController
 
     public function ship(ShipOrderRequest $request, $id)
     {
-        // dd($request->all());
         $this->crud->hasAccessOrFail('ship');
 
         $order = Order::findOrFail($id);
@@ -412,7 +411,6 @@ class OrderCrudController extends CrudController
         }
 
         if ($order->status->name != 'Partial') {
-            dd(1);
             $order->status_id = OrderStatus::where('name', 'Shipped')->first()->id;
             $order->save();
         }
