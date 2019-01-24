@@ -87,6 +87,10 @@ class OrderCrudController extends CrudController
             'name'  => 'full_user_name'
         ]);
         $this->crud->addColumn([
+            'label' => 'Products',
+            'name'  => 'products_count'
+        ]);
+        $this->crud->addColumn([
             'label' => 'Price',
             'name'  => 'total'
         ]);
@@ -123,6 +127,7 @@ class OrderCrudController extends CrudController
 
         // ------ ADVANCED QUERIES
         $this->crud->with('status');
+        $this->crud->with('products');
         $this->crud->orderBy('created_at', 'desc');
         
         // Status filter
