@@ -163,11 +163,17 @@ class Order extends Model
         // dd($order, $order->products);
         foreach ($order->products as $product) {
             $reservations = self::reserveProduct($product);
-            // dd($product, $reservations->get());
         }
 
         if ($auto_pick_list && $order->isSufficient()) {
             $order->status_id = \App\Models\OrderStatus::where('name', 'Pick Listed')->first()->id;
+            $order->save();
+        }
+
+        // If the order can be partially fulfilled
+        if ($auto_pick_list && $order->isPartiallyFulfillable())
+        {
+            $order->status_id = OrderStatus::where('name', 'Partial')->first()->id;
             $order->save();
         }
 
@@ -302,6 +308,20 @@ class Order extends Model
                     break;
                 }
             }
+        }
+
+        // Update order status
+
+        if ($order_product->order->isSufficient()) {
+            $order_product->order->status_id = \App\Models\OrderStatus::where('name', 'Pick Listed')->first()->id;
+            $order_product->order->save();
+        }
+
+        // If the order can be partially fulfilled
+        if ($order_product->order->isPartiallyFulfillable())
+        {
+            $order_product->order->status_id = OrderStatus::where('name', 'Partial')->first()->id;
+            $order_product->order->save();
         }
 
         return $order_product->reservations();
