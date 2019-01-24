@@ -97,7 +97,7 @@ class Order extends Model
 
         // Check reservations
         foreach ($this->reservations as $reservation) {
-            if ($reservation->picked_at == null || $reservation->order_carrier_id == null)
+            if ($reservation->picked_at == null || $reservation->order_package_id == null)
                 return false;
         }
 

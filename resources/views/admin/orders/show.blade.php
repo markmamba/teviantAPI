@@ -150,7 +150,7 @@
 								{!! Form::submit('Set as Delivered', ['class' => 'btn btn-primary btn-flat']) !!}
 							{!! Form::close() !!}
 						@endif
-						@if($order->status->name == 'Delivered' || ($order->isFullfilled() && !in_array($order->status->name, ['Done', 'Cancelled'])))
+						@if($order->isDelivered() && $order->status->name != 'Done')
 							{!! Form::open(['route' => ['crud.order.update', $order->id], 'method' => 'PATCH', 'style' => 'display: inline-block;']) !!}
 								{!! Form::hidden('status_id', $order_status_options->search('Done')) !!}
 								{!! Form::submit('Set as Done', ['class' => 'btn btn-primary btn-flat']) !!}
