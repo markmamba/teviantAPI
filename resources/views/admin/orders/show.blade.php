@@ -393,9 +393,11 @@
 		<table class="table table-hover">
 			<thead>
 				<th>Carrier</th>
+				<th>Invoice #</th>
 				<th>Tracking #</th>
-				<th>Date Shipped</th>
 				<th>Status</th>
+				<th>Date Packed</th>
+				<th>Date Shipped</th>
 				<th>Date Delivered</th>
 				<th class="text-right"></th>
 			</thead>
@@ -403,8 +405,8 @@
 				@foreach($order->packages as $package)
 					<tr>
 						<td>{{ $package->carrier->name ?? null }}</td>
+						<td>{{ $package->sales_invoice_number ?? null }}</td>
 						<td>{{ $package->tracking_number ?? null }}</td>
-						<td>{{ $package->created_at }}</td>
 						<td>
 							@if(!isset($package->shipped_at))
 								<span class="label label-warning">For Shipping</span>
@@ -414,7 +416,9 @@
 								<span class="label label-success">Delivered</span>
 							@endif
 						</td>
+						<td>{{ $package->created_at }}</td>
 						<td>{{ $package->shipped_at ?? null }}</td>
+						<td>{{ $package->delivered_at ?? null }}</td>
 						<td class="text-right">
 							<div class="form-inline">
 							@if($package->shipped_at == null && $package->delivered_at == null)
