@@ -314,7 +314,6 @@ class TransferOrderCrudController extends CrudController
          * 2 - Reserve stocks for pending orders.
          * 3 - Mark transfer order as complete.
          */
-        // dd($id, $request->all());
         
         DB::beginTransaction();
         

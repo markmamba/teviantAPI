@@ -1,6 +1,9 @@
 @if($entry->status->name == 'Pending')
 	<span class="label label-warning">Pending</span>
 @endif
+@if($entry->status->name == 'Partial')
+	<span class="label label-info">Paritial</span>
+@endif
 @if($entry->status->name == 'Pick Listed')
 	<span class="label label-warning">For Picking</span>
 @endif
@@ -14,5 +17,5 @@
 	<span class="label label-success">Completed</span>
 @endif
 @if($entry->status->name == 'Cancelled')
-	<span class="label label-danger">Cancelled</span>
+	<span class="label label-default">Cancelled</span>
 @endif

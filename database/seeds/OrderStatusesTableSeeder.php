@@ -30,6 +30,7 @@ class OrderStatusesTableSeeder extends Seeder
         
         $order_statuses = [
             ['name' => 'Pending'],
+            ['name' => 'Partial'],
             ['name' => 'Pick Listed'],
             ['name' => 'Packed'],
             ['name' => 'Shipped'],
