@@ -40,22 +40,20 @@
 					</thead>
 					<tbody>
 						{!! Form::open(['url' => route('order.reservations.pick', $order->id), 'method' => 'POST', 'id' => 'orderPickingsForm', 'onsubmit' => 'return confirm("Are you sure the listed products have been picked?");']) !!}
-						@foreach($order->reservations->groupBy('order_product_id') as $key => $item)
-							@foreach($item as $reservation)
-								<tr>
-									<td>{{ $reservation->stock->item->sku_code }}</td>
-									<td>{{ $reservation->stock->item->name }}</td>
-									<td>{{ $reservation->stock->location->name }}</td>
-									<td>{{ $reservation->stock->aisle }}-{{ $reservation->stock->row }}-{{ $reservation->stock->bin }}</td>
-									<td>{{ $reservation->order_product->quantity }}/{{ $reservation->quantity_reserved }}</td>
-									<td class="text-right">
-										<label>
-											{!! Form::hidden('reservations['.$key.'][id]', $reservation->id) !!}
-											{!! Form::checkbox('reservations['.$key.'][is_picked]', true, $reservation->picked_at, ['required' => true]) !!} Picked
-										</label>
-									</td>
-								</tr>
-							@endforeach
+						@foreach($order->reservations()->forPicking()->get() as $key => $reservation)
+							<tr>
+								<td>{{ $reservation->stock->item->sku_code }}</td>
+								<td>{{ $reservation->stock->item->name }}</td>
+								<td>{{ $reservation->stock->location->name }}</td>
+								<td>{{ $reservation->stock->aisle }}-{{ $reservation->stock->row }}-{{ $reservation->stock->bin }}</td>
+								<td>{{ $reservation->order_product->quantity }}/{{ $reservation->quantity_reserved }}</td>
+								<td class="text-right">
+									<label>
+										{!! Form::hidden('reservations['.$key.'][id]', $reservation->id) !!}
+										{!! Form::checkbox('reservations['.$key.'][is_picked]', true, $reservation->picked_at, ['required' => true]) !!} Picked
+									</label>
+								</td>
+							</tr>
 						@endforeach
 						{!! Form::close() !!}
 					</tbody>
@@ -64,9 +62,6 @@
 			<div class="box-footer text-right">
 				@if($order->hasPickableReservations())
 					<button type="submit" form="orderPickingsForm" class="btn btn-primary btn-flat">Confirm Pickings</button>
-				@endif
-				@if($order->hasPickedReservations())
-					<a href="{{ route('order.ship', $order->id) }}" class="btn btn-primary btn-flat" onclick="return confirm('Are you sure to ship the products?');">Ship Products</a>
 				@endif
 			</div>
 		</div>

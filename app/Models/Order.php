@@ -144,8 +144,7 @@ class Order extends Model
      */
     public function hasShippableReservations()
     {
-        // dd($this->reservations()->whereNotNull('picked_at')->whereNull('order_carrier_id')->get());
-        if ($this->packages()->whereNull('shipped_at')->count())
+        if ($this->packages()->whereNull('shipped_at')->whereNull('delivered_at')->count())
             return true;
     }
 

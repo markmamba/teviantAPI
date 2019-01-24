@@ -17,11 +17,12 @@
 @section('content')
 <div class="row">
 	<div class="col-md-8 col-md-offset-2">
-		@include('errors.list')
 		<!-- Default box -->
 		@if ($crud->hasAccess('list'))
 			<a href="{{ route('order.show', $order->id) }}"><i class="fa fa-angle-double-left"></i> Back to order</a><br><br>
 		@endif
+
+		@include('crud::inc.grouped_errors')
 
 		<div class="box box-default">
 			<div class="box-header">
@@ -55,22 +56,20 @@
 						<th></th>
 					</thead>
 					<tbody>
-						@foreach($order->reservations->groupBy('order_product_id') as $key => $item)
-							@foreach($item as $reservation)
-								<tr>
-									<td>{{ $reservation->stock->item->sku_code }}</td>
-									<td>{{ $reservation->stock->item->name }}</td>
-									<td>{{ $reservation->stock->location->name }}</td>
-									<td>{{ $reservation->stock->aisle }}-{{ $reservation->stock->row }}-{{ $reservation->stock->bin }}</td>
-									<td>{{ $reservation->order_product->quantity }}/{{ $reservation->quantity_reserved }}</td>
-									<td class="text-right">
-										<label>
-											{!! Form::hidden('reservations['.$key.'][id]', $reservation->id) !!}
-											{!! Form::checkbox('reservations['.$key.'][is_picked]', true, $reservation->packed_at, ['required' => true]) !!} Packed
-										</label>
-									</td>
-								</tr>
-							@endforeach
+						@foreach($order->reservations()->forPacking()->get() as $key => $reservation)
+							<tr>
+								<td>{{ $reservation->stock->item->sku_code }}</td>
+								<td>{{ $reservation->stock->item->name }}</td>
+								<td>{{ $reservation->stock->location->name }}</td>
+								<td>{{ $reservation->stock->aisle }}-{{ $reservation->stock->row }}-{{ $reservation->stock->bin }}</td>
+								<td>{{ $reservation->order_product->quantity }}/{{ $reservation->quantity_reserved }}</td>
+								<td class="text-right">
+									<label>
+										{!! Form::hidden('reservations['.$key.'][id]', $reservation->id) !!}
+										{!! Form::checkbox('reservations['.$key.'][is_picked]', true, $reservation->packed_at, ['required' => true]) !!} Packed
+									</label>
+								</td>
+							</tr>
 						@endforeach
 					</tbody>
 				</table>
@@ -82,8 +81,6 @@
 				@endif
 			</div>
 		</div>
-
-		@include('crud::inc.grouped_errors')
 	</div>
 </div>
 

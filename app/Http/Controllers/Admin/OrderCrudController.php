@@ -561,7 +561,7 @@ class OrderCrudController extends CrudController
     public function getReservations($order_id)
     {
         $crud = $this->crud;
-        $order = Order::with(['status', 'products', 'products.reservations'])->findOrFail($order_id);
+        $order = Order::with(['status', 'products', 'reservations'])->findOrFail($order_id);
 
         return view('admin.orders.reservations', compact('crud', 'order'));
     }
@@ -692,10 +692,11 @@ class OrderCrudController extends CrudController
      * Show the view for for packing the picked reservations.
      * @return view()
      */
-    public function getShipReservations($order_id)
+    public function getShipOrderPackage($order_id, $order_package_id)
     {
         $crud = $this->crud;
         $order = Order::with(['status', 'products', 'products.reservations'])->findOrFail($order_id);
+        $order_package = $order->packages()->findOrFail($order_package_id);
 
         // Check if the order does not have packable reservations.
         if (!$order->hasShippableReservations()) {
@@ -703,10 +704,10 @@ class OrderCrudController extends CrudController
             return redirect()->route('order.show', $order->id);
         }
 
-        return view('admin.orders.reservations_ship', compact('crud', 'order'));
+        return view('admin.orders.packages_ship', compact('crud', 'order', 'order_package'));
     }
 
-    public function postShipReservations($order_id, Request $request)
+    public function postShipOrderPackage($order_id, Request $request)
     {
         // dd($request->all());
         // $this->crud->hasAccessOrFail('ship');

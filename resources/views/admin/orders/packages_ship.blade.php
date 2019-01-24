@@ -4,7 +4,7 @@
 	<section class="content-header">
 	  <h1>
         <span class="text-capitalize">Order #{{ $order->common_id }}</span>
-        <small>Product Reservations</small>
+        <small>Packages</small>
 	  </h1>
 	  <ol class="breadcrumb">
 	    <li><a href="{{ url(config('backpack.base.route_prefix'), 'dashboard') }}">{{ trans('backpack::crud.admin') }}</a></li>
@@ -56,7 +56,7 @@
 					</div>
 				</div>
 				
-				{!! Form::open(['url' => route('order.reservations.post_ship', $order->id), 'method' => 'POST', 'id' => 'orderShippingForm']) !!}
+				{!! Form::open(['url' => route('order.packages.post_ship', [$order->id, $order_package->id]), 'method' => 'PATCH', 'id' => 'orderShippingForm']) !!}
 				{!! Form::hidden('order_id', $order->id) !!}
 				{!! Form::hidden('carrier', 'LBC') !!}
 
@@ -69,15 +69,13 @@
 						<th>Date Packed</th>
 					</thead>
 					<tbody>
-						@foreach($order->reservations->groupBy('order_product_id') as $key => $item)
-							@foreach($item as $reservation)
-								<tr>
-									<td>{{ $reservation->stock->item->sku_code }}</td>
-									<td>{{ $reservation->stock->item->name }}</td>
-									<td>{{ $reservation->order_product->quantity_reserved }}</td>
-									<td>{{ $reservation->packed_at }}</td>
-								</tr>
-							@endforeach
+						@foreach($order_package->reservations as $reservation)
+							<tr>
+								<td>{{ $reservation->stock->item->sku_code }}</td>
+								<td>{{ $reservation->stock->item->name }}</td>
+								<td>{{ $reservation->order_product->quantity_reserved }}</td>
+								<td>{{ $reservation->packed_at }}</td>
+							</tr>
 						@endforeach
 					</tbody>
 				</table>

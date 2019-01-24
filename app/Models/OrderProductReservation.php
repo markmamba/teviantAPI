@@ -62,4 +62,14 @@ class OrderProductReservation extends Model
     {
         return $this->pickings->sum('quantity_picked');
     }
+
+    public function scopeForPicking($query)
+    {
+        return $query->whereNull('picked_at');
+    }
+
+    public function scopeForPacking($query)
+    {
+        return $query->whereNotNull('picked_at')->whereNull('packed_at')->whereNull('packed_by');
+    }
 }

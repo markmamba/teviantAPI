@@ -67,13 +67,25 @@
 						<div class="form-group">
 							<label class="col-sm-3 control-label">Date Ordered</label>
 						    <div class="col-sm-9">
-						      	<p class="form-control-static">{{ $order->created_at }}</p>
+						      	<p class="form-control-static">{{ $order->created_at }} <span class="text-muted">({{ $order->created_at->diffForHumans() }})</span></p>
 						    </div>
 						</div>
 						<div class="form-group">
 							<label class="col-sm-3 control-label">Customer</label>
 						    <div class="col-sm-9">
 						      	<p class="form-control-static">{{ $order->full_user_name }}</p>
+						    </div>
+						</div>
+						<div class="form-group">
+							<label class="col-sm-3 control-label">Items</label>
+						    <div class="col-sm-9">
+						      	<p class="form-control-static">{{ $order->products->count() }}</p>
+						    </div>
+						</div>
+						<div class="form-group">
+							<label class="col-sm-3 control-label">Total</label>
+						    <div class="col-sm-9">
+						      	<p class="form-control-static">{{ number_format($order->total, 2) }}</p>
 						    </div>
 						</div>
 						<div class="form-group">
@@ -328,11 +340,6 @@
 							@else
 								<a class="btn btn-default btn-flat btn-flat" disabled><i class="fa fa-cube"></i> Pack Products</a>
 							@endif
-							@if($order->hasShippableReservations())
-								<a href="{{ route('order.reservations.get_ship', $order->id) }}" class="btn btn-default btn-flat btn-flat"><i class="fa fa-truck"></i> Ship Products</a>
-							@else
-								<a class="btn btn-default btn-flat btn-flat" disabled><i class="fa fa-truck"></i> Ship Products</a>
-							@endif
 						</div>
 					</div>
 				</div>
@@ -410,13 +417,14 @@
 						<td>{{ $package->shipped_at ?? null }}</td>
 						<td class="text-right">
 							<div class="form-inline">
-							@if($order->hasShippableReservations())
-								<a href="{{ route('order.reservations.get_ship', $order->id) }}" class="btn btn-default btn-flat btn-flat"><i class="fa fa-truck"></i> Ship</a>
+							@if($package->shipped_at == null && $package->delivered_at == null)
+								<a href="{{ route('order.packages.get_ship', [$order->id, $package->id]) }}" class="btn btn-default btn-flat btn-flat"><i class="fa fa-truck"></i> Ship</a>
 							@else
 								<a class="btn btn-default btn-flat btn-flat" disabled><i class="fa fa-truck"></i> Ship</a>
 							@endif
 							@if(isset($package->shipped_at) && $package->delivered_at == null)
-								{!! Form::open(['url' => route('order.packages.deliver', [$order->id, $package->id]), 'method' => 'patch', 'style' => 'display:inline-block;']) !!}
+								{!! Form::open(['url' => route('order.packages.deliver', [$order->id, $package->id]), 'method' => 'patch', 'style' => 'display:inline-block;',
+									'onsubmit' => 'return confirm("Please confirm to proceed.");']) !!}
 									<button class="btn btn-default btn-flat"><i class="fa fa-check-square-o"></i> Delivered</button>
 								{!! Form::close() !!}
 							@else
