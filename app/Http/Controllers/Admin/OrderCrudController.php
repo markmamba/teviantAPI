@@ -801,6 +801,8 @@ class OrderCrudController extends CrudController
 
             DB::commit();
 
+            \Alert::success('Package set as delivered.')->flash();
+
             return redirect()->route('order.show', $order_package->order->id);
         } catch (\Exception $e) {
             throw new \Exception($e->getMessage());
