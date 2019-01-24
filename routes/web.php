@@ -82,6 +82,15 @@ Route::group([
     Route::get('order/{order_id}/print-all', 'OrderCrudController@printAll')->name('order.print_all');
     Route::get('order/{order_id}/ship', 'OrderCrudController@shipForm')->name('order.ship.form');
     Route::patch('order/{order_id}/ship', 'OrderCrudController@ship')->name('order.ship');
+    Route::get('order/{order_id}/reservations', 'OrderCrudController@getReservations')->name('order.get_reservations');
+    Route::post('order/{order_id}/reservations/pick', 'OrderCrudController@pickReservations')->name('order.reservations.pick');
+    Route::get('order/{order_id}/reservations/pack', 'OrderCrudController@getPackReservations')->name('order.reservations.get_pack');
+    Route::post('order/{order_id}/reservations/pack', 'OrderCrudController@postPackReservations')->name('order.reservations.post_pack');
+    Route::patch('order/{order_id}/reservations', 'OrderCrudController@updateReservations')->name('order.update_reservations');
+    Route::get('order/{order_id}/packages/{order_package_id}/ship', 'OrderCrudController@getShipOrderPackage')->name('order.packages.get_ship');
+    Route::patch('order/{order_id}/packages/{order_package_id}/ship', 'OrderCrudController@postShipOrderPackage')->name('order.packages.post_ship');
+    Route::patch('order/{order_id}/packages/{order_package_id}/deliver', 'OrderCrudController@deliverOrderPackage')->name('order.packages.deliver');
+    Route::patch('order/{order_id}/carriers/{order_carrier_id}/deliver', 'OrderCrudController@deliverOrderCarrier')->name('order.deliver_order_carrier');
     // Route::patch('order/{order_id}', 'OrderCrudController@update')->name('order.update');
     
     // Purchase orders

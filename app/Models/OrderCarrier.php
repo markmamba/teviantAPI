@@ -11,10 +11,16 @@ class OrderCarrier extends Model
     	'name',
     	'price',
     	'delivery_text',
+        'delivered_at',
     ];
 
     public function order()
     {
     	return $this->belongsTo('App\Models\Order');
+    }
+
+    public function packages()
+    {
+        return $this->hasOne('App\Models\OrderPackage');
     }
 }

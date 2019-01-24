@@ -22,7 +22,6 @@
 			@include('errors.list')
 
 			{!! Form::open(['route' => ['order.ship', $order->id], 'method' => 'PATCH']) !!}
-			{!! Form::hidden('status_id', $order_status_options->search('Shipped')) !!}
 			<div class="box">
 				<div class="box-header with-border">
 					<h3 class="panel-title">Shipment Form</h3>
@@ -36,21 +35,19 @@
 
 					<div class="form-group">
 						<label>Carrier</label>
-						<p class="form-control-static">
-							{{ $order->carrier->name }}
-						</p>
+						{!! Form::select('name', ['LBC' => 'LBC'], 'lbc', ['class' => 'form-control']) !!}
 					</div>
 					<div class="form-group">
-						<label>Delivery Text</label>
+						<label>Tracking Number</label>
 						<p class="form-control-static">
-							{{ $order->carrier->delivery_text }}
+							{!! Form::text('tracking_number', null, ['class' => 'form-control', 'required' => true]) !!}
 						</p>
 					</div>
 
 					<hr>
 					
 					{{-- Package details --}}
-					<h4>Package</h4>
+					{{-- <h4>Package</h4>
 					<div class="row">
 						<div class="col-xs-3">
 							<div class="form-group">
@@ -88,7 +85,7 @@
 								</div>
 							</div>
 						</div>
-					</div>
+					</div> --}}
 
 				</div>
 				<div class="box-footer">
