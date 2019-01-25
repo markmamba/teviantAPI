@@ -120,6 +120,16 @@
 							- Delivered
 							- Cancelled
 						 --}}
+
+						{{-- Cancel button --}}
+						@if($order->status->name != 'Done' && $order->status->name != 'Cancelled')
+							{!! Form::open(['route' => ['order.cancel', $order->id], 'method' => 'PATCH',
+								'onsubmit' => 'return confirm("Are you sure to Cancel the order?");', 'style' => 'display: inline-block;']) !!}
+								{!! Form::hidden('status_id', $order_status_options->search('Cancelled')) !!}
+								{!! Form::submit('Cancel Order', ['class' => 'btn btn-default btn-flat']) !!}
+							{!! Form::close() !!}
+						@endif
+						
 						@if($order->status->name == 'Pending')
 							@if($order->isSufficient())
 								{!! Form::open(['route' => ['crud.order.update', $order->id], 'method' => 'PATCH', 'style' => 'display: inline-block;']) !!}
@@ -163,15 +173,6 @@
 							{!! Form::open(['route' => ['crud.order.update', $order->id], 'method' => 'PATCH', 'style' => 'display: inline-block;']) !!}
 								{!! Form::hidden('status_id', $order_status_options->search('Done')) !!}
 								{!! Form::submit('Set as Done', ['class' => 'btn btn-primary btn-flat']) !!}
-							{!! Form::close() !!}
-						@endif
-
-						{{-- Cancel button --}}
-						@if($order->status->name != 'Done' && $order->status->name != 'Cancelled')
-							{!! Form::open(['route' => ['order.cancel', $order->id], 'method' => 'PATCH',
-								'onsubmit' => 'return confirm("Are you sure to Cancel the order?");', 'style' => 'display: inline-block;']) !!}
-								{!! Form::hidden('status_id', $order_status_options->search('Cancelled')) !!}
-								{!! Form::submit('Cancel Order', ['class' => 'btn btn-default btn-flat']) !!}
 							{!! Form::close() !!}
 						@endif
 						{{-- Reopen button --}}
