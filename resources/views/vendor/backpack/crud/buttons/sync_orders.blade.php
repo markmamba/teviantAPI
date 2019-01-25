@@ -26,7 +26,7 @@ $(document).ready(function(){
 	        	// console.log("success");
 	        	new PNotify({
 				  title: "Success!",
-				  text: "Orders have been synced.",
+				  text: "Orders have been synced. Reloading page...",
 				  type: "success"
 				});
 	        	location.reload();

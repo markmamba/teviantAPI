@@ -190,12 +190,24 @@ class OrderCrudController extends CrudController
     }
 
     public function update(UpdateOrderRequest $request, $id)
-    {   
+    {
+        DB::beginTransaction();
+
         $order = Order::findOrFail($id);
 
         $request = $this->handleStatusChange($request, $order, $this->auto_done_after_delivered);
 
         $order->update($request->all());
+
+        // Update package deliveries if the order has been set as Delivered
+        if (in_array($order->status->name, ['Delivered', 'Done'])) {
+            foreach ($order->packages as $package) {
+                $package->delivered_at = Carbon::now();
+                $package->save();
+            }
+        }
+
+        DB::commit();
 
         \Alert::success('Status updated.')->flash();
 
@@ -643,13 +655,30 @@ class OrderCrudController extends CrudController
 
     public function postPackReservations($order_id, CreateOrderPackageRequest $request)
     {
-        // dd($request->all());
-
         $order = Order::find($order_id);
 
         DB::beginTransaction();
 
         try {
+            // Create carrier record
+            $order_carrier = OrderCarrier::create(
+                collect(['order_id' => $order_id])
+                ->merge($request->all())
+                ->merge([
+                    'price' => 0,
+                    'name' => 'LBC'
+                ])
+                ->toArray()
+            );
+
+            // Create a package record
+            $order_package = OrderPackage::create([
+                'order_id'             => $order->id,
+                'sales_invoice_number' => $request->sales_invoice_number,
+                'tracking_number'      => $request->tracking_number,
+                'order_carrier_id'     => $order_carrier->id,
+            ]);
+
             foreach ($request->reservations as $reservation_item) {
                 $reservation = OrderProductReservation::find($reservation_item['id']);
                 
@@ -659,29 +688,17 @@ class OrderCrudController extends CrudController
                     $reservation->packed_by = Auth::user()->id;
                 }
 
-                $order_carrier = OrderCarrier::create(
-                    collect(['order_id' => $order_id])
-                    ->merge($request->all())
-                    ->merge([
-                        'price' => 0,
-                        'name' => 'LBC'
-                    ])
-                    ->toArray()
-                );
-
-                // Create a package record
-                $order_package = OrderPackage::create([
-                    'order_id'             => $order->id,
-                    'sales_invoice_number' => $request->sales_invoice_number,
-                    'tracking_number'      => $request->tracking_number,
-                    'order_carrier_id'     => $order_carrier->id,
-                ]);
-
                 // Associate the reservation to the new package.
                 $reservation->order_package_id = $order_package->id;
-
                 $reservation->save();
             }
+
+            // Update order statuses
+            if ($order->isPacked()) {
+                $order->status_id = OrderStatus::where('name', 'Packed')->first()->id;
+                $order->save();
+            }
+
         } catch (\Exception $e) {
             DB::rollback();
             \Log::critical('Could not pack product reservations. Check error logs.', [$e->getMessage()]);
@@ -800,6 +817,19 @@ class OrderCrudController extends CrudController
             }
 
             DB::commit();
+
+            // Update order status
+            if ($order_package->order->status->name != 'Partial') {
+                foreach ($order_package->order->packages as $package) {
+                    $package->delivered_at = Carbon::now();
+                    $package->save();
+                }
+
+                $order_package->order->status_id = OrderStatus::where('name', 'Delivered')->first()->id;
+                $order_package->order->save();
+            }
+
+            \Alert::success('Package set as delivered.')->flash();
 
             return redirect()->route('order.show', $order_package->order->id);
         } catch (\Exception $e) {

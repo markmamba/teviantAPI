@@ -14,7 +14,7 @@
 				<span class="label label-info">Partial</span>
 			@endif
 			@if($order->status->name == 'Pick Listed')
-				<span class="label label-primary">Ready for Picking</span>
+				<span class="label label-primary">Pick-Packing</span>
 			@endif
 			@if($order->status->name == 'Packed')
 				<span class="label label-primary">Ready for Shipping</span>
@@ -133,12 +133,21 @@
 							@endif
 						@endif
 						<div style="display: inline-block;">
-							@if($order->status->name == 'Pick Listed')
+							@if($order->hasPickableReservations() && !in_array($order->status->name, ['Done', 'Cancelled']))
+								<a href="{{ route('order.get_reservations', $order->id) }}" class="btn btn-primary btn-flat btn-flat">Pick Products</a>
+							@endif
+							@if($order->hasPackableReservations())
+								<a href="{{ route('order.reservations.get_pack', $order->id) }}" class="btn btn-primary btn-flat btn-flat">Pack Products</a>
+							@endif
+							@if($order->hasShippableReservations())
+								<a href="{{ route('order.packages.get_ship', [$order->id, $order->packages->first()->id]) }}" class="btn btn-primary btn-flat btn-flat">Ship Package</a>
+							@endif
+							{{-- @if($order->status->name == 'Pick Listed')
 								<a href="{{ route('order.pack', $order->id) }}" class="btn btn-primary btn-flat">Pack Order</a>
 							@endif
 							@if($order->status->name == 'Packed')
 								<a href="{{ route('order.ship', $order->id) }}" class="btn btn-primary btn-flat">Ship Order</a>
-							@endif
+							@endif --}}
 						</div>
 						@if($order->status->name == 'Shipped')
 							{!! Form::open(['route' => ['crud.order.update', $order->id], 'method' => 'PATCH', 'style' => 'display: inline-block;']) !!}
@@ -150,7 +159,7 @@
 								{!! Form::submit('Set as Delivered', ['class' => 'btn btn-primary btn-flat']) !!}
 							{!! Form::close() !!}
 						@endif
-						@if($order->status->name == 'Delivered' || ($order->isFullfilled() && !in_array($order->status->name, ['Done', 'Cancelled'])))
+						@if($order->isDelivered() && $order->status->name != 'Done')
 							{!! Form::open(['route' => ['crud.order.update', $order->id], 'method' => 'PATCH', 'style' => 'display: inline-block;']) !!}
 								{!! Form::hidden('status_id', $order_status_options->search('Done')) !!}
 								{!! Form::submit('Set as Done', ['class' => 'btn btn-primary btn-flat']) !!}
@@ -321,9 +330,9 @@
 									<li>
 										<a href="{{ route('order.print_delivery_receipt', $order->id) }}" target="_blank">Delivery Receipt</a>
 									</li>
-									<li>
+									{{-- <li>
 										<a href="{{ route('order.print_carrier_receipt', $order->id) }}" target="_blank">Carrier Receipt</a>
-									</li>
+									</li> --}}
 									<li role="separator" class="divider"></li>
 									<li>
 										<a href="{{ route('order.print_all', $order->id) }}" target="_blank">Print All</a>
@@ -385,17 +394,19 @@
 	</div>
 
 	{{-- Shipments Panel --}}
-	@if(in_array($order->status->name, ['Shipped', 'Delivered', 'Done', 'Partial']))
 	<div class="box box-default">
 		<div class="box-header with-border">
 			<h3 class="box-title">Packages</h3>
 		</div>
+		<div class="box-body">
 		<table class="table table-hover">
 			<thead>
 				<th>Carrier</th>
+				<th>Invoice #</th>
 				<th>Tracking #</th>
-				<th>Date Shipped</th>
 				<th>Status</th>
+				<th>Date Packed</th>
+				<th>Date Shipped</th>
 				<th>Date Delivered</th>
 				<th class="text-right"></th>
 			</thead>
@@ -403,8 +414,8 @@
 				@foreach($order->packages as $package)
 					<tr>
 						<td>{{ $package->carrier->name ?? null }}</td>
+						<td>{{ $package->sales_invoice_number ?? null }}</td>
 						<td>{{ $package->tracking_number ?? null }}</td>
-						<td>{{ $package->created_at }}</td>
 						<td>
 							@if(!isset($package->shipped_at))
 								<span class="label label-warning">For Shipping</span>
@@ -414,7 +425,9 @@
 								<span class="label label-success">Delivered</span>
 							@endif
 						</td>
+						<td>{{ $package->created_at }}</td>
 						<td>{{ $package->shipped_at ?? null }}</td>
+						<td>{{ $package->delivered_at ?? null }}</td>
 						<td class="text-right">
 							<div class="form-inline">
 							@if($package->shipped_at == null && $package->delivered_at == null)
@@ -436,8 +449,8 @@
 				@endforeach
 			</tbody>
 		</table>
+		</div>
 	</div>
-	@endif
 
 	<a href="{{ route('crud.order.index') }}">
 		<i class="fa fa-angle-double-left"></i> Back to all orders
