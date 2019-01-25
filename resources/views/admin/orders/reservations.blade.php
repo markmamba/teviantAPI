@@ -4,7 +4,7 @@
 	<section class="content-header">
 	  <h1>
         <span class="text-capitalize">Order #{{ $order->common_id }}</span>
-        <small>Product Reservations</small>
+        <small>Reservations</small>
 	  </h1>
 	  <ol class="breadcrumb">
 	    <li><a href="{{ url(config('backpack.base.route_prefix'), 'dashboard') }}">{{ trans('backpack::crud.admin') }}</a></li>
@@ -25,7 +25,7 @@
 
 		<div class="box box-default">
 			<div class="box-header">
-				<h3 class="box-title">Product Reservations</h3>
+				<h3 class="box-title">Pick Products</h3>
 			</div>
 			<div class="box-body">
 				<table class="table table-hover table-bordered">

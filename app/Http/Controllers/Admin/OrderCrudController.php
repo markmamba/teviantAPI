@@ -643,8 +643,6 @@ class OrderCrudController extends CrudController
 
     public function postPackReservations($order_id, CreateOrderPackageRequest $request)
     {
-        // dd($request->all());
-
         $order = Order::find($order_id);
 
         DB::beginTransaction();
@@ -682,6 +680,13 @@ class OrderCrudController extends CrudController
 
                 $reservation->save();
             }
+
+            // Update order statuses
+            if ($order->isPacked()) {
+                $order->status_id = OrderStatus::where('name', 'Packed')->first()->id;
+                $order->save();
+            }
+
         } catch (\Exception $e) {
             DB::rollback();
             \Log::critical('Could not pack product reservations. Check error logs.', [$e->getMessage()]);
@@ -800,6 +805,17 @@ class OrderCrudController extends CrudController
             }
 
             DB::commit();
+
+            // Update order status
+            if ($order_package->order->status->name != 'Partial') {
+                foreach ($order_package->order->packages as $package) {
+                    $package->delivered_at = Carbon::now();
+                    $package->save();
+                }
+
+                $order_package->order->status_id = OrderStatus::where('name', 'Delivered')->first()->id;
+                $order_package->order->save();
+            }
 
             \Alert::success('Package set as delivered.')->flash();
 

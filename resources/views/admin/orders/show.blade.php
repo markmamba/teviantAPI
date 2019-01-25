@@ -14,7 +14,7 @@
 				<span class="label label-info">Partial</span>
 			@endif
 			@if($order->status->name == 'Pick Listed')
-				<span class="label label-primary">Ready for Picking</span>
+				<span class="label label-primary">Pick-Packing</span>
 			@endif
 			@if($order->status->name == 'Packed')
 				<span class="label label-primary">Ready for Shipping</span>
@@ -133,12 +133,21 @@
 							@endif
 						@endif
 						<div style="display: inline-block;">
-							@if($order->status->name == 'Pick Listed')
+							@if($order->hasPickableReservations() && !in_array($order->status->name, ['Done', 'Cancelled']))
+								<a href="{{ route('order.get_reservations', $order->id) }}" class="btn btn-primary btn-flat btn-flat">Pick Products</a>
+							@endif
+							@if($order->hasPackableReservations())
+								<a href="{{ route('order.reservations.get_pack', $order->id) }}" class="btn btn-primary btn-flat btn-flat">Pack Products</a>
+							@endif
+							@if($order->hasShippableReservations())
+								<a href="{{ route('order.packages.get_ship', [$order->id, $order->packages->first()->id]) }}" class="btn btn-primary btn-flat btn-flat">Ship Package</a>
+							@endif
+							{{-- @if($order->status->name == 'Pick Listed')
 								<a href="{{ route('order.pack', $order->id) }}" class="btn btn-primary btn-flat">Pack Order</a>
 							@endif
 							@if($order->status->name == 'Packed')
 								<a href="{{ route('order.ship', $order->id) }}" class="btn btn-primary btn-flat">Ship Order</a>
-							@endif
+							@endif --}}
 						</div>
 						@if($order->status->name == 'Shipped')
 							{!! Form::open(['route' => ['crud.order.update', $order->id], 'method' => 'PATCH', 'style' => 'display: inline-block;']) !!}
@@ -385,7 +394,6 @@
 	</div>
 
 	{{-- Shipments Panel --}}
-	@if(in_array($order->status->name, ['Shipped', 'Delivered', 'Done', 'Partial']))
 	<div class="box box-default">
 		<div class="box-header with-border">
 			<h3 class="box-title">Packages</h3>
@@ -441,7 +449,6 @@
 			</tbody>
 		</table>
 	</div>
-	@endif
 
 	<a href="{{ route('crud.order.index') }}">
 		<i class="fa fa-angle-double-left"></i> Back to all orders

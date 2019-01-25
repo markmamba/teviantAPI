@@ -59,6 +59,24 @@ class Order extends Model
     }
 
     /**
+     * Check if all of the order's products are packed.
+     * @return boolean
+     */
+    public function isPacked()
+    {
+        if (!$this->isSufficient())
+            return false;
+
+        // Check reservations
+        foreach ($this->reservations as $reservation) {
+            if ($reservation->packed_at == null || $reservation->order_package_id == null)
+                return false;
+        }
+
+        return true;
+    }
+
+    /**
      * Check if the order has been fully fulfilled
      * @return boolean
      */
@@ -95,9 +113,11 @@ class Order extends Model
         if (!$this->isSufficient())
             return false;
 
-        // Check reservations
-        foreach ($this->reservations as $reservation) {
-            if ($reservation->picked_at == null || $reservation->order_package_id == null)
+        if (!$this->packages->count())
+            return false;
+
+        foreach ($this->packages as $package) {
+            if ($package->delivered_at == null)
                 return false;
         }
 
