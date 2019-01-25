@@ -398,6 +398,7 @@
 		<div class="box-header with-border">
 			<h3 class="box-title">Packages</h3>
 		</div>
+		<div class="box-body">
 		<table class="table table-hover">
 			<thead>
 				<th>Carrier</th>
@@ -448,6 +449,7 @@
 				@endforeach
 			</tbody>
 		</table>
+		</div>
 	</div>
 
 	<a href="{{ route('crud.order.index') }}">
