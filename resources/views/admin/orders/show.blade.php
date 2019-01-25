@@ -330,9 +330,9 @@
 									<li>
 										<a href="{{ route('order.print_delivery_receipt', $order->id) }}" target="_blank">Delivery Receipt</a>
 									</li>
-									<li>
+									{{-- <li>
 										<a href="{{ route('order.print_carrier_receipt', $order->id) }}" target="_blank">Carrier Receipt</a>
-									</li>
+									</li> --}}
 									<li role="separator" class="divider"></li>
 									<li>
 										<a href="{{ route('order.print_all', $order->id) }}" target="_blank">Print All</a>
