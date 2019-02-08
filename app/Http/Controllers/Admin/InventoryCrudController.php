@@ -95,7 +95,7 @@ class InventoryCrudController extends CrudController
         $this->crud->addField([   // Textarea
             'name'  => 'description',
             'label' => 'Description',
-            'type'  => 'textarea',
+            'type'  => 'ckeditor',
             // 'tab'   => 'Texts',
         ]);
 
