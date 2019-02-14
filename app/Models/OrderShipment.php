@@ -8,6 +8,7 @@ class OrderShipment extends Model
 {
 	protected $fillable = [
 		'order_id',
+		'tracking_number',
 		'package_length',
 		'package_width',
 		'package_height',

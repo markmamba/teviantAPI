@@ -1,9 +1,9 @@
 {{-- The inactive version of the button --}}
-<a id="orders-sync-button-inactive" class="btn btn-primary" title="Synch orders" data-toggle="tooltip" style="width: 130px;">
+<a id="orders-sync-button-inactive" class="btn btn-primary btn-flat" title="Synch orders" data-toggle="tooltip" style="width: 130px;">
 	<i class="fa fa-refresh fa-fw"></i> Sync Orders
 </a>
 {{-- The active version of the button when clicked --}}
-<a id="orders-sync-button-active" class="btn btn-primary disabled" title="Synch orders" data-toggle="tooltip" style="display: none; width: 130px;">
+<a id="orders-sync-button-active" class="btn btn-primary btn-flat disabled" title="Synch orders" data-toggle="tooltip" style="display: none; width: 130px;">
 	<i class="fa fa-refresh fa-fw fa-spin"></i> Syncing Orders
 </a>
 
@@ -26,13 +26,18 @@ $(document).ready(function(){
 	        	// console.log("success");
 	        	new PNotify({
 				  title: "Success!",
-				  text: "Orders have been synced.",
+				  text: "Orders have been synced. Reloading page...",
 				  type: "success"
 				});
 	        	location.reload();
 	        })
 	        .fail(function(data) {
 	            // console.log("error");
+	            new PNotify({
+					title: "Failed to Sync",
+					text: "Check your network or retry later.",
+					type: "warning"
+				});
 	        })
 	        .always(function(data) {
 	        	// console.log("always");

@@ -47,6 +47,128 @@ class Order extends Model
     }
 
     /**
+     * Check if an order can be paritally fulfilled.
+     * @return boolean
+     */
+    public function isPartiallyFulfillable()
+    {
+        if ($this->reservations->sum('quantity_reserved') > 0 && $this->reservations->sum('quantity_reserved') < $this->products->sum('quantity'))
+            return true;
+        else
+            return false;   
+    }
+
+    /**
+     * Check if all of the order's products are packed.
+     * @return boolean
+     */
+    public function isPacked()
+    {
+        if (!$this->isSufficient())
+            return false;
+
+        // Check reservations
+        foreach ($this->reservations as $reservation) {
+            if ($reservation->packed_at == null || $reservation->order_package_id == null)
+                return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Check if the order has been fully fulfilled
+     * @return boolean
+     */
+    public function isFullfilled()
+    {
+        // Check status
+        if ($this->status->name == 'Done')
+            return true;
+
+        // Check reservations
+        foreach ($this->reservations as $reservation) {
+            if ($reservation->picked_at == null || $reservation->order_carrier_id == null)
+                return false;
+        }
+
+        // Check carrier shipments
+        foreach ($this->carriers as $carrier) {
+            if ($carrier->delivered_at == null)
+                return false;
+        }
+
+        if ($this->status->name == 'Partial')
+            return false;
+
+        return true;
+    }
+
+    /**
+     * Check if the order has been fully delivered
+     * @return boolean
+     */
+    public function isDelivered()
+    {
+        if (!$this->isSufficient())
+            return false;
+
+        if (!$this->packages->count())
+            return false;
+
+        foreach ($this->packages as $package) {
+            if ($package->delivered_at == null)
+                return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Check if the order has any reserved products to be picked.
+     * @return boolean
+     */
+    public function hasPickableReservations()
+    {
+        if ($this->reservations()->whereNull('picked_at')->count())
+            return true;
+    }
+
+    /**
+     * Check if the order has any reserved products that has been picked.
+     * @return boolean
+     */
+    public function hasPickedReservations()
+    {
+        if ($this->reservations()->whereNotNull('picked_at')->count())
+            return true;
+        else
+            return false;
+    }
+
+    /**
+     * Check if the order has picked reservations that are not yet packed.
+     * @return boolean
+     */
+    public function hasPackableReservations()
+    {
+        if ($this->reservations()->whereNotNull('picked_at')->whereNull('packed_at')->whereNull('packed_by')->count())
+            return true;
+        else
+            return false;
+    }
+
+    /**
+     * Check if the order has unshipped picked-reservations.
+     * @return boolean
+     */
+    public function hasShippableReservations()
+    {
+        if ($this->packages()->whereNull('shipped_at')->whereNull('delivered_at')->count())
+            return true;
+    }
+
+    /**
      * Reserve a given order's products.
      * TODO: This was copied with minor modifications from the OrderCrudController.
      * Should use this instead for reusability or maybe use Repositories.
@@ -61,11 +183,17 @@ class Order extends Model
         // dd($order, $order->products);
         foreach ($order->products as $product) {
             $reservations = self::reserveProduct($product);
-            // dd($product, $reservations->get());
         }
 
         if ($auto_pick_list && $order->isSufficient()) {
             $order->status_id = \App\Models\OrderStatus::where('name', 'Pick Listed')->first()->id;
+            $order->save();
+        }
+
+        // If the order can be partially fulfilled
+        if ($auto_pick_list && $order->isPartiallyFulfillable())
+        {
+            $order->status_id = OrderStatus::where('name', 'Partial')->first()->id;
             $order->save();
         }
 
@@ -202,6 +330,20 @@ class Order extends Model
             }
         }
 
+        // Update order status
+
+        if ($order_product->order->isSufficient()) {
+            $order_product->order->status_id = \App\Models\OrderStatus::where('name', 'Pick Listed')->first()->id;
+            $order_product->order->save();
+        }
+
+        // If the order can be partially fulfilled
+        if ($order_product->order->isPartiallyFulfillable())
+        {
+            $order_product->order->status_id = OrderStatus::where('name', 'Partial')->first()->id;
+            $order_product->order->save();
+        }
+
         return $order_product->reservations();
     }
 
@@ -216,9 +358,12 @@ class Order extends Model
         return $this->hasMany('App\Models\OrderProduct');
     }
 
-    public function shipment()
+    /**
+     * TODO: convert this to 1-n to support partial fulfillment
+     */
+    public function shipments()
     {
-        return $this->hasOne('App\Models\OrderShipment', 'order_id');
+        return $this->hasMany('App\Models\OrderShipment', 'order_id');
     }
 
     // public function shippingAddress()
@@ -241,14 +386,19 @@ class Order extends Model
         return $this->hasManyThrough('App\Models\OrderProductReservation', 'App\Models\OrderProduct', 'order_id', 'order_product_id');
     }
 
-    public function carrier()
+    public function carriers()
     {
-        return $this->hasOne('App\Models\OrderCarrier', 'order_id');
+        return $this->hasMany('App\Models\OrderCarrier');
     }
 
     public function packer()
     {
         return $this->belongsTo('App\User', 'packer_id');
+    }
+
+    public function packages()
+    {
+        return $this->hasMany('App\Models\OrderPackage');
     }
 
     /*
@@ -273,6 +423,13 @@ class Order extends Model
     {
         return $query->whereHas('status', function ($query) {
             $query->where('name', 'Pending');
+        });
+    }
+
+    public function scopePartial($query)
+    {
+        return $query->whereHas('status', function ($query) {
+            $query->where('name', 'Partial');
         });
     }
 

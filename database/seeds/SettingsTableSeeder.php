@@ -41,7 +41,6 @@ class SettingsTableSeeder extends Seeder
             'value'       => 'this is the value',
             'field'       => '{"name":"value","label":"Value","type":"textarea"}',
             'active'      => 1,
-
         ],
         [
             'key'         => 'inventory_low_stock_level',
@@ -50,7 +49,14 @@ class SettingsTableSeeder extends Seeder
             'value'       => 5,
             'field'       => '{"name":"value","label":"Value","type":"number"}',
             'active'      => 1,
-
+        ],
+        [
+            'key'         => 'auto_sync_order_statuses',
+            'name'        => 'Auto Sync Order Statuses',
+            'description' => 'Set whether to automatically synchronise order statuses between the OMS and the CMS app.',
+            'value'       => 0,
+            'field'       => '{"name":"value","label":"Turn On","type":"checkbox"}',
+            'active'      => 1,
         ],
     ];
 
